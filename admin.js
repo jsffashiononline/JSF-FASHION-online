@@ -1,166 +1,250 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-import { firebaseConfig, ADMIN_UID } from "./firebase-config.js";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-const $ = id => document.getElementById(id);
-const money = n => `৳${Number(n || 0).toLocaleString("en-BD")}`;
-const esc = (v = "") => String(v).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
-let productData = {};
-let orderData = {};
-let settingsData = {};
-let unsubscribers = [];
+const loginSection = document.getElementById("login-section");
+const dashboard = document.getElementById("dashboard");
+const loginMessage = document.getElementById("login-message");
 
-function message(id, text, error = false) { const el = $(id); el.textContent = text; el.classList.toggle("error", error); }
-function toast(text) { const el = $("toast"); el.textContent = text; el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 2500); }
-function stopListeners() { unsubscribers.forEach(fn => fn()); unsubscribers = []; }
-function showLogin(text = "") {
-  stopListeners(); $("dashboard-section").hidden = true; $("login-section").hidden = false; $("logout-button").hidden = true;
-  if (text) message("login-message", text, true);
+let productCache = {};
+let orderCache = {};
+
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
 }
-function showDashboard(user) {
-  $("login-section").hidden = true; $("dashboard-section").hidden = false; $("logout-button").hidden = false;
-  $("admin-identity").textContent = `Signed in as ${user.email || user.uid}`;
-  startListeners();
+
+function formatMoney(value) {
+  return Number(value || 0).toLocaleString("en-BD");
 }
-onAuthStateChanged(auth, user => {
-  if (!user) { showLogin(); return; }
+
+function showLogin() {
+  loginSection.classList.remove("hidden");
+  dashboard.classList.add("hidden");
+  document.getElementById("logout-btn").classList.add("hidden");
+}
+
+function showDashboard() {
+  loginSection.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  document.getElementById("logout-btn").classList.remove("hidden");
+  loadAdminData();
+}
+
+document.getElementById("login-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  loginMessage.textContent = "Signing in...";
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  try {
+    const result = await auth.signInWithEmailAndPassword(email,password);
+    if (result.user.uid !== ADMIN_UID) {
+      await auth.signOut();
+      loginMessage.textContent = "Access denied. This account is not the authorized admin.";
+    }
+  } catch(error) {
+    loginMessage.textContent = error.message;
+  }
+});
+
+document.getElementById("logout-btn").addEventListener("click", () => auth.signOut());
+
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    showLogin();
+    return;
+  }
   if (user.uid !== ADMIN_UID) {
-    signOut(auth).catch(() => {}); showLogin("এই Firebase account-এর admin permission নেই।"); return;
+    auth.signOut();
+    loginMessage.textContent = "Access denied.";
+    return;
   }
-  showDashboard(user);
+  showDashboard();
 });
 
-$("login-form").addEventListener("submit", async e => {
-  e.preventDefault(); const button = $("login-button"); button.disabled = true; button.textContent = "Signing in...";
-  const fd = new FormData(e.currentTarget);
-  try {
-    const credential = await signInWithEmailAndPassword(auth, fd.get("email"), fd.get("password"));
-    if (credential.user.uid !== ADMIN_UID) { await signOut(auth); message("login-message", "এই account অনুমোদিত admin নয়।", true); }
-  } catch (err) { message("login-message", friendlyAuthError(err), true); }
-  finally { button.disabled = false; button.textContent = "Login securely"; }
-});
-function friendlyAuthError(err) {
-  if (["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found"].includes(err.code)) return "Email অথবা password সঠিক নয়।";
-  if (err.code === "auth/too-many-requests") return "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।";
-  return err.message || "Login করা যায়নি।";
-}
-$("logout-button").addEventListener("click", () => signOut(auth));
+function loadAdminData() {
+  db.ref("products").on("value", snapshot => {
+    productCache = {};
+    snapshot.forEach(child => {
+      productCache[child.key] = child.val();
+    });
+    renderAdminProducts();
+    updateStats();
+  });
 
-function startListeners() {
-  stopListeners();
-  unsubscribers.push(onValue(ref(db, "products"), snap => { productData = snap.val() || {}; renderProducts(); updateStats(); }, err => toast(err.message)));
-  unsubscribers.push(onValue(ref(db, "orders"), snap => { orderData = snap.val() || {}; renderOrders(); updateStats(); }, err => toast(err.message)));
-  unsubscribers.push(onValue(ref(db, "settings"), snap => { settingsData = snap.val() || {}; fillSettings(); }, err => toast(err.message)));
+  db.ref("orders").on("value", snapshot => {
+    orderCache = {};
+    snapshot.forEach(child => {
+      orderCache[child.key] = child.val();
+    });
+    renderAdminOrders();
+    updateStats();
+  });
+
+  db.ref("settings").once("value").then(snapshot => {
+    const s = snapshot.val() || {};
+    document.getElementById("bkash-number").value = s.bkash || "";
+    document.getElementById("nagad-number").value = s.nagad || "";
+    document.getElementById("store-picture").value = s.profileImage || "";
+  });
 }
+
 function updateStats() {
-  const products = Object.values(productData);
-  const orders = Object.values(orderData);
-  $("total-products").textContent = products.length;
-  $("total-orders").textContent = orders.length;
-  $("pending-orders").textContent = orders.filter(o => o.status === "Pending").length;
-}
-function renderProducts() {
-  const rows = Object.entries(productData);
-  $("admin-products-body").innerHTML = rows.length ? rows.map(([id, p]) => `<tr>
-    <td><div class="table-product">${p.image ? `<img src="${esc(p.image)}" alt="" onerror="this.style.display='none'">` : ""}<strong>${esc(p.name || "Untitled")}</strong></div></td>
-    <td>${esc(p.category || "—")}</td><td>${money(p.price)}</td><td>${p.available === false ? "Unavailable" : "Available"}</td>
-    <td class="action-cell"><button class="mini-button" data-edit="${id}">Edit</button><button class="mini-button danger" data-delete-product="${id}">Delete</button></td></tr>`).join("") : `<tr><td colspan="5">কোনো পণ্য নেই।</td></tr>`;
-  $("admin-products-body").querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => editProduct(b.dataset.edit)));
-  $("admin-products-body").querySelectorAll("[data-delete-product]").forEach(b => b.addEventListener("click", () => deleteProduct(b.dataset.deleteProduct)));
-}
-function editProduct(id) {
-  const p = productData[id]; if (!p) return;
-  const f = $("product-form"); f.hidden = false; f.elements.productId.value = id;
-  f.elements.name.value = p.name || ""; f.elements.price.value = p.price ?? "";
-  f.elements.category.value = p.category || ""; f.elements.sizes.value = (p.sizes || []).join(", ");
-  f.elements.image.value = p.image || ""; f.elements.description.value = p.description || "";
-  f.elements.featured.checked = !!p.featured; f.elements.available.checked = p.available !== false;
-  $("product-form-title").textContent = "Edit product"; f.scrollIntoView({ behavior: "smooth", block: "center" });
-}
-async function deleteProduct(id) {
-  if (!confirm("এই পণ্যটি স্থায়ীভাবে মুছে ফেলবেন?")) return;
-  try { await remove(ref(db, `products/${id}`)); toast("পণ্য মুছে ফেলা হয়েছে।"); }
-  catch (err) { toast(`Delete failed: ${err.message}`); }
-}
-$("new-product-button").addEventListener("click", () => {
-  $("product-form").reset(); $("product-form").hidden = false; $("product-form").elements.productId.value = "";
-  $("product-form").elements.available.checked = true; $("product-form-title").textContent = "Add new product";
-  $("product-form").scrollIntoView({ behavior: "smooth", block: "center" });
-});
-$("cancel-product-button").addEventListener("click", () => { $("product-form").hidden = true; });
-$("product-form").addEventListener("submit", async e => {
-  e.preventDefault(); const f = e.currentTarget; const fd = new FormData(f);
-  const price = Number(fd.get("price")); const image = String(fd.get("image")).trim();
-  try { const u = new URL(image); if (!["http:", "https:"].includes(u.protocol)) throw new Error(); }
-  catch { message("product-message", "সঠিক http/https image URL দিন।", true); return; }
-  if (!Number.isFinite(price) || price < 0) { message("product-message", "সঠিক মূল্য লিখুন।", true); return; }
-  const id = fd.get("productId");
-  const data = {
-    name: String(fd.get("name")).trim(), price, category: String(fd.get("category")).trim(),
-    sizes: String(fd.get("sizes") || "").split(",").map(x => x.trim()).filter(Boolean),
-    image, description: String(fd.get("description") || "").trim(),
-    featured: f.elements.featured.checked, available: f.elements.available.checked, updatedAt: Date.now()
-  };
-  const button = $("save-product-button"); button.disabled = true;
-  try {
-    if (id) await update(ref(db, `products/${id}`), data);
-    else { data.createdAt = Date.now(); await set(push(ref(db, "products")), data); }
-    f.reset(); f.hidden = true; message("product-message", "পণ্য সংরক্ষণ হয়েছে।"); toast("Product saved.");
-  } catch (err) { message("product-message", `সংরক্ষণ করা যায়নি: ${err.message}`, true); }
-  finally { button.disabled = false; }
-});
+  const products = Object.values(productCache);
+  const orders = Object.values(orderCache);
+  document.getElementById("total-products").textContent = products.length;
+  document.getElementById("total-orders").textContent = orders.length;
+  document.getElementById("pending-orders").textContent =
+    orders.filter(o => o.status === "Pending").length;
+  document.getElementById("delivered-orders").textContent =
+    orders.filter(o => o.status === "Delivered").length;
 
-const statuses = ["Pending", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled"];
-function renderOrders() {
-  const rows = Object.entries(orderData).sort((a,b) => Number(b[1].createdAt || 0) - Number(a[1].createdAt || 0));
-  $("admin-orders-body").innerHTML = rows.length ? rows.map(([id, o]) => {
-    const date = o.createdAt ? new Date(o.createdAt).toLocaleString("en-BD") : "—";
-    const items = (o.items || []).map(x => `${esc(x.name)} × ${Number(x.quantity || 1)}${x.size ? ` (${esc(x.size)})` : ""}`).join("<br>");
-    return `<tr><td><strong>${esc(id.slice(-7).toUpperCase())}</strong><small>${esc(date)}</small><small>${items}</small></td>
-      <td>${esc(o.customerName)}<small>${esc(o.phone)}</small><small>${esc(o.paymentMethod || "")}</small></td>
-      <td class="address-cell">${esc(o.address)}</td><td><strong>${money(o.total)}</strong></td>
-      <td><select class="status-select" data-status="${id}">${statuses.map(s => `<option ${o.status === s ? "selected" : ""}>${s}</option>`).join("")}</select>
-      <button class="mini-button danger" data-delete-order="${id}">Delete</button></td></tr>`;
-  }).join("") : `<tr><td colspan="5">এখনো কোনো অর্ডার আসেনি।</td></tr>`;
-  $("admin-orders-body").querySelectorAll("[data-status]").forEach(s => s.addEventListener("change", async () => {
-    try { await update(ref(db, `orders/${s.dataset.status}`), { status: s.value, statusUpdatedAt: Date.now() }); toast("Order status updated."); }
-    catch (err) { toast(`Update failed: ${err.message}`); }
-  }));
-  $("admin-orders-body").querySelectorAll("[data-delete-order]").forEach(b => b.addEventListener("click", async () => {
-    if (!confirm("এই অর্ডারটি মুছে ফেলবেন?")) return;
-    try { await remove(ref(db, `orders/${b.dataset.deleteOrder}`)); toast("Order deleted."); }
-    catch (err) { toast(`Delete failed: ${err.message}`); }
-  }));
+  const sales = orders
+    .filter(o => o.status !== "Cancelled")
+    .reduce((sum,o) => sum + Number(o.total || 0),0);
+  document.getElementById("total-sales").textContent = "৳" + formatMoney(sales);
 }
-function fillSettings() {
-  const f = $("settings-form");
-  f.elements.bkashNumber.value = settingsData.bkashNumber || "";
-  f.elements.nagadNumber.value = settingsData.nagadNumber || "";
-  f.elements.profileImageUrl.value = settingsData.profileImageUrl || "";
-  $("profile-preview").src = settingsData.profileImageUrl || "https://placehold.co/100x100/121212/dfb957?text=JSF";
-}
-$("settings-form").elements.profileImageUrl.addEventListener("input", e => {
-  const value = e.target.value;
-  try { const u = new URL(value); if (["http:", "https:"].includes(u.protocol)) $("profile-preview").src = u.href; } catch {}
-});
-$("settings-form").addEventListener("submit", async e => {
-  e.preventDefault(); const f = e.currentTarget;
-  const data = { bkashNumber: f.elements.bkashNumber.value.trim(), nagadNumber: f.elements.nagadNumber.value.trim(), profileImageUrl: f.elements.profileImageUrl.value.trim(), updatedAt: Date.now() };
-  if (data.profileImageUrl) {
-    try { const u = new URL(data.profileImageUrl); if (!["http:", "https:"].includes(u.protocol)) throw new Error(); }
-    catch { message("settings-message", "সঠিক profile image URL দিন।", true); return; }
+
+function renderAdminProducts() {
+  const container = document.getElementById("admin-products");
+  const entries = Object.entries(productCache);
+  if (!entries.length) {
+    container.innerHTML = "<p>No products added yet.</p>";
+    return;
   }
-  const button = $("save-settings-button"); button.disabled = true;
-  try { await update(ref(db, "settings"), data); message("settings-message", "সেটিংস Firebase-এ সংরক্ষণ হয়েছে।"); toast("Settings saved."); }
-  catch (err) { message("settings-message", `সেটিংস সংরক্ষণ করা যায়নি: ${err.message}`, true); }
-  finally { button.disabled = false; }
+
+  container.innerHTML = entries.map(([id,p]) => `
+    <div class="admin-item">
+      <h3>${esc(p.name)}</h3>
+      <p>Price: ৳${formatMoney(p.price)} | ${esc(p.category)}</p>
+      <img src="${esc(p.image || "")}" alt="Product image"
+           onerror="this.style.display='none'">
+      <div>
+        <button class="secondary" onclick="editProduct('${esc(id)}')">EDIT</button>
+        <button class="danger" onclick="deleteProduct('${esc(id)}')">DELETE</button>
+      </div>
+    </div>`).join("");
+}
+
+document.getElementById("product-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const id = document.getElementById("product-id").value;
+  const product = {
+    name:document.getElementById("product-name").value.trim(),
+    price:Number(document.getElementById("product-price").value),
+    category:document.getElementById("product-category").value.trim(),
+    image:document.getElementById("product-image").value.trim(),
+    sizes:document.getElementById("product-sizes").value
+      .split(",").map(s=>s.trim()).filter(Boolean),
+    description:document.getElementById("product-description").value.trim()
+  };
+
+  if (!product.name || !product.category || !product.image ||
+      !Number.isFinite(product.price) || product.price < 0) {
+    alert("Please enter valid product details.");
+    return;
+  }
+
+  try {
+    if (id) await db.ref("products/" + id).update(product);
+    else await db.ref("products").push(product);
+    e.currentTarget.reset();
+    document.getElementById("product-id").value = "";
+    alert("Product saved successfully.");
+  } catch(error) {
+    alert("Could not save product: " + error.message);
+  }
 });
 
-document.querySelectorAll(".admin-tab").forEach(btn => btn.addEventListener("click", () => {
-  document.querySelectorAll(".admin-tab").forEach(x => x.classList.toggle("active", x === btn));
-  ["products-panel", "orders-panel", "settings-panel"].forEach(id => $(id).hidden = id !== btn.dataset.tab);
-}));
+function editProduct(id) {
+  const p = productCache[id];
+  if (!p) return;
+  document.getElementById("product-id").value = id;
+  document.getElementById("product-name").value = p.name || "";
+  document.getElementById("product-price").value = p.price || "";
+  document.getElementById("product-category").value = p.category || "";
+  document.getElementById("product-image").value = p.image || "";
+  document.getElementById("product-sizes").value = (p.sizes || []).join(",");
+  document.getElementById("product-description").value = p.description || "";
+  document.getElementById("product-form").scrollIntoView({behavior:"smooth"});
+}
+
+async function deleteProduct(id) {
+  if (!confirm("Delete this product?")) return;
+  try {
+    await db.ref("products/" + id).remove();
+  } catch(error) {
+    alert(error.message);
+  }
+}
+
+document.getElementById("cancel-edit").addEventListener("click", () => {
+  document.getElementById("product-form").reset();
+  document.getElementById("product-id").value = "";
+});
+
+function renderAdminOrders() {
+  const container = document.getElementById("admin-orders");
+  const entries = Object.entries(orderCache).reverse();
+
+  if (!entries.length) {
+    container.innerHTML = "<p>No orders yet.</p>";
+    return;
+  }
+
+  const statuses = ["Pending","Confirmed","Processing","Shipped","Delivered","Cancelled"];
+
+  container.innerHTML = entries.map(([id,o]) => `
+    <div class="admin-item">
+      <h3>Order #${esc(id)}</h3>
+      <p>Customer: ${esc(o.customerName)}</p>
+      <p>Phone: ${esc(o.phone)}</p>
+      <p>Address: ${esc(o.address)}</p>
+      <p>Payment: ${esc(o.paymentMethod)}</p>
+      <p>Total: ৳${formatMoney(o.total)}</p>
+      <p>Items: ${(o.items || []).map(i =>
+        esc(i.name) + " × " + Number(i.qty || 1) + " (" + esc(i.size) + ")"
+      ).join(", ")}</p>
+      <label>Order Status</label>
+      <select onchange="updateOrderStatus('${esc(id)}',this.value)">
+        ${statuses.map(s => `<option value="${s}" ${o.status===s?"selected":""}>${s}</option>`).join("")}
+      </select>
+      <button class="danger" onclick="deleteOrder('${esc(id)}')">DELETE ORDER</button>
+    </div>`).join("");
+}
+
+async function updateOrderStatus(id,status) {
+  const allowed = ["Pending","Confirmed","Processing","Shipped","Delivered","Cancelled"];
+  if (!allowed.includes(status)) return;
+  try {
+    await db.ref("orders/" + id + "/status").set(status);
+  } catch(error) {
+    alert("Status update failed: " + error.message);
+  }
+}
+
+async function deleteOrder(id) {
+  if (!confirm("Permanently delete this order?")) return;
+  try {
+    await db.ref("orders/" + id).remove();
+  } catch(error) {
+    alert(error.message);
+  }
+}
+
+document.getElementById("settings-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const message = document.getElementById("settings-message");
+  const settings = {
+    bkash:document.getElementById("bkash-number").value.trim(),
+    nagad:document.getElementById("nagad-number").value.trim(),
+    profileImage:document.getElementById("store-picture").value.trim()
+  };
+
+  try {
+    await db.ref("settings").update(settings);
+    message.textContent = "Store settings saved successfully.";
+  } catch(error) {
+    message.textContent = "Settings save failed: " + error.message;
+  }
+});
+    
