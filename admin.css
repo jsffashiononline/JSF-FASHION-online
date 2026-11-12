@@ -403,3 +403,10 @@ textarea {
     font-size: 17px;
   }
 }
+
+.banner-image-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;margin-top:18px}
+.banner-image-card{overflow:hidden;border:1px solid var(--border);border-radius:10px;background:var(--panel-2)}
+.banner-image-card img{display:block;width:100%;height:110px;object-fit:cover;background:#080808}
+.banner-image-card>div{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;font-size:12px}
+.banner-image-card .small-btn{padding:7px 9px}
+#banner-image-files{padding:12px;border-style:dashed}
