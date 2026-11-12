@@ -41,6 +41,47 @@ if ($("year")) {
   $("year").textContent = new Date().getFullYear();
 }
 
+
+let heroSlideTimer = null;
+let heroSlideIndex = 0;
+function renderHeroSlides(images) {
+  const stage = $("hero-slides");
+  const dots = $("hero-dots");
+  if (!stage || !dots) return;
+  const validImages = Array.isArray(images) ? images.filter(item => typeof item === "string" && /^https:\/\//i.test(item)) : [];
+  if (!validImages.length) {
+    stage.innerHTML = ""; dots.innerHTML = "";
+    if (heroSlideTimer) clearInterval(heroSlideTimer);
+    heroSlideTimer = null;
+    $("hero-prev")?.classList.add("hidden"); $("hero-next")?.classList.add("hidden");
+    return;
+  }
+  heroSlideIndex = Math.min(heroSlideIndex, validImages.length - 1);
+  stage.innerHTML = validImages.map((url, index) => `<img class="hero-slide-image ${index === heroSlideIndex ? "active" : ""}" src="${safeText(url)}" alt="JSF FASHION banner ${index + 1}" loading="${index === 0 ? "eager" : "lazy"}">`).join("");
+  dots.innerHTML = validImages.map((_, index) => `<button type="button" class="hero-dot ${index === heroSlideIndex ? "active" : ""}" data-slide-index="${index}" aria-label="Show banner ${index + 1}"></button>`).join("");
+  $("hero-prev")?.classList.toggle("hidden", validImages.length < 2);
+  $("hero-next")?.classList.toggle("hidden", validImages.length < 2);
+  const showSlide = nextIndex => {
+    const imgs = stage.querySelectorAll(".hero-slide-image");
+    const indicators = dots.querySelectorAll(".hero-dot");
+    if (!imgs.length) return;
+    heroSlideIndex = (nextIndex + imgs.length) % imgs.length;
+    imgs.forEach((img, i) => img.classList.toggle("active", i === heroSlideIndex));
+    indicators.forEach((dot, i) => dot.classList.toggle("active", i === heroSlideIndex));
+  };
+  if (stage.dataset.bound !== "yes") {
+    stage.dataset.bound = "yes";
+    $("hero-prev")?.addEventListener("click", () => showSlide(heroSlideIndex - 1));
+    $("hero-next")?.addEventListener("click", () => showSlide(heroSlideIndex + 1));
+    dots.addEventListener("click", event => {
+      const dot = event.target.closest("[data-slide-index]");
+      if (dot) showSlide(Number(dot.dataset.slideIndex));
+    });
+  }
+  if (heroSlideTimer) clearInterval(heroSlideTimer);
+  if (validImages.length > 1) heroSlideTimer = setInterval(() => showSlide(heroSlideIndex + 1), 4500);
+}
+
 function safeText(value) {
   return String(value ?? "").replace(/[&<>"']/g, c => ({
     "&": "&amp;",
@@ -353,11 +394,12 @@ try {
 settings = {};
 [
   "bkashNumber", "nagadNumber", "bkash", "nagad",
-  "whatsappAdmin1", "whatsappAdmin2"
+  "whatsappAdmin1", "whatsappAdmin2", "bannerImages"
 ].forEach(key => {
   db.ref("settings/" + key).on("value", snapshot => {
     settings[key] = snapshot.val() || "";
-    if (key.startsWith("whatsapp")) renderWhatsAppContacts();
+    if (key === "bannerImages") renderHeroSlides(settings[key]);
+    else if (key.startsWith("whatsapp")) renderWhatsAppContacts();
     else updatePaymentInfo();
   }, error => {
     console.error("Settings read error (" + key + "):", error);
