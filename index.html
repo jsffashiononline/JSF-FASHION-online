@@ -149,12 +149,9 @@
         <label>Payment Method</label>
 
         <select name="payment" id="payment-method" required>
-          <option value="Cash on Delivery">
-            Cash on Delivery
-          </option>
-
           <option value="bKash">bKash</option>
           <option value="Nagad">Nagad</option>
+          <option value="Cash on Delivery">Cash on Delivery</option>
         </select>
 
         <div id="payment-info" class="payment-info" aria-live="polite"></div>
@@ -179,6 +176,14 @@
         <p id="checkout-message" class="muted"></p>
 
       </form>
+
+      <div class="checkout-whatsapp-area">
+        <h3>Need help placing your order?</h3>
+        <p>কোনো সাহায্য লাগলে WhatsApp-এ যোগাযোগ করুন</p>
+        <div id="whatsapp-contacts" class="whatsapp-contacts" aria-label="WhatsApp contact numbers">
+          <p class="muted">Loading WhatsApp contacts...</p>
+        </div>
+      </div>
     </section>
 
   </main>
@@ -191,10 +196,6 @@
     </a>
 
     <p>Premium fashion. Timeless style.</p>
-
-    <div id="whatsapp-contacts" class="whatsapp-contacts" aria-label="WhatsApp contact numbers">
-      <p class="muted">Loading WhatsApp contacts...</p>
-    </div>
 
     <p>
       © <span id="year"></span>
@@ -212,7 +213,7 @@
   <script src="firebase.js?v=3"></script>
 
   <!-- MAIN STORE JAVASCRIPT -->
-  <script src="store.js?v=7"></script>
+  <script src="store.js?v=8"></script>
 
 </body>
 </html>
