@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Your Order | JSF FASHION</title>
+  <meta name="theme-color" content="#080808">
+  <link rel="stylesheet" href="style.css?v=12">
+</head>
+<body class="order-page">
+  <header class="site-header">
+    <a href="index.html" class="brand">JSF <span>FASHION</span></a>
+    <nav class="nav-links"><a href="index.html#products">Continue Shopping</a><a href="index.html#cart">My Cart</a></nav>
+  </header>
+  <div class="order-top">
+    <div><p class="eyebrow">SECURE CHECKOUT</p><h1 style="font-size:clamp(23px,4vw,32px);color:var(--gold-light)">Complete Your Order</h1></div>
+    <a class="back-link" href="index.html">← Back to Store</a>
+  </div>
+  <main class="checkout-layout">
+    <form id="checkout-form" class="checkout-box">
+      <div class="section-title"><h2>DELIVERY DETAILS</h2><p>Enter your information carefully so we can deliver your order.</p></div>
+      <label>Full Name</label>
+      <input name="name" required maxlength="80" placeholder="Your name" autocomplete="name">
+      <label>Mobile Number</label>
+      <input name="phone" required type="tel" maxlength="20" placeholder="01XXXXXXXXX" autocomplete="tel">
+      <label>Delivery Address</label>
+      <textarea name="address" required maxlength="500" placeholder="House, road, area, district"></textarea>
+      <label>Payment Method</label>
+      <select name="payment" id="payment-method" required>
+        <option value="bKash">bKash</option><option value="Nagad">Nagad</option><option value="Cash on Delivery">Cash on Delivery</option>
+      </select>
+      <div id="payment-info" class="payment-info" aria-live="polite"></div>
+      <div id="transaction-id-wrap" hidden>
+        <label for="transaction-id">Transaction ID *</label>
+        <input id="transaction-id" name="transactionId" type="text" maxlength="100" placeholder="আপনার bKash/Nagad Transaction ID লিখুন" autocomplete="off">
+        <p class="muted">পেমেন্ট সম্পন্ন করে Transaction ID দিয়ে অর্ডার কনফার্ম করুন।</p>
+      </div>
+      <button class="btn" type="submit">PLACE ORDER</button>
+      <p id="checkout-message" class="muted" aria-live="polite"></p>
+    </form>
+    <aside class="checkout-side">
+      <h3>Need help with your order?</h3>
+      <p>অর্ডার বা পণ্য সম্পর্কে জানতে আমাদের সঙ্গে সরাসরি যোগাযোগ করুন।</p>
+      <div class="checkout-whatsapp-area">
+        <h3>WhatsApp Support</h3>
+        <p>আমাদের অ্যাডমিনের সঙ্গে চ্যাট করুন</p>
+        <div id="whatsapp-contacts" class="whatsapp-contacts" aria-label="WhatsApp contact options">
+          <p class="muted">WhatsApp নম্বর লোড হচ্ছে...</p>
+        </div>
+      </div>
+    </aside>
+  </main>
+  <footer class="site-footer"><a href="index.html" class="brand">JSF <span>FASHION</span></a><p>Premium fashion. Timeless style.</p></footer>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="firebase.js?v=3"></script>
+  <script src="store.js?v=18"></script>
+</body>
+</html>
