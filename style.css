@@ -145,3 +145,27 @@ button,input,select,textarea{font:inherit}
   .product-info h3{font-size:14px}
   .product-price{font-size:17px}
 }
+
+
+/* WhatsApp admin contacts */
+.whatsapp-contacts{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  margin:18px auto;
+}
+.whatsapp-contact-link{
+  display:inline-block;
+  padding:10px 16px;
+  border:1px solid #25d366;
+  border-radius:5px;
+  color:#25d366;
+  font-size:13px;
+  font-weight:bold;
+}
+.whatsapp-contact-link:hover{
+  background:#25d366;
+  color:#080808;
+}
