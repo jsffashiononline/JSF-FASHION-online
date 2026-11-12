@@ -1,10 +1,3 @@
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
-
-import { getAuth } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
-
-import { getDatabase } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-database.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyD7ThTpHXOltyqDng_aTwXn3t35vxcR5VM",
   authDomain: "jsf-fashion.firebaseapp.com",
@@ -16,9 +9,12 @@ const firebaseConfig = {
   measurementId: "G-2C2FNMTPD7"
 };
 
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase using the Compat SDK loaded in index.html
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
-export const auth = getAuth(app);
-export const db = getDatabase(app);
+// Make the Realtime Database available to store.js
+window.db = firebase.database();
 
-export default app;
+console.log("JSF FASHION Firebase Connected");
