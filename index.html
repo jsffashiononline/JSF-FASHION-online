@@ -1,65 +1,32 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>JSF FASHION | Premium Fashion Store</title>
-
   <meta name="description" content="Discover premium fashion at JSF FASHION.">
   <meta name="theme-color" content="#080808">
-
-  <link rel="stylesheet" href="https://jsffashiononline.github.io/JSF-FASHION-online/style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=12">
 </head>
-
 <body>
-
-  <!-- HEADER -->
   <header class="site-header">
-    <a href="index.html" class="brand">
-      JSF <span>FASHION</span>
-    </a>
-
-    <nav class="nav-links">
-      <a href="#home">Home</a>
-      <a href="#products">Collection</a>
-      <a href="#contact">Contact</a>
-      <a href="#cart">
-        Cart (<span id="cart-count">0</span>)
-      </a>
+    <a href="index.html" class="brand">JSF <span>FASHION</span></a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#home">Home</a><a href="#products">Collection</a><a href="#contact">Contact</a>
+      <a href="#cart">Cart (<span id="cart-count">0</span>)</a>
     </nav>
   </header>
-
   <main>
-
-    <!-- HERO SECTION -->
     <section class="hero" id="home">
       <div class="hero-content">
         <p class="eyebrow">THE NEW FASHION EXPERIENCE</p>
-
-        <h1>
-          STYLE THAT<br>
-          <span>DEFINES YOU.</span>
-        </h1>
-
-        <p>
-          Discover your style with the latest fashion collection.
-        </p>
-
-        <a class="btn" href="#products">
-          SHOP COLLECTION
-        </a>
+        <h1>STYLE THAT<br><span>DEFINES YOU.</span></h1>
+        <p>Discover your style with the latest fashion collection.</p>
+        <a class="btn" href="#products">SHOP COLLECTION</a>
       </div>
     </section>
-
-    <!-- CATEGORY SECTION -->
     <section class="section">
-      <div class="section-title">
-        <p class="eyebrow">EXPLORE OUR STYLE</p>
-        <h2>OUR COLLECTION</h2>
-      </div>
-
+      <div class="section-title"><p class="eyebrow">EXPLORE OUR STYLE</p><h2>OUR COLLECTION</h2></div>
       <div class="category-grid">
         <a class="category-card" href="#products">T-Shirts</a>
         <a class="category-card" href="#products">Shirts</a>
@@ -67,154 +34,28 @@
         <a class="category-card" href="#products">New Arrivals</a>
       </div>
     </section>
-
-    <!-- PRODUCTS SECTION -->
     <section class="section" id="products">
-
-      <div class="section-title">
-        <p class="eyebrow">HANDPICKED FOR YOU</p>
-        <h2>FEATURED PRODUCTS</h2>
-      </div>
-
-      <input
-        id="product-search"
-        class="search-box"
-        type="search"
-        placeholder="Search products..."
-      >
-
-      <div id="product-list" class="product-grid">
-        <p class="muted">Loading products...</p>
-      </div>
-
+      <div class="section-title"><p class="eyebrow">HANDPICKED FOR YOU</p><h2>FEATURED PRODUCTS</h2></div>
+      <input id="product-search" class="search-box" type="search" placeholder="Search products..." aria-label="Search products">
+      <div id="product-list" class="product-grid"><p class="muted">Loading products...</p></div>
     </section>
-
-    <!-- CART SECTION -->
     <section class="section" id="cart">
-
-      <div class="section-title">
-        <h2>YOUR CART</h2>
-      </div>
-
+      <div class="section-title"><h2>YOUR CART</h2><p>Review your selected items before checkout.</p></div>
       <div class="cart-box">
-
         <div id="cart-items"></div>
-
-        <h3 class="cart-total">
-          Total: ৳<span id="cart-total">0</span>
-        </h3>
-
-        <button class="btn" id="checkout-open">
-          PROCEED TO CHECKOUT
-        </button>
-
+        <h3 class="cart-total">Total: ৳<span id="cart-total">0</span></h3>
+        <button class="btn" id="checkout-open" type="button">PROCEED TO CHECKOUT</button>
       </div>
     </section>
-
-    <!-- CHECKOUT SECTION -->
-    <section class="section" id="checkout">
-
-      <div class="section-title">
-        <h2>CHECKOUT</h2>
-        <p>Enter your delivery details to place your order.</p>
-      </div>
-
-      <form id="checkout-form" class="checkout-box">
-
-        <label>Full Name</label>
-        <input
-          name="name"
-          required
-          maxlength="80"
-          placeholder="Your name"
-        >
-
-        <label>Mobile Number</label>
-        <input
-          name="phone"
-          required
-          type="tel"
-          maxlength="20"
-          placeholder="01XXXXXXXXX"
-        >
-
-        <label>Delivery Address</label>
-        <textarea
-          name="address"
-          required
-          maxlength="500"
-          placeholder="Full delivery address"
-        ></textarea>
-
-        <label>Payment Method</label>
-
-        <select name="payment" id="payment-method" required>
-          <option value="bKash">bKash</option>
-          <option value="Nagad">Nagad</option>
-          <option value="Cash on Delivery">Cash on Delivery</option>
-        </select>
-
-        <div id="payment-info" class="payment-info" aria-live="polite"></div>
-
-        <div id="transaction-id-wrap" hidden>
-          <label for="transaction-id">Transaction ID *</label>
-          <input
-            id="transaction-id"
-            name="transactionId"
-            type="text"
-            maxlength="100"
-            placeholder="আপনার bKash/Nagad Transaction ID লিখুন"
-            autocomplete="off"
-          >
-          <p class="muted">পেমেন্ট সম্পন্ন করে Transaction ID দিয়ে অর্ডার কনফার্ম করুন।</p>
-        </div>
-
-        <button class="btn" type="submit">
-          PLACE ORDER
-        </button>
-
-        <p id="checkout-message" class="muted"></p>
-
-      </form>
-
-      <div class="checkout-whatsapp-area">
-        <h3>WhatsApp-এ যোগাযোগ করুন</h3>
-        <p>অর্ডার বা পণ্য সম্পর্কে জানতে আমাদের সঙ্গে সরাসরি চ্যাট করুন</p>
-        <div id="whatsapp-contacts" class="whatsapp-contacts" aria-label="WhatsApp contact options">
-          <p class="muted">WhatsApp নম্বর লোড হচ্ছে...</p>
-        </div>
-      </div>
-
-    </section>
-
   </main>
-
-  <!-- FOOTER -->
   <footer class="site-footer" id="contact">
-
-    <a href="#home" class="brand">
-      JSF <span>FASHION</span>
-    </a>
-
+    <a href="#home" class="brand">JSF <span>FASHION</span></a>
     <p>Premium fashion. Timeless style.</p>
-
-    <p>
-      © <span id="year"></span>
-      JSF FASHION. All rights reserved.
-    </p>
-
+    <p>© <span id="year"></span> JSF FASHION. All rights reserved.</p>
   </footer>
-
-  <!-- FIREBASE SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-
-  <!-- FIREBASE CONFIGURATION -->
   <script src="firebase.js?v=3"></script>
-
-  <!-- MAIN STORE JAVASCRIPT -->
-  <script src="store.js?v=17"></script>
-
+  <script src="store.js?v=18"></script>
 </body>
 </html>
