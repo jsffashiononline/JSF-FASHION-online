@@ -383,30 +383,34 @@ function renderWhatsAppContacts() {
   container.innerHTML = links.length ? links.join("") : '<p class="muted">WhatsApp যোগাযোগ নম্বর এখনো যোগ করা হয়নি।</p>';
 }
 
-// Payment information
+// Payment information with a one-tap copy button for bKash and Nagad
 function updatePaymentInfo() {
   const paymentMethod = $("payment-method");
 
   if (!paymentMethod || !paymentInfo) return;
 
   const method = paymentMethod.value;
-
   const transactionWrap = $("transaction-id-wrap");
   const transactionInput = $("transaction-id");
 
-  if (method === "bKash") {
-    const number = settings.bkashNumber || settings.bkash || "";
-    paymentInfo.textContent = number
-      ? "বিকাশে Send Money করুন এই নম্বরে: " + number
-      : "বিকাশ নম্বর এখনো Admin Panel থেকে যোগ করা হয়নি।";
-    if (transactionWrap) transactionWrap.hidden = false;
-    if (transactionInput) transactionInput.required = true;
+  if (method === "bKash" || method === "Nagad") {
+    const isBkash = method === "bKash";
+    const number = isBkash
+      ? (settings.bkashNumber || settings.bkash || "")
+      : (settings.nagadNumber || settings.nagad || "");
+    const label = isBkash ? "বিকাশে" : "নগদে";
 
-  } else if (method === "Nagad") {
-    const number = settings.nagadNumber || settings.nagad || "";
-    paymentInfo.textContent = number
-      ? "নগদে Send Money করুন এই নম্বরে: " + number
-      : "নগদ নম্বর এখনো Admin Panel থেকে যোগ করা হয়নি।";
+    if (number) {
+      paymentInfo.innerHTML =
+        '<span>' + label + ' Send Money করুন এই নম্বরে: <strong>' +
+        safeText(number) +
+        '</strong></span> <button type="button" class="copy-payment-number" data-copy-number="' +
+        safeText(number) + '">নম্বর কপি করুন</button>';
+    } else {
+      paymentInfo.textContent = (isBkash ? "বিকাশ" : "নগদ") +
+        " নম্বর এখনো Admin Panel থেকে যোগ করা হয়নি।";
+    }
+
     if (transactionWrap) transactionWrap.hidden = false;
     if (transactionInput) transactionInput.required = true;
 
@@ -418,6 +422,38 @@ function updatePaymentInfo() {
       transactionInput.value = "";
     }
   }
+}
+
+// Copy the currently displayed bKash/Nagad number
+if (paymentInfo) {
+  paymentInfo.addEventListener("click", async event => {
+    const button = event.target.closest(".copy-payment-number");
+    if (!button) return;
+
+    const number = button.dataset.copyNumber || "";
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(number);
+      } else {
+        const temporaryInput = document.createElement("textarea");
+        temporaryInput.value = number;
+        temporaryInput.style.position = "fixed";
+        temporaryInput.style.opacity = "0";
+        document.body.appendChild(temporaryInput);
+        temporaryInput.select();
+        const copied = document.execCommand("copy");
+        temporaryInput.remove();
+        if (!copied) throw new Error("Copy command was not available");
+      }
+      button.textContent = "কপি হয়েছে ✓";
+      setTimeout(() => {
+        if (button.isConnected) button.textContent = "নম্বর কপি করুন";
+      }, 1800);
+    } catch (error) {
+      console.error("Payment number copy failed:", error);
+      button.textContent = "কপি হয়নি";
+    }
+  });
 }
 
 if ($("payment-method")) {
