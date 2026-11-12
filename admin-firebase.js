@@ -1,0 +1,19 @@
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
+import { getDatabase } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD7ThTpHXOltyqDng_aTwXn3t35vxcR5VM",
+  authDomain: "jsf-fashion.firebaseapp.com",
+  databaseURL: "https://jsf-fashion-default-rtdb.firebaseio.com",
+  projectId: "jsf-fashion",
+  storageBucket: "jsf-fashion.firebasestorage.app",
+  messagingSenderId: "545355825847",
+  appId: "1:545355825847:web:49f701a22e68daa9298332",
+  measurementId: "G-2C2FNMTPD7"
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);
+export const db = getDatabase(app);
