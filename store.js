@@ -343,25 +343,29 @@ try {
   }
 }
 
-// Read only public payment numbers and the two customer-facing WhatsApp contacts.
-settings = {};
-[
-  "bkashNumber", "nagadNumber", "bkash", "nagad",
-  "whatsappAdmin1", "whatsappAdmin2"
-].forEach(key => {
-  db.ref("settings/" + key).on("value", snapshot => {
-    settings[key] = snapshot.val() || "";
-    if (key.startsWith("whatsapp")) renderWhatsAppContacts();
-    else updatePaymentInfo();
-  });
+// Read all public store settings together so payment and WhatsApp details
+// always stay in sync with the values saved from the Admin Panel.
+db.ref("settings").on("value", snapshot => {
+  settings = snapshot.val() || {};
+  updatePaymentInfo();
+  renderWhatsAppContacts();
+}, error => {
+  console.error("Store settings read error:", error);
+  if (paymentInfo) {
+    paymentInfo.textContent = "পেমেন্ট তথ্য লোড করা যায়নি। পেজটি Refresh করুন।";
+  }
+  const contacts = $("whatsapp-contacts");
+  if (contacts) {
+    contacts.innerHTML = '<p class="muted">WhatsApp নম্বর লোড করা যায়নি।</p>';
+  }
 });
 
 function renderWhatsAppContacts() {
   const container = $("whatsapp-contacts");
   if (!container) return;
   const contacts = [
-    ["Admin One", settings.whatsappAdmin1],
-    ["Admin Two", settings.whatsappAdmin2]
+    ["ADMIN ONE", settings.whatsappAdmin1],
+    ["ADMIN TWO", settings.whatsappAdmin2]
   ];
   const links = contacts.filter(([, number]) => String(number || "").trim()).map(([label, number]) => {
     let digits = String(number).replace(/\D/g, "");
