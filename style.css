@@ -261,17 +261,32 @@ button,input,select,textarea{font:inherit}
 #transaction-id-wrap .muted{margin-top:7px;font-size:12px}
 
 
-/* Copy button for bKash and Nagad payment numbers */
-.copy-payment-number{
-  display:inline-block;
-  margin:10px 0 0 8px;
-  padding:8px 13px;
-  border:1px solid var(--gold);
-  border-radius:5px;
-  background:var(--gold);
-  color:#080808;
-  font-size:13px;
-  font-weight:700;
-  cursor:pointer;
+
+/* Professional payment-number card: only the number button is actionable */
+.payment-info{
+  display:block;margin-top:12px;padding:16px;
+  background:linear-gradient(145deg,#19160f,#111);
+  border:1px solid rgba(223,185,87,.42);border-radius:10px;
+  color:var(--gold-light);font-size:14px;line-height:1.5;
+  overflow-wrap:anywhere;user-select:none;-webkit-user-select:none;
 }
-.copy-payment-number:active{transform:scale(.97)}
+.payment-instruction{color:#d7cba9;font-size:13px;font-weight:500;margin-bottom:10px}
+.payment-number-copy{
+  width:100%;min-height:54px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;padding:12px 14px;
+  border:1px solid var(--gold);border-radius:8px;background:#080808;
+  color:var(--gold-light);cursor:pointer;text-align:left;
+  user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.payment-number-value{font-size:20px;font-weight:800;letter-spacing:1px;overflow-wrap:anywhere}
+.payment-copy-hint{
+  flex:0 0 auto;padding:7px 10px;border-radius:6px;
+  background:var(--gold);color:#080808;font-size:12px;font-weight:800;
+}
+.payment-number-copy.copied{border-color:#42c979}
+.payment-number-copy.copied .payment-copy-hint{background:#42c979}
+.payment-copy-feedback{min-height:19px;margin-top:8px;color:#a9a08b;font-size:11px;text-align:center}
+@media(max-width:480px){
+  .payment-info{padding:13px}
+  .payment-number-value{font-size:18px}
+}
