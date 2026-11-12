@@ -343,25 +343,36 @@ try {
   }
 }
 
-// Read only public payment numbers. Never download the private settings object on the storefront.
+// Read only public payment numbers and the two customer-facing WhatsApp contacts.
 settings = {};
-db.ref("settings/bkashNumber").on("value", snapshot => {
-  settings.bkashNumber = snapshot.val() || "";
-  updatePaymentInfo();
+[
+  "bkashNumber", "nagadNumber", "bkash", "nagad",
+  "whatsappAdmin1", "whatsappAdmin2"
+].forEach(key => {
+  db.ref("settings/" + key).on("value", snapshot => {
+    settings[key] = snapshot.val() || "";
+    if (key.startsWith("whatsapp")) renderWhatsAppContacts();
+    else updatePaymentInfo();
+  });
 });
-db.ref("settings/nagadNumber").on("value", snapshot => {
-  settings.nagadNumber = snapshot.val() || "";
-  updatePaymentInfo();
-});
-// Backward compatibility for older payment setting keys.
-db.ref("settings/bkash").on("value", snapshot => {
-  settings.bkash = snapshot.val() || "";
-  updatePaymentInfo();
-});
-db.ref("settings/nagad").on("value", snapshot => {
-  settings.nagad = snapshot.val() || "";
-  updatePaymentInfo();
-});
+
+function renderWhatsAppContacts() {
+  const container = $("whatsapp-contacts");
+  if (!container) return;
+  const contacts = [
+    ["WhatsApp 1", settings.whatsappAdmin1],
+    ["WhatsApp 2", settings.whatsappAdmin2]
+  ];
+  const links = contacts.filter(([, number]) => String(number || "").trim()).map(([label, number]) => {
+    let digits = String(number).replace(/\\D/g, "");
+    if (digits.startsWith("01")) digits = "88" + digits;
+    else if (digits.startsWith("1") && digits.length === 10) digits = "880" + digits;
+    const safeNumber = safeText(digits);
+    const safeLabel = safeText(label);
+    return `<a class="whatsapp-contact-link" href="https://wa.me/${safeNumber}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">☏</span> ${safeLabel}</a>`;
+  });
+  container.innerHTML = links.length ? links.join("") : '<p class="muted">WhatsApp যোগাযোগ নম্বর এখনো যোগ করা হয়নি।</p>';
+}
 
 // Payment information
 function updatePaymentInfo() {
