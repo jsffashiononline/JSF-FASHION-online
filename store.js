@@ -383,37 +383,33 @@ function renderWhatsAppContacts() {
   container.innerHTML = links.length ? links.join("") : '<p class="muted">WhatsApp যোগাযোগ নম্বর এখনো যোগ করা হয়নি।</p>';
 }
 
-// Payment information with a one-tap copy button for bKash and Nagad
+// Payment information: only the displayed payment number is a copy control
 function updatePaymentInfo() {
   const paymentMethod = $("payment-method");
-
   if (!paymentMethod || !paymentInfo) return;
-
   const method = paymentMethod.value;
   const transactionWrap = $("transaction-id-wrap");
   const transactionInput = $("transaction-id");
 
   if (method === "bKash" || method === "Nagad") {
     const isBkash = method === "bKash";
-    const number = isBkash
+    const number = String(isBkash
       ? (settings.bkashNumber || settings.bkash || "")
-      : (settings.nagadNumber || settings.nagad || "");
-    const label = isBkash ? "বিকাশে" : "নগদে";
+      : (settings.nagadNumber || settings.nagad || "")).trim();
+    const service = isBkash ? "বিকাশ" : "নগদ";
 
     if (number) {
       paymentInfo.innerHTML =
-        '<span>' + label + ' Send Money করুন এই নম্বরে: <strong>' +
-        safeText(number) +
-        '</strong></span> <button type="button" class="copy-payment-number" data-copy-number="' +
-        safeText(number) + '">নম্বর কপি করুন</button>';
+        '<div class="payment-instruction">' + service + ' Send Money করুন নিচের নম্বরে</div>' +
+        '<button type="button" class="payment-number-copy" data-copy-number="' + safeText(number) +
+        '" aria-label="' + service + ' নম্বর কপি করুন"><span class="payment-number-value">' +
+        safeText(number) + '</span><span class="payment-copy-hint">▢ কপি</span></button>' +
+        '<div class="payment-copy-feedback" aria-live="polite">শুধু নম্বরের বাটনে চাপ দিলে কপি হবে</div>';
     } else {
-      paymentInfo.textContent = (isBkash ? "বিকাশ" : "নগদ") +
-        " নম্বর এখনো Admin Panel থেকে যোগ করা হয়নি।";
+      paymentInfo.textContent = service + " নম্বর এখনো Admin Panel থেকে যোগ করা হয়নি।";
     }
-
     if (transactionWrap) transactionWrap.hidden = false;
     if (transactionInput) transactionInput.required = true;
-
   } else {
     paymentInfo.textContent = "Cash on Delivery — পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন।";
     if (transactionWrap) transactionWrap.hidden = true;
@@ -424,34 +420,35 @@ function updatePaymentInfo() {
   }
 }
 
-// Copy the currently displayed bKash/Nagad number
+// Only the dedicated payment-number button copies a number
 if (paymentInfo) {
   paymentInfo.addEventListener("click", async event => {
-    const button = event.target.closest(".copy-payment-number");
-    if (!button) return;
-
+    const button = event.target.closest(".payment-number-copy");
+    if (!button || !paymentInfo.contains(button)) return;
     const number = button.dataset.copyNumber || "";
+    const feedback = paymentInfo.querySelector(".payment-copy-feedback");
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(number);
       } else {
         const temporaryInput = document.createElement("textarea");
         temporaryInput.value = number;
+        temporaryInput.setAttribute("readonly", "");
         temporaryInput.style.position = "fixed";
-        temporaryInput.style.opacity = "0";
+        temporaryInput.style.left = "-9999px";
         document.body.appendChild(temporaryInput);
         temporaryInput.select();
         const copied = document.execCommand("copy");
         temporaryInput.remove();
         if (!copied) throw new Error("Copy command was not available");
       }
-      button.textContent = "কপি হয়েছে ✓";
-      setTimeout(() => {
-        if (button.isConnected) button.textContent = "নম্বর কপি করুন";
-      }, 1800);
+      button.classList.add("copied");
+      const hint = button.querySelector(".payment-copy-hint");
+      if (hint) hint.textContent = "কপি হয়েছে ✓";
+      if (feedback) feedback.textContent = "পেমেন্ট নম্বর কপি হয়েছে";
     } catch (error) {
       console.error("Payment number copy failed:", error);
-      button.textContent = "কপি হয়নি";
+      if (feedback) feedback.textContent = "কপি করা যায়নি, আবার চেষ্টা করুন";
     }
   });
 }
