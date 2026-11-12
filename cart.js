@@ -1,3 +1,0 @@
-import {getCart,saveCart,money,esc} from "./common.js";
-const root=document.querySelector("#cartItems");
-function draw(){const c=getCart();root.innerHTML=c.length?c.map((p,i)=>`<div class="cart-row"><img src="${esc(p.image||'assets/logo-placeholder.svg')}"><div style="flex:1"><b>${esc(p.name)}</b><p>৳${money(p.price)} × ${p.qty}</p><button data-i="${i}" class="danger">বাদ দিন</button></div></div>`).join(""):"কার্ট খালি";document.querySelector("#total").textContent=money(c.reduce((s,p)=>s+p.price*p.qty,0));root.querySelectorAll("button").forEach(b=>b.onclick=()=>{let a=getCart();a.splice(Number(b.dataset.i),1);saveCart(a);draw();});}draw();
