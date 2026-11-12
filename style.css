@@ -77,13 +77,31 @@ button,input,select,textarea{font:inherit}
 .product-info{padding:15px}
 .product-info h3{font-size:17px;margin-bottom:5px}
 .product-info p{color:var(--muted);font-size:13px}
+.description-wrap{margin-top:8px}
 .product-info .product-description{
-  margin-top:8px;
   color:#d0c7b2;
   font-size:12px;
   line-height:1.55;
   white-space:pre-wrap;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:5;
+  overflow:hidden;
+}
+.product-info .product-description.description-expanded{
+  display:block;
   overflow:visible;
+}
+.description-toggle{
+  display:inline-block;
+  margin-top:5px;
+  padding:2px 0;
+  background:none;
+  border:0;
+  color:var(--gold);
+  font-size:12px;
+  font-weight:bold;
+  cursor:pointer;
 }
 .product-actions{
   display:grid;
