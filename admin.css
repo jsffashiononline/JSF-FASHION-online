@@ -1,0 +1,71 @@
+
+:root{
+  --bg:#080808;
+  --panel:#141414;
+  --gold:#dfb957;
+  --light:#fff0bd;
+  --white:#fff;
+  --muted:#aaa;
+  --border:rgba(223,185,87,.25);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--white);
+  font-family:Arial,sans-serif;line-height:1.5
+}
+.hidden{display:none!important}
+.admin-header{
+  padding:18px 5%;background:#050505;
+  border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  gap:15px;flex-wrap:wrap
+}
+.admin-header h2{font-size:20px}
+.admin-header span{color:var(--gold)}
+.admin-container{max-width:1100px;margin:30px auto;padding:0 15px}
+h1,h2{color:var(--light);margin-bottom:18px}
+.panel{
+  background:var(--panel);border:1px solid var(--border);
+  padding:22px;border-radius:9px;margin-bottom:25px
+}
+.login-panel{max-width:420px;margin:60px auto}
+input,textarea,select{
+  width:100%;padding:12px;margin:7px 0 14px;
+  background:#202020;color:white;border:1px solid var(--border);
+  border-radius:5px;outline:none
+}
+input:focus,textarea:focus,select:focus{border-color:var(--gold)}
+textarea{min-height:80px}
+label{color:var(--light);font-size:14px}
+button{
+  border:0;border-radius:4px;padding:11px 16px;
+  cursor:pointer;font-weight:bold;margin:4px 3px 4px 0
+}
+.gold-btn{background:var(--gold);color:#080808}
+.secondary{background:#333;color:white}
+.danger{background:#8f2828;color:white}
+.stats-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;margin:20px 0
+}
+.stat-card{
+  padding:20px;background:var(--panel);
+  border:1px solid var(--border);border-radius:8px
+}
+.stat-card span{display:block;color:var(--muted);font-size:13px}
+.stat-card strong{display:block;color:var(--gold);font-size:26px;margin-top:8px}
+.admin-item{
+  background:#202020;padding:15px;margin-top:12px;
+  border:1px solid var(--border);border-radius:6px;
+  overflow-wrap:anywhere
+}
+.admin-item h3{color:var(--gold-light)}
+.admin-item p{color:var(--muted);font-size:14px}
+.admin-item img{width:75px;height:75px;object-fit:cover;margin:8px 0}
+.admin-item select{max-width:230px}
+.message{color:var(--gold);margin-top:10px}
+@media(max-width:600px){
+  .admin-container{margin:18px auto}
+  .panel{padding:15px}
+  .admin-header h2{font-size:17px}
+}
