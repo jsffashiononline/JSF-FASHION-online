@@ -1,6 +1,6 @@
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDSZDoy8qcAGGr_q4kZ5rWGlvID4t8B7Q",
+  apiKey: "AIzaSyDSZDoy8qcAgGR_qk4vZ5rWGlvID4t8B7Q",
   authDomain: "mr-game-shop-9f914.firebaseapp.com",
   databaseURL: "https://mr-game-shop-9f914-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "mr-game-shop-9f914",
