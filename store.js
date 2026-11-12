@@ -343,9 +343,23 @@ try {
   }
 }
 
-// Load store settings for payment information only. Private admin contacts are not displayed publicly.
-db.ref("settings").on("value", snapshot => {
-  settings = snapshot.val() || {};
+// Read only public payment numbers. Never download the private settings object on the storefront.
+settings = {};
+db.ref("settings/bkashNumber").on("value", snapshot => {
+  settings.bkashNumber = snapshot.val() || "";
+  updatePaymentInfo();
+});
+db.ref("settings/nagadNumber").on("value", snapshot => {
+  settings.nagadNumber = snapshot.val() || "";
+  updatePaymentInfo();
+});
+// Backward compatibility for older payment setting keys.
+db.ref("settings/bkash").on("value", snapshot => {
+  settings.bkash = snapshot.val() || "";
+  updatePaymentInfo();
+});
+db.ref("settings/nagad").on("value", snapshot => {
+  settings.nagad = snapshot.val() || "";
   updatePaymentInfo();
 });
 
