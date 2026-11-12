@@ -1,4 +1,4 @@
-
+import { auth, db } from "./firebase.js";
 const loginSection = document.getElementById("login-section");
 const dashboard = document.getElementById("dashboard");
 const loginMessage = document.getElementById("login-message");
