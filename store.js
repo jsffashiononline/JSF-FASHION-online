@@ -362,7 +362,7 @@ function renderWhatsAppContacts(contacts) {
 
   const links = entries.filter(([, number]) => String(number || "").trim())
     .map(([label, number]) => {
-      let digits = String(number).replace(/\\D/g, "");
+      let digits = String(number).replace(/\D/g, "");
       if (digits.startsWith("01")) digits = "88" + digits;
       else if (digits.startsWith("1") && digits.length === 10) digits = "880" + digits;
       const safeNumber = safeText(digits);
