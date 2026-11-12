@@ -11,16 +11,19 @@
 <body>
 
 <header class="admin-header">
-  <a class="brand" href="admin.html">JSF <span>FASHION</span></a>
+  <a class="brand" href="admin.html">
+    JSF <span>FASHION</span>
+  </a>
   <div class="header-right">
     <span id="admin-email"></span>
-    <button id="logout-btn" class="btn danger hidden" type="button">Logout</button>
+    <button id="logout-btn" class="btn danger hidden" type="button">
+      Logout
+    </button>
   </div>
 </header>
 
 <main class="container">
 
-  <!-- LOGIN -->
   <section id="login-section" class="panel login-panel">
     <div class="brand-mark">JSF</div>
     <h1>Admin Login</h1>
@@ -28,18 +31,33 @@
 
     <form id="login-form">
       <label for="email">Email Address</label>
-      <input id="email" type="email" placeholder="Enter admin email" autocomplete="username" required>
+      <input
+        id="email"
+        type="email"
+        placeholder="Enter admin email"
+        autocomplete="username"
+        required
+      >
 
       <label for="password">Password</label>
-      <input id="password" type="password" placeholder="Enter password" autocomplete="current-password" required>
+      <input
+        id="password"
+        type="password"
+        placeholder="Enter password"
+        autocomplete="current-password"
+        required
+      >
 
-      <button id="login-btn" class="btn gold full" type="submit">LOGIN</button>
+      <button id="login-btn" class="btn gold full" type="submit">
+        LOGIN
+      </button>
     </form>
+
     <p id="login-message" class="message" role="alert"></p>
   </section>
 
-  <!-- DASHBOARD -->
   <section id="dashboard" class="hidden">
+
     <div class="welcome">
       <div>
         <p class="eyebrow">CONTROL CENTER</p>
@@ -49,31 +67,33 @@
       <span class="live-status">● Connected</span>
     </div>
 
-    <!-- STATISTICS -->
     <div class="stats-grid">
       <div class="stat-card">
         <span>Total Products</span>
         <strong id="total-products">0</strong>
       </div>
+
       <div class="stat-card">
         <span>Total Orders</span>
         <strong id="total-orders">0</strong>
       </div>
+
       <div class="stat-card">
         <span>Pending Orders</span>
         <strong id="pending-orders">0</strong>
       </div>
+
       <div class="stat-card">
         <span>Delivered Orders</span>
         <strong id="delivered-orders">0</strong>
       </div>
+
       <div class="stat-card">
         <span>Total Sales</span>
         <strong id="total-sales">৳0</strong>
       </div>
     </div>
 
-    <!-- PRODUCTS -->
     <section class="panel">
       <div class="section-heading">
         <div>
@@ -87,12 +107,19 @@
 
         <div>
           <label for="product-name">Product Name *</label>
-          <input id="product-name" placeholder="Example: Premium T-Shirt" required>
+          <input id="product-name" placeholder="Premium T-Shirt" required>
         </div>
 
         <div>
           <label for="product-price">Price (BDT) *</label>
-          <input id="product-price" type="number" min="0" step="0.01" placeholder="850" required>
+          <input
+            id="product-price"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="850"
+            required
+          >
         </div>
 
         <div>
@@ -102,7 +129,12 @@
 
         <div>
           <label for="product-image">Image URL *</label>
-          <input id="product-image" type="url" placeholder="https://example.com/image.jpg" required>
+          <input
+            id="product-image"
+            type="url"
+            placeholder="https://example.com/image.jpg"
+            required
+          >
         </div>
 
         <div class="wide">
@@ -112,12 +144,21 @@
 
         <div class="wide">
           <label for="product-description">Description</label>
-          <textarea id="product-description" rows="4" placeholder="Product details..."></textarea>
+          <textarea
+            id="product-description"
+            rows="4"
+            placeholder="Product details..."
+          ></textarea>
         </div>
 
         <div class="wide button-row">
-          <button id="save-product-btn" class="btn gold" type="submit">SAVE PRODUCT</button>
-          <button id="cancel-edit" class="btn secondary" type="button">CLEAR FORM</button>
+          <button id="save-product-btn" class="btn gold" type="submit">
+            SAVE PRODUCT
+          </button>
+
+          <button id="cancel-edit" class="btn secondary" type="button">
+            CLEAR FORM
+          </button>
         </div>
       </form>
 
@@ -125,7 +166,6 @@
       <div id="admin-products" class="data-list">Loading products...</div>
     </section>
 
-    <!-- ORDERS -->
     <section class="panel">
       <div class="section-heading">
         <div>
@@ -133,10 +173,10 @@
           <h2>Customer Orders</h2>
         </div>
       </div>
+
       <div id="admin-orders" class="data-list">Loading orders...</div>
     </section>
 
-    <!-- SETTINGS -->
     <section class="panel">
       <div class="section-heading">
         <div>
@@ -153,10 +193,15 @@
         <input id="nagad-number" type="text" placeholder="01XXXXXXXXX">
 
         <label for="store-picture">Store Profile Picture URL</label>
-        <input id="store-picture" type="url" placeholder="https://example.com/store.jpg">
+        <input
+          id="store-picture"
+          type="url"
+          placeholder="https://example.com/store.jpg"
+        >
 
         <button class="btn gold" type="submit">SAVE SETTINGS</button>
       </form>
+
       <p id="settings-message" class="message" role="status"></p>
     </section>
 
@@ -167,6 +212,19 @@
   JSF FASHION ADMIN PANEL
 </footer>
 
-<script type="module" src="admin.js"></script>
+<script type="module">
+  import("./admin.js").catch((error) => {
+    const message = document.getElementById("login-message");
+
+    if (message) {
+      message.textContent =
+        "JavaScript Load Error: " + error.message;
+      message.style.color = "#ff5555";
+    }
+
+    console.error("Admin JS Error:", error);
+  });
+</script>
+
 </body>
 </html>
