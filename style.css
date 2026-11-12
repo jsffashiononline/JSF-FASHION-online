@@ -82,10 +82,8 @@ button,input,select,textarea{font:inherit}
   color:#d0c7b2;
   font-size:12px;
   line-height:1.55;
-  display:-webkit-box;
-  -webkit-line-clamp:4;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
+  white-space:pre-wrap;
+  overflow:visible;
 }
 .product-actions{
   display:grid;
