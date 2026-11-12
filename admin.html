@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080808">
   <title>JSF FASHION | Admin Panel</title>
-  <link rel="stylesheet" href="admin.css?v=2">
+  <link rel="stylesheet" href="admin.css?v=3">
 </head>
 <body>
 
@@ -178,6 +178,16 @@
     </section>
 
     <section class="panel">
+      <div class="section-heading"><div><p class="eyebrow">HOMEPAGE SLIDESHOW</p><h2>Top Banner Images</h2></div></div>
+      <p class="muted">গ্যালারি থেকে একাধিক ছবি নির্বাচন করুন। আপলোড করা ছবিগুলো ওয়েবসাইটের উপরে ৪.৫ সেকেন্ড পরপর পরিবর্তন হবে।</p>
+      <label for="banner-image-files">Choose Banner Images</label>
+      <input id="banner-image-files" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+      <button id="upload-banner-images" class="btn gold" type="button" style="margin-top:14px">UPLOAD SELECTED IMAGES</button>
+      <p id="banner-upload-message" class="message" role="status"></p>
+      <div id="banner-image-list" class="banner-image-list"></div>
+    </section>
+
+    <section class="panel">
       <div class="section-heading">
         <div>
           <p class="eyebrow">STORE CONFIGURATION</p>
@@ -231,7 +241,7 @@
 </footer>
 
 <script type="module">
-  import("./admin.js?v=7").catch((error) => {
+  import("./admin.js?v=8").catch((error) => {
     const message = document.getElementById("login-message");
 
     if (message) {
