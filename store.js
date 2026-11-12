@@ -329,18 +329,11 @@ try {
   }
 }
 
-// Load store settings
+// Load store settings and the two public WhatsApp contacts
 db.ref("settings").on("value", snapshot => {
   settings = snapshot.val() || {};
   updatePaymentInfo();
-});
-
-// Load the two public WhatsApp contact numbers
-db.ref("publicContact").on("value", snapshot => {
-  const contacts = snapshot.val() || {};
-  renderWhatsAppContacts(contacts);
-}, error => {
-  console.error("WhatsApp contacts read error:", error);
+  renderWhatsAppContacts(settings);
 });
 
 // Render only the two admin WhatsApp contacts
