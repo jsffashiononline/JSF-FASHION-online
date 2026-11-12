@@ -215,3 +215,20 @@ button,input,select,textarea{font:inherit}
   background:#102519;
   font-size:14px;
 }
+
+
+/* WhatsApp icon beside Admin One and Admin Two */
+.checkout-whatsapp-area .whatsapp-contact-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  min-width:145px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.whatsapp-icon{
+  width:21px;
+  height:21px;
+  flex:0 0 21px;
+}
