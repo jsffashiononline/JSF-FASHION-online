@@ -595,6 +595,10 @@ function loadOrders() {
           <p>Phone: ${phone}</p>
           <p>Address: ${address}</p>
           <p>Items: ${escapeHTML(itemsText)}</p>
+          <p>Payment Method: ${escapeHTML(order.paymentMethod || "Not specified")}</p>
+          ${order.paymentMethod === "bKash" || order.paymentMethod === "Nagad"
+            ? `<p>Transaction ID: <strong>${escapeHTML(order.transactionId || "Not provided")}</strong></p>`
+            : ""}
           <p>Total: ${total}</p>
 
           <label for="status-${escapeHTML(id)}">Order Status</label>
