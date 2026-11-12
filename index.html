@@ -157,7 +157,20 @@
           <option value="Nagad">Nagad</option>
         </select>
 
-        <div id="payment-info" class="payment-info"></div>
+        <div id="payment-info" class="payment-info" aria-live="polite"></div>
+
+        <div id="transaction-id-wrap" hidden>
+          <label for="transaction-id">Transaction ID *</label>
+          <input
+            id="transaction-id"
+            name="transactionId"
+            type="text"
+            maxlength="100"
+            placeholder="আপনার bKash/Nagad Transaction ID লিখুন"
+            autocomplete="off"
+          >
+          <p class="muted">পেমেন্ট সম্পন্ন করে Transaction ID দিয়ে অর্ডার কনফার্ম করুন।</p>
+        </div>
 
         <button class="btn" type="submit">
           PLACE ORDER
@@ -199,7 +212,7 @@
   <script src="firebase.js?v=3"></script>
 
   <!-- MAIN STORE JAVASCRIPT -->
-  <script src="store.js?v=6"></script>
+  <script src="store.js?v=7"></script>
 
 </body>
 </html>
