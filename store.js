@@ -1,5 +1,15 @@
 
+const db = window.db;
+
 const productList = document.getElementById("product-list");
+
+if (!db || typeof db.ref !== "function") {
+  if (productList) {
+    productList.textContent =
+      "Firebase connection error: database is not initialized. Please refresh the page.";
+  }
+  throw new Error("Firebase database is not initialized. Check firebase.js and SDK loading order.");
+}
 const cartItems = document.getElementById("cart-items");
 const cartTotal = document.getElementById("cart-total");
 const cartCount = document.getElementById("cart-count");
@@ -254,24 +264,36 @@ if (cartItems) {
 }
 
 // Load products from Firebase
-db.ref("products").on("value", snapshot => {
-  products = [];
+try {
+  db.ref("products").on("value", snapshot => {
+    products = [];
 
-  snapshot.forEach(child => {
-    products.push({
-      id: child.key,
-      ...child.val()
+    snapshot.forEach(child => {
+      const value = child.val();
+      if (value && typeof value === "object") {
+        products.push({
+          id: child.key,
+          ...value
+        });
+      }
     });
+
+    renderProducts(products);
+
+  }, error => {
+    console.error("Products read error:", error);
+    if (productList) {
+      productList.textContent =
+        "Could not load products: " + (error.message || String(error));
+    }
   });
-
-  renderProducts(products);
-
-}, error => {
+} catch (error) {
+  console.error("Products setup error:", error);
   if (productList) {
     productList.textContent =
-      "Could not load products: " + error.message;
+      "Products setup error: " + (error.message || String(error));
   }
-});
+}
 
 // Load store settings
 db.ref("settings").on("value", snapshot => {
