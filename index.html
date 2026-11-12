@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080808"><title>JSF FASHION | Premium Wear</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html"><span class="brand-mark">JSF</span><span>JSF <b>FASHION</b><small>PREMIUM WEAR</small></span></a>
+  <nav><a href="#shop">Shop</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
+  <button class="cart-button" id="openCart">Cart <span id="cartCount">0</span></button>
+</header>
+<main>
+  <section class="hero">
+    <div class="hero-copy"><p class="eyebrow">NEW COLLECTION · 2026</p><h1>STYLE THAT<br><em>SPEAKS.</em></h1>
+      <p>Discover everyday essentials and statement pieces, curated for your style.</p><a class="gold-button" href="#shop">EXPLORE COLLECTION</a></div>
+    <div class="hero-art"><div class="hero-ring"></div><div class="hero-label">JSF<br>FASHION</div></div>
+  </section>
+  <section class="section" id="shop"><div class="section-heading"><div><p class="eyebrow">CURATED FOR YOU</p><h2>Latest Collection</h2></div><input id="searchInput" class="search" placeholder="Search products..."></div>
+    <div id="categoryBar" class="categories"><button class="active" data-category="All">All</button></div>
+    <div id="productGrid" class="product-grid"><p class="muted">Loading products…</p></div>
+  </section>
+  <section class="about section" id="about"><p class="eyebrow">OUR PHILOSOPHY</p><h2>Less ordinary.<br><em>More you.</em></h2><p>Thoughtfully selected fashion for confident everyday expression.</p></section>
+</main>
+<footer id="contact"><div class="brand"><span class="brand-mark">JSF</span><span>JSF <b>FASHION</b></span></div><p>Questions? Contact us through the details shared at checkout.</p><small>© 2026 JSF FASHION. All rights reserved.</small></footer>
+<div class="overlay" id="cartOverlay"></div>
+<aside class="cart-drawer" id="cartDrawer"><div class="drawer-head"><h3>Your Cart</h3><button id="closeCart" class="icon-button">✕</button></div><div id="cartItems"></div><div class="cart-total"><span>Total</span><b id="cartTotal">৳0</b></div>
+  <form id="checkoutForm" class="checkout-form"><h3>Checkout</h3><input name="name" required placeholder="আপনার নাম"><input name="phone" required inputmode="tel" placeholder="মোবাইল নম্বর"><textarea name="address" required placeholder="সম্পূর্ণ ঠিকানা"></textarea><button class="gold-button full" type="submit">PLACE ORDER</button><p class="tiny muted">অর্ডার জমা হলে দোকানের অ্যাডমিন তা দেখতে পারবেন।</p></form>
+</aside>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script><script src="app.js"></script>
+</body></html>

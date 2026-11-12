@@ -1,0 +1,16 @@
+{
+  "rules": {
+    "products": {
+      ".read": true,
+      ".write": "auth != null && auth.uid == 'MYGho0eVmHMWPV9n9GFSmO3XvC62'"
+    },
+    "settings": {
+      ".read": true,
+      ".write": "auth != null && auth.uid == 'MYGho0eVmHMWPV9n9GFSmO3XvC62'"
+    },
+    "orders": {
+      ".read": "auth != null && auth.uid == 'MYGho0eVmHMWPV9n9GFSmO3XvC62'",
+      ".write": "auth != null && auth.uid == 'MYGho0eVmHMWPV9n9GFSmO3XvC62' || (!data.exists() && newData.exists())"
+    }
+  }
+}

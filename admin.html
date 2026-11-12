@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JSF FASHION | Admin</title><link rel="stylesheet" href="style.css"></head>
+<body class="admin-body">
+<header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">JSF</span><span>JSF <b>FASHION</b><small>ADMIN PORTAL</small></span></a><a class="text-link" href="index.html">View Store ↗</a></header>
+<main class="admin-wrap">
+<section id="loginPanel" class="panel login-panel"><p class="eyebrow">RESTRICTED ACCESS</p><h1>Admin Login</h1><p class="muted">শুধুমাত্র অনুমোদিত অ্যাডমিন অ্যাকাউন্ট দিয়ে প্রবেশ করুন।</p><form id="loginForm"><input name="email" type="email" required placeholder="Admin email"><input name="password" type="password" required placeholder="Password"><button class="gold-button full">LOGIN</button><p id="loginMessage" class="message"></p></form></section>
+<section id="dashboard" hidden>
+  <div class="admin-title"><div><p class="eyebrow">CONTROL CENTER</p><h1>Admin Dashboard</h1></div><button id="logoutBtn" class="outline-button">Logout</button></div>
+  <div class="stats"><div class="panel"><span>Products</span><b id="productStat">0</b></div><div class="panel"><span>Orders</span><b id="orderStat">0</b></div></div>
+  <div class="admin-grid">
+    <section class="panel"><h2 id="productFormTitle">Add Product</h2><form id="productForm"><input name="name" required placeholder="Product name"><textarea name="description" placeholder="Description"></textarea><div class="two"><input name="price" type="number" min="0" required placeholder="Price (৳)"><input name="category" placeholder="Category (e.g. T-shirt)"></div><input name="image" placeholder="Product image URL (https://...)"><input name="sizes" placeholder="Sizes (S,M,L,XL)"><button class="gold-button full">SAVE PRODUCT</button><button type="button" id="cancelEdit" class="outline-button full" hidden>Cancel edit</button></form></section>
+    <section class="panel"><h2>Store Settings</h2><form id="settingsForm"><label>বিকাশ নম্বর</label><input name="bkash" placeholder="01XXXXXXXXX"><label>নগদ নম্বর</label><input name="nagad" placeholder="01XXXXXXXXX"><label>প্রোফাইল / স্টোর ছবির URL</label><input name="profileImage" placeholder="https://..."><button class="gold-button full">SAVE SETTINGS</button><p class="tiny muted">ছবিটি আগে অনলাইনে আপলোড করে সরাসরি image URL দিন।</p></form><div id="settingsPreview" class="settings-preview"></div></section>
+  </div>
+  <section class="panel"><h2>Products</h2><div id="adminProducts" class="admin-list"></div></section>
+  <section class="panel"><h2>Customer Orders</h2><div id="adminOrders" class="admin-list"></div></section>
+</section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script><script src="firebase-config.js"></script><script src="admin.js"></script>
+</body></html>
