@@ -213,6 +213,83 @@ if (productImageInput) {
   });
 }
 
+
+/* =================================
+   4B. HOMEPAGE BANNER MANAGEMENT
+================================= */
+let bannerImages = [];
+const bannerFilesInput = $("banner-image-files");
+const uploadBannerButton = $("upload-banner-images");
+const bannerList = $("banner-image-list");
+const bannerMessage = $("banner-upload-message");
+function renderBannerImageList() {
+  if (!bannerList) return;
+  if (!bannerImages.length) {
+    bannerList.innerHTML = '<p class="muted">এখনো কোনো Banner Image আপলোড করা হয়নি।</p>';
+    return;
+  }
+  bannerList.innerHTML = bannerImages.map((url, index) => `<article class="banner-image-card"><img src="${escapeHTML(url)}" alt="Banner ${index + 1}"><div><strong>Banner ${index + 1}</strong><button class="small-btn delete" type="button" data-remove-banner="${index}">REMOVE</button></div></article>`).join("");
+}
+if (uploadBannerButton && bannerFilesInput) {
+  uploadBannerButton.addEventListener("click", async () => {
+    const files = Array.from(bannerFilesInput.files || []);
+    if (!files.length) {
+      showMessage(bannerMessage, "প্রথমে গ্যালারি থেকে ছবি নির্বাচন করুন।", "error");
+      return;
+    }
+    const invalid = files.find(file => !["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 10 * 1024 * 1024);
+    if (invalid) {
+      showMessage(bannerMessage, "শুধু JPG, PNG বা WEBP ছবি দিন; প্রতিটি ছবি ১০ MB-এর কম হতে হবে।", "error");
+      return;
+    }
+    uploadBannerButton.disabled = true;
+    uploadBannerButton.textContent = "UPLOADING...";
+    let uploaded = 0;
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        formData.append("folder", "jsf-fashion-banners");
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {method:"POST", body:formData});
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error?.message || "Cloudinary upload failed.");
+        bannerImages.push(result.secure_url);
+        await set(ref(db, "settings/bannerImages"), bannerImages);
+        uploaded++;
+        renderBannerImageList();
+        showMessage(bannerMessage, `${uploaded} / ${files.length} টি ছবি আপলোড হয়েছে...`);
+      }
+      bannerFilesInput.value = "";
+      showMessage(bannerMessage, `${uploaded} টি Banner Image সফলভাবে আপলোড হয়েছে। ওয়েবসাইটে স্বয়ংক্রিয়ভাবে দেখা যাবে।`, "success");
+    } catch (error) {
+      console.error("Banner upload error:", error);
+      showMessage(bannerMessage, "ছবি আপলোডে সমস্যা: " + error.message, "error");
+    } finally {
+      uploadBannerButton.disabled = false;
+      uploadBannerButton.textContent = "UPLOAD SELECTED IMAGES";
+    }
+  });
+}
+if (bannerList) {
+  bannerList.addEventListener("click", async event => {
+    const button = event.target.closest("[data-remove-banner]");
+    if (!button) return;
+    const index = Number(button.dataset.removeBanner);
+    if (!Number.isInteger(index) || index < 0 || index >= bannerImages.length) return;
+    if (!confirm("এই Banner Image ওয়েবসাইটের Slider থেকে সরাবেন?")) return;
+    const nextImages = bannerImages.filter((_, i) => i !== index);
+    try {
+      await set(ref(db, "settings/bannerImages"), nextImages);
+      bannerImages = nextImages;
+      renderBannerImageList();
+      showMessage(bannerMessage, "Banner Image সরানো হয়েছে।", "success");
+    } catch (error) {
+      showMessage(bannerMessage, "ছবি সরানো যায়নি: " + firebaseError(error), "error");
+    }
+  });
+}
+
 /* =================================
    5. LOGIN SYSTEM
 ================================= */
@@ -655,6 +732,8 @@ function loadSettings() {
     $("store-picture").value = settings.storePicture || "";
     $("whatsapp-admin-1").value = settings.whatsappAdmin1 || "";
     $("whatsapp-admin-2").value = settings.whatsappAdmin2 || "";
+    bannerImages = Array.isArray(settings.bannerImages) ? settings.bannerImages : [];
+    renderBannerImageList();
 
   }, (error) => {
     console.error("Settings load error:", error);
