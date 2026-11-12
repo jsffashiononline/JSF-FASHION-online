@@ -383,19 +383,32 @@ function updatePaymentInfo() {
 
   const method = paymentMethod.value;
 
+  const transactionWrap = $("transaction-id-wrap");
+  const transactionInput = $("transaction-id");
+
   if (method === "bKash") {
-    paymentInfo.textContent =
-      "bKash Number: " +
-      (settings.bkash || "Please contact the store.");
+    const number = settings.bkashNumber || settings.bkash || "";
+    paymentInfo.textContent = number
+      ? "বিকাশে Send Money করুন এই নম্বরে: " + number
+      : "বিকাশ নম্বর এখনো Admin Panel থেকে যোগ করা হয়নি।";
+    if (transactionWrap) transactionWrap.hidden = false;
+    if (transactionInput) transactionInput.required = true;
 
   } else if (method === "Nagad") {
-    paymentInfo.textContent =
-      "Nagad Number: " +
-      (settings.nagad || "Please contact the store.");
+    const number = settings.nagadNumber || settings.nagad || "";
+    paymentInfo.textContent = number
+      ? "নগদে Send Money করুন এই নম্বরে: " + number
+      : "নগদ নম্বর এখনো Admin Panel থেকে যোগ করা হয়নি।";
+    if (transactionWrap) transactionWrap.hidden = false;
+    if (transactionInput) transactionInput.required = true;
 
   } else {
-    paymentInfo.textContent =
-      "Pay when your order is delivered.";
+    paymentInfo.textContent = "Cash on Delivery — পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন।";
+    if (transactionWrap) transactionWrap.hidden = true;
+    if (transactionInput) {
+      transactionInput.required = false;
+      transactionInput.value = "";
+    }
   }
 }
 
@@ -456,6 +469,7 @@ if ($("checkout-form")) {
       address: String(data.get("address") || "").trim(),
 
       paymentMethod: String(data.get("payment") || ""),
+      transactionId: String(data.get("transactionId") || "").trim(),
 
       items: orderItems.map(item => ({
         id: item.id,
@@ -473,6 +487,23 @@ if ($("checkout-form")) {
       status: "Pending",
       createdAt: Date.now()
     };
+
+    if (
+      (order.paymentMethod === "bKash" || order.paymentMethod === "Nagad") &&
+      !order.transactionId
+    ) {
+      if (message) message.textContent = "বিকাশ/নগদ পেমেন্টের Transaction ID লিখুন।";
+      $("transaction-id")?.focus();
+      return;
+    }
+
+    if (
+      (order.paymentMethod === "bKash" && !(settings.bkashNumber || settings.bkash)) ||
+      (order.paymentMethod === "Nagad" && !(settings.nagadNumber || settings.nagad))
+    ) {
+      if (message) message.textContent = "এই পেমেন্ট নম্বরটি এখনো Admin Panel থেকে সেট করা হয়নি।";
+      return;
+    }
 
     if (
       !order.customerName ||
