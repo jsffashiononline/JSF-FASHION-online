@@ -15,5 +15,8 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-// Realtime Database
-const db = firebase.database();
+// Make Database available globally
+window.db = firebase.database();
+
+console.log("JSF FASHION Firebase Connected");
+console.log("Database:", window.db);
