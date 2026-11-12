@@ -232,3 +232,30 @@ button,input,select,textarea{font:inherit}
   height:21px;
   flex:0 0 21px;
 }
+
+
+/* Payment number appears directly above the required transaction ID */
+.payment-info{
+  display:block;
+  margin-top:12px;
+  padding:13px 14px;
+  background:#17130a;
+  border:1px solid var(--gold);
+  border-radius:6px;
+  color:var(--gold-light);
+  font-size:15px;
+  font-weight:700;
+  line-height:1.6;
+  overflow-wrap:anywhere;
+}
+#transaction-id-wrap{
+  margin-top:12px;
+  padding:13px 14px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:6px;
+}
+#transaction-id-wrap[hidden]{display:none}
+#transaction-id-wrap label{margin-top:0}
+#transaction-id-wrap input{margin-top:7px}
+#transaction-id-wrap .muted{margin-top:7px;font-size:12px}
