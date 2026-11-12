@@ -57,7 +57,7 @@ function renderHeroSlides(images) {
     return;
   }
   heroSlideIndex = Math.min(heroSlideIndex, validImages.length - 1);
-  stage.innerHTML = validImages.map((url, index) => `<img class="hero-slide-image ${index === heroSlideIndex ? "active" : ""}" src="${safeText(url)}" alt="JSF FASHION banner ${index + 1}" loading="${index === 0 ? "eager" : "lazy"}">`).join("");
+  stage.innerHTML = validImages.map((url, index) => `<img class="hero-slide-image image-view-trigger ${index === heroSlideIndex ? "active" : ""}" src="${safeText(url)}" alt="JSF FASHION banner ${index + 1}" loading="${index === 0 ? "eager" : "lazy"}" role="button" tabindex="0" aria-label="ব্যানার ছবি বড় করে দেখুন">`).join("");
   dots.innerHTML = validImages.map((_, index) => `<button type="button" class="hero-dot ${index === heroSlideIndex ? "active" : ""}" data-slide-index="${index}" aria-label="Show banner ${index + 1}"></button>`).join("");
   $("hero-prev")?.classList.toggle("hidden", validImages.length < 2);
   $("hero-next")?.classList.toggle("hidden", validImages.length < 2);
@@ -132,9 +132,13 @@ function renderProducts(list) {
       <article class="product-card">
 
         <img
+          class="product-view-image image-view-trigger"
           src="${safeText(p.image || "")}"
           alt="${safeText(p.name)}"
           loading="lazy"
+          role="button"
+          tabindex="0"
+          aria-label="${safeText(p.name)} ছবি বড় করে দেখুন"
           onerror="this.style.display='none'"
         >
 
@@ -180,6 +184,54 @@ function renderProducts(list) {
     `;
   }).join("");
 }
+
+// Click-to-enlarge image viewer for product photos and homepage banners
+let imageViewer = null;
+function getImageViewer() {
+  if (imageViewer) return imageViewer;
+  imageViewer = document.createElement("div");
+  imageViewer.className = "image-viewer";
+  imageViewer.hidden = true;
+  imageViewer.setAttribute("role", "dialog");
+  imageViewer.setAttribute("aria-modal", "true");
+  imageViewer.setAttribute("aria-label", "ছবি বড় করে দেখুন");
+  imageViewer.innerHTML = '<button type="button" class="image-viewer-close" aria-label="ছবি বন্ধ করুন">×</button><img class="image-viewer-full" alt=""><p class="image-viewer-hint">বন্ধ করতে বাইরে চাপ দিন অথবা Esc চাপুন</p>';
+  document.body.appendChild(imageViewer);
+  imageViewer.addEventListener("click", event => {
+    if (event.target === imageViewer || event.target.closest(".image-viewer-close")) closeImageViewer();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !imageViewer.hidden) closeImageViewer();
+  });
+  return imageViewer;
+}
+function openImageViewer(source) {
+  if (!source || !source.currentSrc && !source.src) return;
+  const viewer = getImageViewer();
+  const fullImage = viewer.querySelector(".image-viewer-full");
+  fullImage.src = source.currentSrc || source.src;
+  fullImage.alt = source.alt || "JSF FASHION product image";
+  viewer.hidden = false;
+  document.body.classList.add("image-viewer-open");
+  viewer.querySelector(".image-viewer-close").focus();
+}
+function closeImageViewer() {
+  if (!imageViewer) return;
+  imageViewer.hidden = true;
+  imageViewer.querySelector(".image-viewer-full").removeAttribute("src");
+  document.body.classList.remove("image-viewer-open");
+}
+function activateImageTrigger(target) {
+  const image = target.closest(".image-view-trigger");
+  if (image && image.tagName === "IMG") openImageViewer(image);
+}
+document.addEventListener("click", event => activateImageTrigger(event.target));
+document.addEventListener("keydown", event => {
+  if ((event.key === "Enter" || event.key === " ") && event.target.closest?.(".image-view-trigger")) {
+    event.preventDefault();
+    activateImageTrigger(event.target);
+  }
+});
 
 // Expand/collapse product descriptions
 if (productList) {
