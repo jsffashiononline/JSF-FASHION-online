@@ -1,3 +1,4 @@
+
 {
   "rules": {
     "products": {
@@ -11,7 +12,7 @@
     "orders": {
       ".read": "auth != null && auth.uid == 'MYGho0eVmHMWPV9n9GFSmO3XvC62'",
       "$orderId": {
-        ".write": "!data.exists() && newData.exists() || (auth != null && auth.uid == 'MYGho0eVmHMWPV9n9GFSmO3XvC62')"
+        ".write": "(!data.exists() && newData.exists()) || (auth != null && auth.uid == 'MYGho0eVmHMWPV9n9GFSmO3XvC62')"
       }
     }
   }
