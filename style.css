@@ -77,6 +77,35 @@ button,input,select,textarea{font:inherit}
 .product-info{padding:15px}
 .product-info h3{font-size:17px;margin-bottom:5px}
 .product-info p{color:var(--muted);font-size:13px}
+.product-info .product-description{
+  margin-top:8px;
+  color:#d0c7b2;
+  font-size:12px;
+  line-height:1.55;
+  display:-webkit-box;
+  -webkit-line-clamp:4;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.product-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:12px;
+}
+.product-actions .btn{
+  width:100%;
+  min-width:0;
+  padding:11px 7px;
+  font-size:11px;
+  text-align:center;
+  line-height:1.25;
+}
+.product-actions .direct-order-btn{
+  background:#17130a;
+  color:var(--gold-light);
+  border:1px solid var(--gold);
+}
 .product-price{color:var(--gold);font-size:20px;font-weight:bold;margin:9px 0}
 .product-info select{margin-bottom:10px}
 .cart-box,.checkout-box{
