@@ -3,17 +3,18 @@
   "rules": {
     "products": {
       ".read": true,
-      ".write": "auth != null && auth.uid == 'MYGho0eVmHMWPV9n9GFSmO3XvC62'"
+      ".write": "auth != null && (auth.uid == 'oqLhQp7pgVUBWFAwLFfjgIg3v2r1' || auth.uid == 'iGYHyUYQKEbICfzY7VDt9HMWcEi1')"
+    },
+    "orders": {
+      ".read": "auth != null && (auth.uid == 'oqLhQp7pgVUBWFAwLFfjgIg3v2r1' || auth.uid == 'iGYHyUYQKEbICfzY7VDt9HMWcEi1')",
+      "$orderId": {
+        ".write": "auth != null && (auth.uid == 'oqLhQp7pgVUBWFAwLFfjgIg3v2r1' || auth.uid == 'iGYHyUYQKEbICfzY7VDt9HMWcEi1') || (!data.exists() && newData.exists())",
+        ".validate": "newData.hasChildren()"
+      }
     },
     "settings": {
       ".read": true,
-      ".write": "auth != null && auth.uid == 'MYGho0eVmHMWPV9n9GFSmO3XvC62'"
-    },
-    "orders": {
-      ".read": "auth != null && auth.uid == 'MYGho0eVmHMWPV9n9GFSmO3XvC62'",
-      "$orderId": {
-        ".write": "(!data.exists() && newData.exists()) || (auth != null && auth.uid == 'MYGho0eVmHMWPV9n9GFSmO3XvC62')"
-      }
+      ".write": "auth != null && (auth.uid == 'oqLhQp7pgVUBWFAwLFfjgIg3v2r1' || auth.uid == 'iGYHyUYQKEbICfzY7VDt9HMWcEi1')"
     }
   }
 }
