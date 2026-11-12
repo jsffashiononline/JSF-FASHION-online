@@ -11,311 +11,555 @@ import {
   ref,
   onValue,
   get,
-  set,
   push,
+  set,
   update,
   remove
 } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-database.js";
 
-// TWO AUTHORIZED ADMINS
+/* =================================
+   1. AUTHORIZED ADMIN UID
+================================= */
+
 const ADMIN_UIDS = [
   "oqLhQp7pgVUBWFAwLFfjgIg3v2r1",
   "iGYHyUYQKEbICfzY7VDt9HMWcEi1"
 ];
 
-const loginSection = document.getElementById("login-section");
-const dashboard = document.getElementById("dashboard");
-const loginMessage = document.getElementById("login-message");
+/* =================================
+   2. HTML ELEMENTS
+================================= */
 
-let productCache = {};
-let orderCache = {};
+const $ = (id) => document.getElementById(id);
+
+const loginSection = $("login-section");
+const dashboard = $("dashboard");
+const loginForm = $("login-form");
+const loginMessage = $("login-message");
+const loginBtn = $("login-btn");
+const logoutBtn = $("logout-btn");
+
+const productForm = $("product-form");
+const productMessage = $("product-message");
+const productList = $("admin-products");
+const orderList = $("admin-orders");
+
+const settingsForm = $("settings-form");
+const settingsMessage = $("settings-message");
+
+/* =================================
+   3. HELPER FUNCTIONS
+================================= */
+
+function showMessage(element, message, type = "") {
+  if (!element) return;
+
+  element.textContent = message;
+  element.className = "message " + type;
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+function money(value) {
+  const amount = Number(value) || 0;
+  return "৳" + amount.toLocaleString("en-BD");
+}
 
 function isAdmin(user) {
-  return user && ADMIN_UIDS.includes(user.uid);
+  return Boolean(user && ADMIN_UIDS.includes(user.uid));
 }
 
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#39;"
-  })[c]);
+function firebaseError(error) {
+  const messages = {
+    "auth/invalid-credential": "Email অথবা Password ভুল।",
+    "auth/invalid-email": "সঠিক Email Address দিন।",
+    "auth/user-not-found": "এই Email দিয়ে কোনো Account পাওয়া যায়নি।",
+    "auth/wrong-password": "Password সঠিক নয়।",
+    "auth/too-many-requests": "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে চেষ্টা করুন।",
+    "auth/network-request-failed": "Internet Connection পরীক্ষা করুন।",
+    "auth/invalid-api-key": "Firebase API Key পরীক্ষা করুন।",
+    "auth/operation-not-allowed": "Firebase Email/Password Login চালু নেই।"
+  };
+
+  return messages[error.code] ||
+    error.message ||
+    "একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।";
 }
 
-function formatMoney(value) {
-  return Number(value || 0).toLocaleString("en-BD");
-}
+/* =================================
+   4. LOGIN SYSTEM
+================================= */
 
-function showLogin() {
-  loginSection.classList.remove("hidden");
-  dashboard.classList.add("hidden");
-  document.getElementById("logout-btn").classList.add("hidden");
-}
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-function showDashboard() {
-  loginSection.classList.add("hidden");
-  dashboard.classList.remove("hidden");
-  document.getElementById("logout-btn").classList.remove("hidden");
-  loadAdminData();
-}
+  const email = $("email").value.trim();
+  const password = $("password").value;
 
-document.getElementById("login-form").addEventListener("submit", async e => {
-  e.preventDefault();
+  if (!email || !password) {
+    showMessage(loginMessage, "Email এবং Password দিন।", "error");
+    return;
+  }
 
-  loginMessage.textContent = "Signing in...";
-
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+  loginBtn.disabled = true;
+  loginBtn.textContent = "LOGGING IN...";
+  showMessage(loginMessage, "Login হচ্ছে...");
 
   try {
-    const result = await signInWithEmailAndPassword(auth, email, password);
+    const result = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
     if (!isAdmin(result.user)) {
       await signOut(auth);
-      loginMessage.textContent = "Access denied. Not an authorized admin.";
+      showMessage(
+        loginMessage,
+        "এই Account Admin হিসেবে অনুমোদিত নয়।",
+        "error"
+      );
+      return;
     }
+
+    loginForm.reset();
+    showMessage(loginMessage, "Login successful!", "success");
+
   } catch (error) {
-    loginMessage.textContent = error.message;
+    console.error("Login error:", error);
+
+    showMessage(
+      loginMessage,
+      firebaseError(error),
+      "error"
+    );
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "LOGIN";
   }
 });
 
-document.getElementById("logout-btn").addEventListener("click", () => {
-  signOut(auth);
-});
+/* =================================
+   5. AUTHENTICATION CHECK
+================================= */
 
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    showLogin();
+    loginSection.classList.remove("hidden");
+    dashboard.classList.add("hidden");
+    logoutBtn.classList.add("hidden");
+    $("admin-email").textContent = "";
     return;
   }
 
   if (!isAdmin(user)) {
-    signOut(auth);
-    loginMessage.textContent = "Access denied.";
+    showMessage(
+      loginMessage,
+      "আপনার Account Admin Access পায়নি।",
+      "error"
+    );
+
+    await signOut(auth);
     return;
   }
 
-  showDashboard();
+  loginSection.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  logoutBtn.classList.remove("hidden");
+  $("admin-email").textContent = user.email || "Admin";
+
+  loadProducts();
+  loadOrders();
+  loadSettings();
 });
 
-function loadAdminData() {
-  onValue(ref(db, "products"), snapshot => {
-    productCache = snapshot.val() || {};
-    renderAdminProducts();
-    updateStats();
-  });
+/* =================================
+   6. LOGOUT
+================================= */
 
-  onValue(ref(db, "orders"), snapshot => {
-    orderCache = snapshot.val() || {};
-    renderAdminOrders();
-    updateStats();
-  });
-
-  get(ref(db, "settings")).then(snapshot => {
-    const s = snapshot.val() || {};
-
-    document.getElementById("bkash-number").value = s.bkash || "";
-    document.getElementById("nagad-number").value = s.nagad || "";
-    document.getElementById("store-picture").value = s.profileImage || "";
-  }).catch(error => {
-    console.error("Settings error:", error);
-  });
-}
-
-function updateStats() {
-  const products = Object.values(productCache);
-  const orders = Object.values(orderCache);
-
-  document.getElementById("total-products").textContent = products.length;
-  document.getElementById("total-orders").textContent = orders.length;
-
-  document.getElementById("pending-orders").textContent =
-    orders.filter(o => o.status === "Pending").length;
-
-  document.getElementById("delivered-orders").textContent =
-    orders.filter(o => o.status === "Delivered").length;
-
-  const sales = orders
-    .filter(o => o.status !== "Cancelled")
-    .reduce((sum, o) => sum + Number(o.total || 0), 0);
-
-  document.getElementById("total-sales").textContent =
-    "৳" + formatMoney(sales);
-}
-
-function renderAdminProducts() {
-  const container = document.getElementById("admin-products");
-  const entries = Object.entries(productCache);
-
-  if (!entries.length) {
-    container.innerHTML = "<p>No products added yet.</p>";
-    return;
+logoutBtn.addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    alert(firebaseError(error));
   }
+});
 
-  container.innerHTML = entries.map(([id, p]) => `
-    <div class="admin-item">
-      <h3>${esc(p.name)}</h3>
-      <p>Price: ৳${formatMoney(p.price)} | ${esc(p.category)}</p>
-      <img src="${esc(p.image || "")}" alt="Product image"
-           onerror="this.style.display='none'">
-      <div>
-        <button class="secondary" onclick="editProduct('${esc(id)}')">EDIT</button>
-        <button class="danger" onclick="deleteProduct('${esc(id)}')">DELETE</button>
-      </div>
-    </div>
-  `).join("");
+/* =================================
+   7. PRODUCT MANAGEMENT
+================================= */
+
+function loadProducts() {
+  const productsRef = ref(db, "products");
+
+  onValue(productsRef, (snapshot) => {
+    const products = snapshot.val() || {};
+    const entries = Object.entries(products);
+
+    $("total-products").textContent = entries.length;
+
+    if (!entries.length) {
+      productList.innerHTML =
+        '<p class="muted">No products added yet.</p>';
+      return;
+    }
+
+    productList.innerHTML = entries.map(([id, product]) => {
+      const name = escapeHTML(product.name || "Unnamed Product");
+      const price = money(product.price);
+      const category = escapeHTML(product.category || "");
+      const image = escapeHTML(product.image || "");
+
+      return `
+        <article class="data-card product-card">
+          <img
+            src="${image}"
+            alt="${name}"
+            loading="lazy"
+            onerror="this.style.display='none'"
+          >
+
+          <div class="product-info">
+            <h3>${name}</h3>
+            <p>${price} | ${category}</p>
+
+            <div class="item-actions">
+              <button
+                class="small-btn edit"
+                type="button"
+                data-action="edit-product"
+                data-id="${escapeHTML(id)}"
+              >EDIT</button>
+
+              <button
+                class="small-btn delete"
+                type="button"
+                data-action="delete-product"
+                data-id="${escapeHTML(id)}"
+              >DELETE</button>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join("");
+
+  }, (error) => {
+    console.error("Products error:", error);
+    productList.textContent = "Products load failed: " + error.message;
+  });
 }
 
-document.getElementById("product-form").addEventListener("submit", async e => {
-  e.preventDefault();
+productForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-  const id = document.getElementById("product-id").value;
+  const id = $("product-id").value.trim();
 
   const product = {
-    name: document.getElementById("product-name").value.trim(),
-    price: Number(document.getElementById("product-price").value),
-    category: document.getElementById("product-category").value.trim(),
-    image: document.getElementById("product-image").value.trim(),
-    sizes: document.getElementById("product-sizes").value
-      .split(",").map(s => s.trim()).filter(Boolean),
-    description: document.getElementById("product-description").value.trim()
+    name: $("product-name").value.trim(),
+    price: Number($("product-price").value),
+    category: $("product-category").value.trim(),
+    image: $("product-image").value.trim(),
+    sizes: $("product-sizes").value.trim(),
+    description: $("product-description").value.trim(),
+    updatedAt: Date.now()
   };
 
-  if (!product.name || !product.category || !product.image ||
-      !Number.isFinite(product.price) || product.price < 0) {
-    alert("Please enter valid product details.");
+  if (
+    !product.name ||
+    !Number.isFinite(product.price) ||
+    product.price < 0 ||
+    !product.category ||
+    !product.image
+  ) {
+    showMessage(productMessage, "সঠিক Product Information দিন।", "error");
     return;
   }
+
+  const saveButton = $("save-product-btn");
+  saveButton.disabled = true;
+  showMessage(productMessage, "Saving product...");
 
   try {
     if (id) {
       await update(ref(db, "products/" + id), product);
     } else {
-      await push(ref(db, "products"), product);
+      const newProductRef = push(ref(db, "products"));
+      product.createdAt = Date.now();
+      await set(newProductRef, product);
     }
 
-    e.currentTarget.reset();
-    document.getElementById("product-id").value = "";
-    alert("Product saved successfully.");
+    productForm.reset();
+    $("product-id").value = "";
+
+    showMessage(
+      productMessage,
+      "Product সফলভাবে Save হয়েছে।",
+      "success"
+    );
+
   } catch (error) {
-    alert("Could not save product: " + error.message);
+    console.error("Product save error:", error);
+    showMessage(
+      productMessage,
+      "Product Save হয়নি: " + firebaseError(error),
+      "error"
+    );
+  } finally {
+    saveButton.disabled = false;
   }
 });
 
-function editProduct(id) {
-  const p = productCache[id];
-  if (!p) return;
+/* =================================
+   8. EDIT AND DELETE PRODUCTS
+================================= */
 
-  document.getElementById("product-id").value = id;
-  document.getElementById("product-name").value = p.name || "";
-  document.getElementById("product-price").value = p.price || "";
-  document.getElementById("product-category").value = p.category || "";
-  document.getElementById("product-image").value = p.image || "";
-  document.getElementById("product-sizes").value = (p.sizes || []).join(",");
-  document.getElementById("product-description").value = p.description || "";
+productList.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
 
-  document.getElementById("product-form").scrollIntoView({ behavior: "smooth" });
-}
+  const id = button.dataset.id;
+  const action = button.dataset.action;
 
-async function deleteProduct(id) {
-  if (!confirm("Delete this product?")) return;
+  if (!id) return;
 
-  try {
-    await remove(ref(db, "products/" + id));
-  } catch (error) {
-    alert(error.message);
+  if (action === "edit-product") {
+    try {
+      const snapshot = await get(ref(db, "products/" + id));
+
+      if (!snapshot.exists()) {
+        showMessage(productMessage, "Product পাওয়া যায়নি।", "error");
+        return;
+      }
+
+      const product = snapshot.val();
+
+      $("product-id").value = id;
+      $("product-name").value = product.name || "";
+      $("product-price").value = product.price ?? "";
+      $("product-category").value = product.category || "";
+      $("product-image").value = product.image || "";
+      $("product-sizes").value = product.sizes || "";
+      $("product-description").value = product.description || "";
+
+      $("product-name").scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+      showMessage(productMessage, "এখন Product Edit করে Save করুন।");
+
+    } catch (error) {
+      showMessage(productMessage, firebaseError(error), "error");
+    }
   }
-}
 
-document.getElementById("cancel-edit").addEventListener("click", () => {
-  document.getElementById("product-form").reset();
-  document.getElementById("product-id").value = "";
+  if (action === "delete-product") {
+    const confirmed = confirm("আপনি কি এই Product Delete করতে চান?");
+    if (!confirmed) return;
+
+    try {
+      await remove(ref(db, "products/" + id));
+
+      showMessage(
+        productMessage,
+        "Product Delete হয়েছে।",
+        "success"
+      );
+
+    } catch (error) {
+      showMessage(
+        productMessage,
+        "Delete failed: " + firebaseError(error),
+        "error"
+      );
+    }
+  }
 });
 
-function renderAdminOrders() {
-  const container = document.getElementById("admin-orders");
-  const entries = Object.entries(orderCache).reverse();
+/* =================================
+   9. CLEAR PRODUCT FORM
+================================= */
 
-  if (!entries.length) {
-    container.innerHTML = "<p>No orders yet.</p>";
-    return;
-  }
+$("cancel-edit").addEventListener("click", () => {
+  productForm.reset();
+  $("product-id").value = "";
+  showMessage(productMessage, "Form পরিষ্কার করা হয়েছে।");
+});
 
-  const statuses = [
-    "Pending", "Confirmed", "Processing",
-    "Shipped", "Delivered", "Cancelled"
-  ];
+/* =================================
+   10. CUSTOMER ORDERS
+================================= */
 
-  container.innerHTML = entries.map(([id, o]) => `
-    <div class="admin-item">
-      <h3>Order #${esc(id)}</h3>
-      <p>Customer: ${esc(o.customerName)}</p>
-      <p>Phone: ${esc(o.phone)}</p>
-      <p>Address: ${esc(o.address)}</p>
-      <p>Payment: ${esc(o.paymentMethod)}</p>
-      <p>Total: ৳${formatMoney(o.total)}</p>
-      <p>Items: ${(o.items || []).map(i =>
-        esc(i.name) + " × " + Number(i.qty || 1) + " (" + esc(i.size) + ")"
-      ).join(", ")}</p>
-      <label>Order Status</label>
-      <select onchange="updateOrderStatus('${esc(id)}',this.value)">
-        ${statuses.map(s =>
-          `<option value="${s}" ${o.status === s ? "selected" : ""}>${s}</option>`
-        ).join("")}
-      </select>
-      <button class="danger" onclick="deleteOrder('${esc(id)}')">DELETE ORDER</button>
-    </div>
-  `).join("");
+function loadOrders() {
+  const ordersRef = ref(db, "orders");
+
+  onValue(ordersRef, (snapshot) => {
+    const orders = snapshot.val() || {};
+    const entries = Object.entries(orders);
+
+    let pending = 0;
+    let delivered = 0;
+    let sales = 0;
+
+    entries.forEach(([id, order]) => {
+      const status = String(order.status || "Pending").toLowerCase();
+
+      if (status === "pending") pending++;
+      if (status === "delivered") {
+        delivered++;
+        sales += Number(order.total || order.totalAmount || order.amount || 0);
+      }
+    });
+
+    $("total-orders").textContent = entries.length;
+    $("pending-orders").textContent = pending;
+    $("delivered-orders").textContent = delivered;
+    $("total-sales").textContent = money(sales);
+
+    if (!entries.length) {
+      orderList.innerHTML =
+        '<p class="muted">No customer orders yet.</p>';
+      return;
+    }
+
+    orderList.innerHTML = entries.map(([id, order]) => {
+      const customer = escapeHTML(
+        order.customerName || order.name || "Customer"
+      );
+
+      const phone = escapeHTML(order.phone || order.mobile || "Not provided");
+      const address = escapeHTML(order.address || "Not provided");
+      const status = String(order.status || "Pending");
+
+      const allowedStatuses = [
+        "Pending",
+        "Confirmed",
+        "Processing",
+        "Shipped",
+        "Delivered",
+        "Cancelled"
+      ];
+
+      const options = allowedStatuses.map((item) => `
+        <option
+          value="${item}"
+          ${item.toLowerCase() === status.toLowerCase() ? "selected" : ""}
+        >${item}</option>
+      `).join("");
+
+      const itemsText = Array.isArray(order.items)
+        ? order.items.map((item) =>
+            `${item.name || item.productName || "Product"} x ${item.quantity || 1}`
+          ).join(", ")
+        : "See order details in database";
+
+      const total = money(
+        order.total || order.totalAmount || order.amount || 0
+      );
+
+      return `
+        <article class="data-card order-card">
+          <h3>Order #${escapeHTML(id)}</h3>
+          <p>Customer: ${customer}</p>
+          <p>Phone: ${phone}</p>
+          <p>Address: ${address}</p>
+          <p>Items: ${escapeHTML(itemsText)}</p>
+          <p>Total: ${total}</p>
+
+          <label for="status-${escapeHTML(id)}">Order Status</label>
+
+          <select
+            class="order-status"
+            id="status-${escapeHTML(id)}"
+            data-order-id="${escapeHTML(id)}"
+          >
+            ${options}
+          </select>
+        </article>
+      `;
+    }).join("");
+
+  }, (error) => {
+    console.error("Orders error:", error);
+    orderList.textContent = "Orders load failed: " + error.message;
+  });
 }
 
-async function updateOrderStatus(id, status) {
-  const allowed = [
-    "Pending", "Confirmed", "Processing",
-    "Shipped", "Delivered", "Cancelled"
-  ];
+/* =================================
+   11. UPDATE ORDER STATUS
+================================= */
 
-  if (!allowed.includes(status)) return;
+orderList.addEventListener("change", async (event) => {
+  const select = event.target.closest("select[data-order-id]");
+  if (!select) return;
+
+  const id = select.dataset.orderId;
+  const status = select.value;
 
   try {
-    await set(ref(db, "orders/" + id + "/status"), status);
+    await update(ref(db, "orders/" + id), {
+      status: status,
+      updatedAt: Date.now()
+    });
+
   } catch (error) {
-    alert("Status update failed: " + error.message);
+    alert("Order update failed: " + firebaseError(error));
   }
+});
+
+/* =================================
+   12. STORE SETTINGS
+================================= */
+
+function loadSettings() {
+  onValue(ref(db, "settings"), (snapshot) => {
+    const settings = snapshot.val() || {};
+
+    $("bkash-number").value = settings.bkashNumber || "";
+    $("nagad-number").value = settings.nagadNumber || "";
+    $("store-picture").value = settings.storePicture || "";
+
+  }, (error) => {
+    console.error("Settings load error:", error);
+    showMessage(settingsMessage, firebaseError(error), "error");
+  });
 }
 
-async function deleteOrder(id) {
-  if (!confirm("Permanently delete this order?")) return;
-
-  try {
-    await remove(ref(db, "orders/" + id));
-  } catch (error) {
-    alert(error.message);
-  }
-}
-
-document.getElementById("settings-form").addEventListener("submit", async e => {
-  e.preventDefault();
-
-  const message = document.getElementById("settings-message");
+settingsForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
   const settings = {
-    bkash: document.getElementById("bkash-number").value.trim(),
-    nagad: document.getElementById("nagad-number").value.trim(),
-    profileImage: document.getElementById("store-picture").value.trim()
+    bkashNumber: $("bkash-number").value.trim(),
+    nagadNumber: $("nagad-number").value.trim(),
+    storePicture: $("store-picture").value.trim(),
+    updatedAt: Date.now()
   };
 
   try {
     await update(ref(db, "settings"), settings);
-    message.textContent = "Store settings saved successfully.";
+
+    showMessage(
+      settingsMessage,
+      "Store Settings সফলভাবে Save হয়েছে।",
+      "success"
+    );
+
   } catch (error) {
-    message.textContent = "Settings save failed: " + error.message;
+    console.error("Settings save error:", error);
+
+    showMessage(
+      settingsMessage,
+      "Settings Save failed: " + firebaseError(error),
+      "error"
+    );
   }
 });
-
-// Make inline HTML buttons accessible
-window.editProduct = editProduct;
-window.deleteProduct = deleteProduct;
-window.updateOrderStatus = updateOrderStatus;
-window.deleteOrder = deleteOrder;
+        
