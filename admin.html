@@ -1,80 +1,172 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080808">
   <title>JSF FASHION | Admin Panel</title>
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-  <header class="admin-header">
-    <h2>JSF <span>FASHION</span> ADMIN</h2>
-    <button id="logout-btn" class="danger hidden">Logout</button>
-  </header>
 
-  <main class="admin-container">
-    <section id="login-section" class="panel login-panel">
-      <h1>Admin Login</h1>
-      <p>Sign in with your authorized Firebase account.</p>
-      <form id="login-form">
-        <input type="email" id="email" placeholder="Admin Email" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button class="gold-btn" type="submit">LOGIN</button>
-      </form>
-      <p id="login-message" class="message"></p>
-    </section>
+<header class="admin-header">
+  <a class="brand" href="admin.html">JSF <span>FASHION</span></a>
+  <div class="header-right">
+    <span id="admin-email"></span>
+    <button id="logout-btn" class="btn danger hidden" type="button">Logout</button>
+  </div>
+</header>
 
-    <section id="dashboard" class="hidden">
-      <h1>Dashboard</h1>
-      <div class="stats-grid">
-        <div class="stat-card"><span>Total Products</span><strong id="total-products">0</strong></div>
-        <div class="stat-card"><span>Total Orders</span><strong id="total-orders">0</strong></div>
-        <div class="stat-card"><span>Pending Orders</span><strong id="pending-orders">0</strong></div>
-        <div class="stat-card"><span>Delivered Orders</span><strong id="delivered-orders">0</strong></div>
-        <div class="stat-card"><span>Total Sales</span><strong id="total-sales">৳0</strong></div>
+<main class="container">
+
+  <!-- LOGIN -->
+  <section id="login-section" class="panel login-panel">
+    <div class="brand-mark">JSF</div>
+    <h1>Admin Login</h1>
+    <p class="muted">Sign in using your authorized admin account.</p>
+
+    <form id="login-form">
+      <label for="email">Email Address</label>
+      <input id="email" type="email" placeholder="Enter admin email" autocomplete="username" required>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Enter password" autocomplete="current-password" required>
+
+      <button id="login-btn" class="btn gold full" type="submit">LOGIN</button>
+    </form>
+    <p id="login-message" class="message" role="alert"></p>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="hidden">
+    <div class="welcome">
+      <div>
+        <p class="eyebrow">CONTROL CENTER</p>
+        <h1>Admin Dashboard</h1>
+        <p class="muted">Manage your JSF FASHION store.</p>
+      </div>
+      <span class="live-status">● Connected</span>
+    </div>
+
+    <!-- STATISTICS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span>Total Products</span>
+        <strong id="total-products">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>Total Orders</span>
+        <strong id="total-orders">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>Pending Orders</span>
+        <strong id="pending-orders">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>Delivered Orders</span>
+        <strong id="delivered-orders">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>Total Sales</span>
+        <strong id="total-sales">৳0</strong>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">STORE INVENTORY</p>
+          <h2>Product Management</h2>
+        </div>
       </div>
 
-      <section class="panel">
-        <h2>Product Management</h2>
-        <form id="product-form">
-          <input type="hidden" id="product-id">
-          <input id="product-name" placeholder="Product Name" required>
-          <input id="product-price" type="number" min="0" placeholder="Price (BDT)" required>
-          <input id="product-category" placeholder="Category" required>
-          <input id="product-image" type="url" placeholder="Product Image URL" required>
-          <input id="product-sizes" placeholder="Sizes separated by commas (S,M,L,XL)">
-          <textarea id="product-description" placeholder="Product Description"></textarea>
-          <button class="gold-btn" type="submit">SAVE PRODUCT</button>
-          <button type="button" id="cancel-edit" class="secondary">CLEAR FORM</button>
-        </form>
-        <div id="admin-products"></div>
-      </section>
+      <form id="product-form" class="form-grid">
+        <input type="hidden" id="product-id">
 
-      <section class="panel">
-        <h2>Customer Orders</h2>
-        <div id="admin-orders">Loading orders...</div>
-      </section>
+        <div>
+          <label for="product-name">Product Name *</label>
+          <input id="product-name" placeholder="Example: Premium T-Shirt" required>
+        </div>
 
-      <section class="panel">
-        <h2>Store Settings</h2>
-        <form id="settings-form">
-          <label>bKash Number</label>
-          <input id="bkash-number" placeholder="bKash Number">
-          <label>Nagad Number</label>
-          <input id="nagad-number" placeholder="Nagad Number">
-          <label>Store Profile Picture URL</label>
-          <input id="store-picture" type="url" placeholder="Image URL">
-          <button class="gold-btn" type="submit">SAVE SETTINGS</button>
-        </form>
-        <p id="settings-message" class="message"></p>
-      </section>
+        <div>
+          <label for="product-price">Price (BDT) *</label>
+          <input id="product-price" type="number" min="0" step="0.01" placeholder="850" required>
+        </div>
+
+        <div>
+          <label for="product-category">Category *</label>
+          <input id="product-category" placeholder="T-Shirt" required>
+        </div>
+
+        <div>
+          <label for="product-image">Image URL *</label>
+          <input id="product-image" type="url" placeholder="https://example.com/image.jpg" required>
+        </div>
+
+        <div class="wide">
+          <label for="product-sizes">Available Sizes</label>
+          <input id="product-sizes" placeholder="S, M, L, XL, XXL">
+        </div>
+
+        <div class="wide">
+          <label for="product-description">Description</label>
+          <textarea id="product-description" rows="4" placeholder="Product details..."></textarea>
+        </div>
+
+        <div class="wide button-row">
+          <button id="save-product-btn" class="btn gold" type="submit">SAVE PRODUCT</button>
+          <button id="cancel-edit" class="btn secondary" type="button">CLEAR FORM</button>
+        </div>
+      </form>
+
+      <p id="product-message" class="message" role="status"></p>
+      <div id="admin-products" class="data-list">Loading products...</div>
     </section>
-  </main>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <script src="admin.js"></script>
+    <!-- ORDERS -->
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">CUSTOMER PURCHASES</p>
+          <h2>Customer Orders</h2>
+        </div>
+      </div>
+      <div id="admin-orders" class="data-list">Loading orders...</div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">STORE CONFIGURATION</p>
+          <h2>Store Settings</h2>
+        </div>
+      </div>
+
+      <form id="settings-form">
+        <label for="bkash-number">bKash Number</label>
+        <input id="bkash-number" type="text" placeholder="01XXXXXXXXX">
+
+        <label for="nagad-number">Nagad Number</label>
+        <input id="nagad-number" type="text" placeholder="01XXXXXXXXX">
+
+        <label for="store-picture">Store Profile Picture URL</label>
+        <input id="store-picture" type="url" placeholder="https://example.com/store.jpg">
+
+        <button class="btn gold" type="submit">SAVE SETTINGS</button>
+      </form>
+      <p id="settings-message" class="message" role="status"></p>
+    </section>
+
+  </section>
+</main>
+
+<footer class="admin-footer">
+  JSF FASHION ADMIN PANEL
+</footer>
+
+<script type="module" src="admin.js"></script>
 </body>
 </html>
