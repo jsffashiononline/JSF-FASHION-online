@@ -21,6 +21,12 @@ let settings = {};
 
 let cart = [];
 let directOrderItems = null;
+try {
+  directOrderItems = JSON.parse(localStorage.getItem("jsf_direct_order") || "null");
+  if (!Array.isArray(directOrderItems)) directOrderItems = null;
+} catch (error) {
+  directOrderItems = null;
+}
 
 try {
   cart = JSON.parse(localStorage.getItem("jsf_cart") || "[]");
@@ -206,14 +212,13 @@ if (productList) {
         size,
         qty: 1
       }];
-
-      const message = $("checkout-message");
-      if (message) message.textContent = "Direct order selected. Fill in your delivery details below.";
-      $("checkout")?.scrollIntoView({ behavior: "smooth" });
+      localStorage.setItem("jsf_direct_order", JSON.stringify(directOrderItems));
+      window.location.href = "order.html";
       return;
     }
 
     directOrderItems = null;
+    localStorage.removeItem("jsf_direct_order");
     addToCart(id, size);
   });
 }
@@ -478,9 +483,8 @@ if (searchInput) {
 if ($("checkout-open")) {
   $("checkout-open").addEventListener("click", () => {
     directOrderItems = null;
-    $("checkout")?.scrollIntoView({
-      behavior: "smooth"
-    });
+    localStorage.removeItem("jsf_direct_order");
+    window.location.href = "order.html";
   });
 }
 
@@ -573,6 +577,7 @@ if ($("checkout-form")) {
       // Clear only the purchase path that was successfully submitted.
       if (directOrderItems) {
         directOrderItems = null;
+        localStorage.removeItem("jsf_direct_order");
       } else {
         cart = [];
         saveCart();
