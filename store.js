@@ -404,7 +404,7 @@ function updatePaymentInfo() {
         '<button type="button" class="payment-number-copy" data-copy-number="' + safeText(number) +
         '" aria-label="' + service + ' নম্বর কপি করুন"><span class="payment-number-value">' +
         safeText(number) + '</span><span class="payment-copy-hint">▢ কপি</span></button>' +
-        '<div class="payment-copy-feedback" aria-live="polite">শুধু নম্বরের বাটনে চাপ দিলে কপি হবে</div>';
+        '<div class="payment-copy-feedback" aria-live="polite">এই নাম্বারে সেন্ড মানি করুন</div>';
     } else {
       paymentInfo.textContent = service + " নম্বর এখনো Admin Panel থেকে যোগ করা হয়নি।";
     }
