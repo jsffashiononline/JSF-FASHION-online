@@ -576,9 +576,12 @@ function loadOrders() {
       `).join("");
 
       const itemsText = Array.isArray(order.items)
-        ? order.items.map((item) =>
-            `${item.name || item.productName || "Product"} x ${item.quantity || 1}`
-          ).join(", ")
+        ? order.items.map((item) => {
+            const itemName = item.name || item.productName || "Product";
+            const itemSize = item.size || item.selectedSize || "Not specified";
+            const itemQty = item.qty || item.quantity || 1;
+            return `${itemName} (Size: ${itemSize}) × ${itemQty}`;
+          }).join(" | ")
         : "See order details in database";
 
       const total = money(
@@ -643,13 +646,22 @@ function loadSettings() {
   onValue(ref(db, "settings"), (snapshot) => {
     const settings = snapshot.val() || {};
 
-    $("bkash-number").value = settings.bkashNumber || "";
-    $("nagad-number").value = settings.nagadNumber || "";
+    $("bkash-number").value = settings.bkashNumber || settings.bkash || "";
+    $("nagad-number").value = settings.nagadNumber || settings.nagad || "";
     $("store-picture").value = settings.storePicture || "";
 
   }, (error) => {
     console.error("Settings load error:", error);
     showMessage(settingsMessage, firebaseError(error), "error");
+  });
+
+  onValue(ref(db, "publicContact"), (snapshot) => {
+    const contacts = snapshot.val() || {};
+    $("whatsapp-admin-1").value = contacts.whatsappAdmin1 || "";
+    $("whatsapp-admin-2").value = contacts.whatsappAdmin2 || "";
+  }, (error) => {
+    console.error("WhatsApp contacts load error:", error);
+    showMessage(settingsMessage, "WhatsApp নম্বর লোড হয়নি: " + firebaseError(error), "error");
   });
 }
 
@@ -663,12 +675,19 @@ settingsForm.addEventListener("submit", async (event) => {
     updatedAt: Date.now()
   };
 
+  const publicContact = {
+    whatsappAdmin1: $("whatsapp-admin-1").value.trim(),
+    whatsappAdmin2: $("whatsapp-admin-2").value.trim(),
+    updatedAt: Date.now()
+  };
+
   try {
     await update(ref(db, "settings"), settings);
+    await update(ref(db, "publicContact"), publicContact);
 
     showMessage(
       settingsMessage,
-      "Store Settings সফলভাবে Save হয়েছে।",
+      "Store Settings ও দুইটি WhatsApp নম্বর সফলভাবে Save হয়েছে।",
       "success"
     );
 
