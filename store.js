@@ -97,7 +97,7 @@ function renderProducts(list) {
 
           <p>${safeText(p.category || "Fashion")}</p>
 
-          ${p.description ? `<p class="product-description">${safeText(p.description)}</p>` : ""}
+          ${p.description ? `<div class="description-wrap"><p class="product-description">${safeText(p.description)}</p><button type="button" class="description-toggle" aria-expanded="false">আরও</button></div>` : ""}
 
           <div class="product-price">
             ৳${money(p.price)}
@@ -132,6 +132,20 @@ function renderProducts(list) {
       </article>
     `;
   }).join("");
+}
+
+// Expand/collapse product descriptions
+if (productList) {
+  productList.addEventListener("click", event => {
+    const toggle = event.target.closest(".description-toggle");
+    if (!toggle) return;
+    const wrap = toggle.closest(".description-wrap");
+    const description = wrap?.querySelector(".product-description");
+    if (!description) return;
+    const expanded = description.classList.toggle("description-expanded");
+    toggle.textContent = expanded ? "কম দেখুন" : "আরও";
+    toggle.setAttribute("aria-expanded", String(expanded));
+  });
 }
 
 // Add product to cart
