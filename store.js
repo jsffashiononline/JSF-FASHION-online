@@ -343,21 +343,26 @@ try {
   }
 }
 
-// Read all public store settings together so payment and WhatsApp details
-// always stay in sync with the values saved from the Admin Panel.
-db.ref("settings").on("value", snapshot => {
-  settings = snapshot.val() || {};
-  updatePaymentInfo();
-  renderWhatsAppContacts();
-}, error => {
-  console.error("Store settings read error:", error);
-  if (paymentInfo) {
-    paymentInfo.textContent = "পেমেন্ট তথ্য লোড করা যায়নি। পেজটি Refresh করুন।";
-  }
-  const contacts = $("whatsapp-contacts");
-  if (contacts) {
-    contacts.innerHTML = '<p class="muted">WhatsApp নম্বর লোড করা যায়নি।</p>';
-  }
+// Read each public setting separately. This also works when Firebase rules
+// grant read access to individual settings keys rather than the whole node.
+settings = {};
+[
+  "bkashNumber", "nagadNumber", "bkash", "nagad",
+  "whatsappAdmin1", "whatsappAdmin2"
+].forEach(key => {
+  db.ref("settings/" + key).on("value", snapshot => {
+    settings[key] = snapshot.val() || "";
+    if (key.startsWith("whatsapp")) renderWhatsAppContacts();
+    else updatePaymentInfo();
+  }, error => {
+    console.error("Settings read error (" + key + "):", error);
+    if (key.startsWith("whatsapp")) {
+      const contacts = $("whatsapp-contacts");
+      if (contacts) contacts.innerHTML = '<p class="muted">WhatsApp নম্বর লোড করা যায়নি।</p>';
+    } else if (paymentInfo) {
+      paymentInfo.textContent = "পেমেন্ট তথ্য লোড করা যায়নি। Firebase Settings permission পরীক্ষা করুন।";
+    }
+  });
 });
 
 function renderWhatsAppContacts() {
