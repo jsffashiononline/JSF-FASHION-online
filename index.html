@@ -1,106 +1,104 @@
-<!doctype html>
-<html lang="bn">
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080808">
-  <meta name="description" content="JSF FASHION — Premium fashion and clothing store.">
-  <title>JSF FASHION | Premium Fashion</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSF FASHION | Premium Fashion Store</title>
+  <meta name="description" content="Discover premium fashion at JSF FASHION.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="#home" aria-label="JSF FASHION home">
-      <span class="brand-mark">JSF</span><span class="brand-name">FASHION</span>
-    </a>
-    <nav class="desktop-nav" aria-label="Main navigation">
-      <a href="#home">হোম</a><a href="#collections">কালেকশন</a><a href="#about">আমাদের সম্পর্কে</a><a href="#contact">যোগাযোগ</a>
+    <a href="index.html" class="brand">JSF <span>FASHION</span></a>
+    <nav class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#products">Collection</a>
+      <a href="#contact">Contact</a>
+      <a href="#cart">Cart (<span id="cart-count">0</span>)</a>
     </nav>
-    <div class="header-actions">
-      <button class="icon-button" id="search-toggle" aria-label="Search"><span>⌕</span></button>
-      <button class="cart-button" id="cart-open">কার্ট <span id="cart-count">0</span></button>
-      <button class="menu-toggle" id="menu-toggle" aria-label="Menu">☰</button>
-    </div>
   </header>
 
   <main>
     <section class="hero" id="home">
       <div class="hero-content">
-        <p class="eyebrow">THE NEW STANDARD OF STYLE</p>
-        <h1>Wear Your<br><em>Confidence.</em></h1>
-        <p class="hero-copy">আধুনিক স্টাইল, প্রিমিয়াম কোয়ালিটি — আপনার প্রতিদিনের ফ্যাশনে নতুন মাত্রা।</p>
-        <a class="gold-button" href="#collections">কালেকশন দেখুন <span>↗</span></a>
+        <p class="eyebrow">THE NEW FASHION EXPERIENCE</p>
+        <h1>STYLE THAT<br><span>DEFINES YOU.</span></h1>
+        <p>Discover your style with the latest fashion collection.</p>
+        <a class="btn" href="#products">SHOP COLLECTION</a>
       </div>
-      <div class="hero-art" aria-hidden="true"><div class="hero-ring"></div><div class="hero-monogram">JSF</div><div class="hero-caption">STYLE THAT<br>STAYS TIMELESS</div></div>
     </section>
 
-    <section class="trust-strip">
-      <span>✦ PREMIUM QUALITY</span><span>✦ EASY ORDERING</span><span>✦ DELIVERY ACROSS BANGLADESH</span>
-    </section>
-
-    <section class="section" id="collections">
-      <div class="section-heading">
-        <div><p class="eyebrow">CURATED FOR YOU</p><h2>Our Collection</h2></div>
-        <div class="search-wrap" id="search-wrap"><input id="product-search" type="search" placeholder="পণ্য খুঁজুন..." aria-label="পণ্য খুঁজুন"></div>
+    <section class="section">
+      <div class="section-title">
+        <p class="eyebrow">EXPLORE OUR STYLE</p>
+        <h2>OUR COLLECTION</h2>
       </div>
-      <div class="category-list" id="category-list"><button class="category-chip active" data-category="all">সব পণ্য</button></div>
-      <div class="status-line" id="store-status" role="status">পণ্য লোড হচ্ছে...</div>
-      <div class="product-grid" id="product-grid"></div>
+      <div class="category-grid">
+        <a class="category-card" href="#products">T-Shirts</a>
+        <a class="category-card" href="#products">Shirts</a>
+        <a class="category-card" href="#products">Pants</a>
+        <a class="category-card" href="#products">New Arrivals</a>
+      </div>
     </section>
 
-    <section class="editorial" id="about">
-      <div class="editorial-mark">JSF</div>
-      <div><p class="eyebrow">OUR PHILOSOPHY</p><h2>Simple. Refined.<br><em>Unforgettable.</em></h2><p>JSF FASHION — আপনার নিজস্ব স্টাইলকে আরও আত্মবিশ্বাসী করে তুলতে বেছে নেওয়া ফ্যাশন কালেকশন।</p></div>
+    <section class="section" id="products">
+      <div class="section-title">
+        <p class="eyebrow">HANDPICKED FOR YOU</p>
+        <h2>FEATURED PRODUCTS</h2>
+      </div>
+      <input id="product-search" class="search-box" type="search"
+             placeholder="Search products...">
+      <div id="product-list" class="product-grid">
+        <p class="muted">Loading products...</p>
+      </div>
     </section>
 
-    <section class="contact-section" id="contact">
-      <p class="eyebrow">WE’RE HERE TO HELP</p><h2>Stay in touch.</h2>
-      <p>অর্ডার বা পণ্য সম্পর্কে জানতে আমাদের সাথে যোগাযোগ করুন।</p>
-      <a class="text-link" href="https://www.facebook.com/" target="_blank" rel="noopener">Facebook-এ যোগাযোগ করুন ↗</a>
+    <section class="section" id="cart">
+      <div class="section-title">
+        <h2>YOUR CART</h2>
+      </div>
+      <div class="cart-box">
+        <div id="cart-items"></div>
+        <h3 class="cart-total">Total: ৳<span id="cart-total">0</span></h3>
+        <button class="btn" id="checkout-open">PROCEED TO CHECKOUT</button>
+      </div>
+    </section>
+
+    <section class="section" id="checkout">
+      <div class="section-title">
+        <h2>CHECKOUT</h2>
+        <p>Enter your delivery details to place your order.</p>
+      </div>
+      <form id="checkout-form" class="checkout-box">
+        <label>Full Name</label>
+        <input name="name" required maxlength="80" placeholder="Your name">
+        <label>Mobile Number</label>
+        <input name="phone" required type="tel" maxlength="20" placeholder="01XXXXXXXXX">
+        <label>Delivery Address</label>
+        <textarea name="address" required maxlength="500" placeholder="Full delivery address"></textarea>
+        <label>Payment Method</label>
+        <select name="payment" id="payment-method" required>
+          <option value="Cash on Delivery">Cash on Delivery</option>
+          <option value="bKash">bKash</option>
+          <option value="Nagad">Nagad</option>
+        </select>
+        <div id="payment-info" class="payment-info"></div>
+        <button class="btn" type="submit">PLACE ORDER</button>
+        <p id="checkout-message" class="muted"></p>
+      </form>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <a class="brand" href="#home"><img class="store-avatar" id="store-profile-image" src="https://placehold.co/64x64/121212/dfb957?text=JSF" alt="JSF FASHION store profile"><span class="brand-mark">JSF</span><span class="brand-name">FASHION</span></a>
+  <footer class="site-footer" id="contact">
+    <a href="#home" class="brand">JSF <span>FASHION</span></a>
+    <p>Premium fashion. Timeless style.</p>
     <p>© <span id="year"></span> JSF FASHION. All rights reserved.</p>
-    <a href="#home">Back to top ↑</a>
   </footer>
 
-  <div class="drawer-backdrop" id="drawer-backdrop"></div>
-  <aside class="cart-drawer" id="cart-drawer" aria-label="Shopping cart" aria-hidden="true">
-    <div class="drawer-head"><h2>Your Bag</h2><button class="close-button" id="cart-close" aria-label="Close">×</button></div>
-    <div id="cart-items" class="cart-items"><p class="empty-state">আপনার কার্ট খালি।</p></div>
-    <div class="cart-summary"><div><span>Subtotal</span><strong id="cart-subtotal">৳0</strong></div><button class="gold-button full-width" id="checkout-open">চেকআউট করুন</button></div>
-  </aside>
-
-  <div class="modal-backdrop" id="product-modal">
-    <div class="modal product-modal" role="dialog" aria-modal="true" aria-labelledby="modal-product-name">
-      <button class="close-button modal-close" data-close="product-modal" aria-label="Close">×</button>
-      <div id="product-modal-content"></div>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="checkout-modal">
-    <div class="modal checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
-      <button class="close-button modal-close" data-close="checkout-modal" aria-label="Close">×</button>
-      <p class="eyebrow">ALMOST YOURS</p><h2 id="checkout-title">Complete your order</h2>
-      <div class="checkout-total">মোট: <strong id="checkout-total">৳0</strong></div>
-      <form id="checkout-form">
-        <label>আপনার নাম<input name="customerName" required maxlength="100" autocomplete="name" placeholder="সম্পূর্ণ নাম"></label>
-        <label>মোবাইল নম্বর<input name="phone" required inputmode="tel" maxlength="20" autocomplete="tel" placeholder="01XXXXXXXXX"></label>
-        <label>সম্পূর্ণ ডেলিভারি ঠিকানা<textarea name="address" required maxlength="500" rows="3" placeholder="বাসা/রোড, এলাকা, জেলা"></textarea></label>
-        <label>পেমেন্ট পদ্ধতি<select name="paymentMethod" id="payment-method"><option value="Cash on Delivery">Cash on Delivery</option><option value="bKash">bKash</option><option value="Nagad">Nagad</option></select></label>
-        <div class="payment-info" id="payment-info" hidden></div>
-        <label id="transaction-wrap" hidden>Transaction ID (ঐচ্ছিক)<input name="transactionId" maxlength="100" placeholder="পেমেন্টের Transaction ID"></label>
-        <button class="gold-button full-width" id="place-order" type="submit">অর্ডার কনফার্ম করুন</button>
-        <p class="form-message" id="checkout-message" role="status"></p>
-      </form>
-    </div>
-  </div>
-  <div class="toast" id="toast" role="status"></div>
-  <script type="module" src="store.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="store.js"></script>
 </body>
 </html>
