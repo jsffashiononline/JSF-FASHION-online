@@ -20,6 +20,7 @@ let products = [];
 let settings = {};
 
 let cart = [];
+let directOrderItems = null;
 
 try {
   cart = JSON.parse(localStorage.getItem("jsf_cart") || "[]");
@@ -96,6 +97,8 @@ function renderProducts(list) {
 
           <p>${safeText(p.category || "Fashion")}</p>
 
+          ${p.description ? `<p class="product-description">${safeText(p.description)}</p>` : ""}
+
           <div class="product-price">
             ৳${money(p.price)}
           </div>
@@ -110,12 +113,20 @@ function renderProducts(list) {
             `).join("")}
           </select>
 
-          <button
-            class="btn add-cart-btn"
-            data-product-id="${safeText(p.id)}"
-          >
-            ADD TO CART
-          </button>
+          <div class="product-actions">
+            <button
+              class="btn add-cart-btn"
+              data-product-id="${safeText(p.id)}"
+            >
+              ADD TO CART
+            </button>
+            <button
+              class="btn direct-order-btn"
+              data-product-id="${safeText(p.id)}"
+            >
+              DIRECT ORDER
+            </button>
+          </div>
 
         </div>
       </article>
@@ -156,7 +167,7 @@ function addToCart(id, size) {
 // Add button click
 if (productList) {
   productList.addEventListener("click", event => {
-    const button = event.target.closest(".add-cart-btn");
+    const button = event.target.closest(".add-cart-btn, .direct-order-btn");
 
     if (!button) return;
 
@@ -166,6 +177,29 @@ if (productList) {
     const id = button.dataset.productId;
     const size = sizeSelect ? sizeSelect.value : "Free Size";
 
+    if (button.classList.contains("direct-order-btn")) {
+      const product = products.find(item => item.id === id);
+      if (!product) {
+        alert("Product not found.");
+        return;
+      }
+
+      directOrderItems = [{
+        id: product.id,
+        name: product.name,
+        price: Number(product.price || 0),
+        image: product.image || "",
+        size,
+        qty: 1
+      }];
+
+      const message = $("checkout-message");
+      if (message) message.textContent = "Direct order selected. Fill in your delivery details below.";
+      $("checkout")?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    directOrderItems = null;
     addToCart(id, size);
   });
 }
@@ -349,6 +383,7 @@ if (searchInput) {
 // Open checkout
 if ($("checkout-open")) {
   $("checkout-open").addEventListener("click", () => {
+    directOrderItems = null;
     $("checkout")?.scrollIntoView({
       behavior: "smooth"
     });
@@ -360,8 +395,9 @@ if ($("checkout-form")) {
   $("checkout-form").addEventListener("submit", async event => {
     event.preventDefault();
 
-    if (!cart.length) {
-      alert("Your cart is empty.");
+    const orderItems = directOrderItems || cart;
+    if (!orderItems.length) {
+      alert("Your cart is empty. Please choose Direct Order or add a product to cart.");
       return;
     }
 
@@ -381,7 +417,7 @@ if ($("checkout-form")) {
 
       paymentMethod: String(data.get("payment") || ""),
 
-      items: cart.map(item => ({
+      items: orderItems.map(item => ({
         id: item.id,
         name: item.name,
         price: Number(item.price),
@@ -389,7 +425,7 @@ if ($("checkout-form")) {
         qty: Number(item.qty)
       })),
 
-      total: cart.reduce(
+      total: orderItems.reduce(
         (sum, item) =>
           sum + Number(item.price) * Number(item.qty), 0
       ),
@@ -422,9 +458,13 @@ if ($("checkout-form")) {
       // Save order under its own ID
       await newOrderRef.set(order);
 
-      // Clear cart only after successful order
-      cart = [];
-      saveCart();
+      // Clear only the purchase path that was successfully submitted.
+      if (directOrderItems) {
+        directOrderItems = null;
+      } else {
+        cart = [];
+        saveCart();
+      }
 
       form.reset();
       updatePaymentInfo();
