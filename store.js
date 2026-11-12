@@ -335,6 +335,39 @@ db.ref("settings").on("value", snapshot => {
   updatePaymentInfo();
 });
 
+// Load the two public WhatsApp contact numbers
+db.ref("publicContact").on("value", snapshot => {
+  const contacts = snapshot.val() || {};
+  renderWhatsAppContacts(contacts);
+}, error => {
+  console.error("WhatsApp contacts read error:", error);
+});
+
+// Render only the two admin WhatsApp contacts
+function renderWhatsAppContacts(contacts) {
+  const container = $("whatsapp-contacts");
+  if (!container) return;
+
+  const entries = [
+    ["Admin 1", contacts.whatsappAdmin1],
+    ["Admin 2", contacts.whatsappAdmin2]
+  ];
+
+  const links = entries.filter(([, number]) => String(number || "").trim())
+    .map(([label, number]) => {
+      let digits = String(number).replace(/\\D/g, "");
+      if (digits.startsWith("01")) digits = "88" + digits;
+      else if (digits.startsWith("1") && digits.length === 10) digits = "880" + digits;
+      const safeNumber = safeText(digits);
+      const safeLabel = safeText(label);
+      return `<a class="whatsapp-contact-link" href="https://wa.me/${safeNumber}" target="_blank" rel="noopener noreferrer">${safeLabel} WhatsApp</a>`;
+    });
+
+  container.innerHTML = links.length
+    ? links.join("")
+    : '<p class="muted">WhatsApp contact numbers will be available soon.</p>';
+}
+
 // Payment information
 function updatePaymentInfo() {
   const paymentMethod = $("payment-method");
