@@ -649,20 +649,14 @@ function loadSettings() {
     $("bkash-number").value = settings.bkashNumber || settings.bkash || "";
     $("nagad-number").value = settings.nagadNumber || settings.nagad || "";
     $("store-picture").value = settings.storePicture || "";
+    $("whatsapp-admin-1").value = settings.whatsappAdmin1 || "";
+    $("whatsapp-admin-2").value = settings.whatsappAdmin2 || "";
 
   }, (error) => {
     console.error("Settings load error:", error);
     showMessage(settingsMessage, firebaseError(error), "error");
   });
 
-  onValue(ref(db, "publicContact"), (snapshot) => {
-    const contacts = snapshot.val() || {};
-    $("whatsapp-admin-1").value = contacts.whatsappAdmin1 || "";
-    $("whatsapp-admin-2").value = contacts.whatsappAdmin2 || "";
-  }, (error) => {
-    console.error("WhatsApp contacts load error:", error);
-    showMessage(settingsMessage, "WhatsApp নম্বর লোড হয়নি: " + firebaseError(error), "error");
-  });
 }
 
 settingsForm.addEventListener("submit", async (event) => {
@@ -672,10 +666,6 @@ settingsForm.addEventListener("submit", async (event) => {
     bkashNumber: $("bkash-number").value.trim(),
     nagadNumber: $("nagad-number").value.trim(),
     storePicture: $("store-picture").value.trim(),
-    updatedAt: Date.now()
-  };
-
-  const publicContact = {
     whatsappAdmin1: $("whatsapp-admin-1").value.trim(),
     whatsappAdmin2: $("whatsapp-admin-2").value.trim(),
     updatedAt: Date.now()
@@ -683,7 +673,6 @@ settingsForm.addEventListener("submit", async (event) => {
 
   try {
     await update(ref(db, "settings"), settings);
-    await update(ref(db, "publicContact"), publicContact);
 
     showMessage(
       settingsMessage,
