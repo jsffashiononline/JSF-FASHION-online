@@ -259,3 +259,19 @@ button,input,select,textarea{font:inherit}
 #transaction-id-wrap label{margin-top:0}
 #transaction-id-wrap input{margin-top:7px}
 #transaction-id-wrap .muted{margin-top:7px;font-size:12px}
+
+
+/* Copy button for bKash and Nagad payment numbers */
+.copy-payment-number{
+  display:inline-block;
+  margin:10px 0 0 8px;
+  padding:8px 13px;
+  border:1px solid var(--gold);
+  border-radius:5px;
+  background:var(--gold);
+  color:#080808;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+}
+.copy-payment-number:active{transform:scale(.97)}
