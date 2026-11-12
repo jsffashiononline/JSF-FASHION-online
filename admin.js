@@ -18,13 +18,16 @@ import {
 } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-database.js";
 
 /* =================================
-   1. AUTHORIZED ADMIN UID
+   1. ADMIN & CLOUDINARY CONFIG
 ================================= */
 
 const ADMIN_UIDS = [
   "oqLhQp7pgVUBWFAwLFfjgIg3v2r1",
   "iGYHyUYQKEbICfzY7VDt9HMWcEi1"
 ];
+
+const CLOUDINARY_CLOUD_NAME = "phvmgyj9";
+const CLOUDINARY_UPLOAD_PRESET = "jsf_fashion_upload";
 
 /* =================================
    2. HTML ELEMENTS
@@ -89,13 +92,129 @@ function firebaseError(error) {
     "auth/operation-not-allowed": "Firebase Email/Password Login চালু নেই।"
   };
 
-  return messages[error.code] ||
-    error.message ||
+  return messages[error.code] || error.message ||
     "একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।";
 }
 
 /* =================================
-   4. LOGIN SYSTEM
+   4. CLOUDINARY GALLERY UPLOAD
+================================= */
+
+const productImageInput = $("product-image");
+
+if (productImageInput) {
+  const uploadContainer = document.createElement("div");
+
+  uploadContainer.style.marginTop = "10px";
+  uploadContainer.style.display = "flex";
+  uploadContainer.style.flexDirection = "column";
+  uploadContainer.style.gap = "10px";
+
+  const galleryButton = document.createElement("button");
+
+  galleryButton.type = "button";
+  galleryButton.textContent = "📷 CHOOSE PHOTO FROM GALLERY";
+  galleryButton.style.padding = "12px";
+  galleryButton.style.background = "#dfb957";
+  galleryButton.style.color = "#080808";
+  galleryButton.style.border = "none";
+  galleryButton.style.borderRadius = "6px";
+  galleryButton.style.fontWeight = "bold";
+  galleryButton.style.cursor = "pointer";
+
+  const galleryInput = document.createElement("input");
+
+  galleryInput.type = "file";
+  galleryInput.accept = "image/jpeg,image/png,image/webp";
+  galleryInput.hidden = true;
+
+  const uploadStatus = document.createElement("p");
+  uploadStatus.style.fontSize = "13px";
+  uploadStatus.style.margin = "0";
+
+  uploadContainer.appendChild(galleryButton);
+  uploadContainer.appendChild(galleryInput);
+  uploadContainer.appendChild(uploadStatus);
+
+  productImageInput.insertAdjacentElement(
+    "afterend",
+    uploadContainer
+  );
+
+  galleryButton.addEventListener("click", () => {
+    galleryInput.click();
+  });
+
+  galleryInput.addEventListener("change", async () => {
+    const file = galleryInput.files[0];
+
+    if (!file) return;
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      uploadStatus.textContent = "শুধু JPG, PNG অথবা WEBP ছবি দিন।";
+      uploadStatus.style.color = "red";
+      galleryInput.value = "";
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      uploadStatus.textContent = "ছবির সাইজ 10 MB-এর কম হতে হবে।";
+      uploadStatus.style.color = "red";
+      galleryInput.value = "";
+      return;
+    }
+
+    galleryButton.disabled = true;
+    galleryButton.textContent = "UPLOADING PHOTO...";
+    uploadStatus.textContent = "Cloudinary-তে ছবি আপলোড হচ্ছে...";
+    uploadStatus.style.color = "#dfb957";
+
+    try {
+      const formData = new FormData();
+
+      formData.append("file", file);
+      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+      formData.append("folder", "jsf-fashion-products");
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error?.message || "Cloudinary upload failed."
+        );
+      }
+
+      productImageInput.value = result.secure_url;
+
+      uploadStatus.textContent = "ছবি সফলভাবে আপলোড হয়েছে!";
+      uploadStatus.style.color = "green";
+
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+
+      uploadStatus.textContent =
+        "ছবি আপলোড হয়নি: " + error.message;
+
+      uploadStatus.style.color = "red";
+
+    } finally {
+      galleryButton.disabled = false;
+      galleryButton.textContent = "📷 CHOOSE PHOTO FROM GALLERY";
+      galleryInput.value = "";
+    }
+  });
+}
+
+/* =================================
+   5. LOGIN SYSTEM
 ================================= */
 
 loginForm.addEventListener("submit", async (event) => {
@@ -115,9 +234,7 @@ loginForm.addEventListener("submit", async (event) => {
 
   try {
     const result = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
+      auth, email, password
     );
 
     if (!isAdmin(result.user)) {
@@ -135,12 +252,8 @@ loginForm.addEventListener("submit", async (event) => {
 
   } catch (error) {
     console.error("Login error:", error);
+    showMessage(loginMessage, firebaseError(error), "error");
 
-    showMessage(
-      loginMessage,
-      firebaseError(error),
-      "error"
-    );
   } finally {
     loginBtn.disabled = false;
     loginBtn.textContent = "LOGIN";
@@ -148,7 +261,7 @@ loginForm.addEventListener("submit", async (event) => {
 });
 
 /* =================================
-   5. AUTHENTICATION CHECK
+   6. AUTHENTICATION CHECK
 ================================= */
 
 onAuthStateChanged(auth, async (user) => {
@@ -182,7 +295,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 /* =================================
-   6. LOGOUT
+   7. LOGOUT
 ================================= */
 
 logoutBtn.addEventListener("click", async () => {
@@ -194,7 +307,7 @@ logoutBtn.addEventListener("click", async () => {
 });
 
 /* =================================
-   7. PRODUCT MANAGEMENT
+   8. PRODUCT MANAGEMENT
 ================================= */
 
 function loadProducts() {
@@ -312,13 +425,14 @@ productForm.addEventListener("submit", async (event) => {
       "Product Save হয়নি: " + firebaseError(error),
       "error"
     );
+
   } finally {
     saveButton.disabled = false;
   }
 });
 
 /* =================================
-   8. EDIT AND DELETE PRODUCTS
+   9. EDIT AND DELETE PRODUCTS
 ================================= */
 
 productList.addEventListener("click", async (event) => {
@@ -385,7 +499,7 @@ productList.addEventListener("click", async (event) => {
 });
 
 /* =================================
-   9. CLEAR PRODUCT FORM
+   10. CLEAR PRODUCT FORM
 ================================= */
 
 $("cancel-edit").addEventListener("click", () => {
@@ -395,7 +509,7 @@ $("cancel-edit").addEventListener("click", () => {
 });
 
 /* =================================
-   10. CUSTOMER ORDERS
+   11. CUSTOMER ORDERS
 ================================= */
 
 function loadOrders() {
@@ -413,9 +527,12 @@ function loadOrders() {
       const status = String(order.status || "Pending").toLowerCase();
 
       if (status === "pending") pending++;
+
       if (status === "delivered") {
         delivered++;
-        sales += Number(order.total || order.totalAmount || order.amount || 0);
+        sales += Number(
+          order.total || order.totalAmount || order.amount || 0
+        );
       }
     });
 
@@ -435,7 +552,10 @@ function loadOrders() {
         order.customerName || order.name || "Customer"
       );
 
-      const phone = escapeHTML(order.phone || order.mobile || "Not provided");
+      const phone = escapeHTML(
+        order.phone || order.mobile || "Not provided"
+      );
+
       const address = escapeHTML(order.address || "Not provided");
       const status = String(order.status || "Pending");
 
@@ -494,7 +614,7 @@ function loadOrders() {
 }
 
 /* =================================
-   11. UPDATE ORDER STATUS
+   12. UPDATE ORDER STATUS
 ================================= */
 
 orderList.addEventListener("change", async (event) => {
@@ -516,7 +636,7 @@ orderList.addEventListener("change", async (event) => {
 });
 
 /* =================================
-   12. STORE SETTINGS
+   13. STORE SETTINGS
 ================================= */
 
 function loadSettings() {
@@ -562,4 +682,3 @@ settingsForm.addEventListener("submit", async (event) => {
     );
   }
 });
-        
