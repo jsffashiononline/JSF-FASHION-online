@@ -360,16 +360,16 @@ function renderWhatsAppContacts() {
   const container = $("whatsapp-contacts");
   if (!container) return;
   const contacts = [
-    ["WhatsApp 1", settings.whatsappAdmin1],
-    ["WhatsApp 2", settings.whatsappAdmin2]
+    ["Admin One", settings.whatsappAdmin1],
+    ["Admin Two", settings.whatsappAdmin2]
   ];
   const links = contacts.filter(([, number]) => String(number || "").trim()).map(([label, number]) => {
-    let digits = String(number).replace(/\\D/g, "");
+    let digits = String(number).replace(/\D/g, "");
     if (digits.startsWith("01")) digits = "88" + digits;
     else if (digits.startsWith("1") && digits.length === 10) digits = "880" + digits;
     const safeNumber = safeText(digits);
     const safeLabel = safeText(label);
-    return `<a class="whatsapp-contact-link" href="https://wa.me/${safeNumber}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">☏</span> ${safeLabel}</a>`;
+    return `<a class="whatsapp-contact-link" href="https://wa.me/${safeNumber}" target="_blank" rel="noopener noreferrer"><svg class="whatsapp-icon" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16.04 2.67A13.25 13.25 0 0 0 4.65 22.7L2.8 29.33l6.8-1.78a13.3 13.3 0 1 0 6.44-24.88Zm0 24.05a10.7 10.7 0 0 1-5.45-1.49l-.39-.23-4.03 1.05 1.08-3.92-.25-.4a10.68 10.68 0 1 1 9.04 4.99Zm5.86-8.01c-.32-.16-1.9-.94-2.2-1.05-.3-.11-.51-.16-.72.16-.22.32-.83 1.05-1.02 1.27-.19.21-.37.24-.69.08-.32-.16-1.35-.5-2.57-1.59-.95-.84-1.59-1.88-1.78-2.2-.19-.32-.02-.49.14-.65.14-.14.32-.37.48-.56.16-.19.21-.32.32-.53.11-.21.05-.4-.03-.56-.08-.16-.72-1.73-.99-2.37-.26-.62-.52-.54-.72-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.12 1.09-1.12 2.66s1.15 3.09 1.31 3.3c.16.21 2.26 3.45 5.47 4.84.76.33 1.35.53 1.81.68.76.24 1.45.21 2 .13.61-.09 1.9-.78 2.17-1.53.27-.75.27-1.39.19-1.53-.08-.13-.29-.21-.61-.37Z"/></svg><span>${safeLabel}</span></a>`;
   });
   container.innerHTML = links.length ? links.join("") : '<p class="muted">WhatsApp যোগাযোগ নম্বর এখনো যোগ করা হয়নি।</p>';
 }
