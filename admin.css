@@ -410,3 +410,10 @@ textarea {
 .banner-image-card>div{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;font-size:12px}
 .banner-image-card .small-btn{padding:7px 9px}
 #banner-image-files{padding:12px;border-style:dashed}
+
+
+.admin-page-nav{display:flex;gap:9px;flex-wrap:wrap;margin:0 0 22px;padding:12px;background:#101010;border:1px solid var(--border);border-radius:12px;position:sticky;top:72px;z-index:8}
+.admin-nav-btn{border:1px solid #353535;background:#191919;color:#ddd;padding:11px 15px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:.2s}
+.admin-nav-btn:hover,.admin-nav-btn.active{border-color:var(--gold);background:linear-gradient(135deg,#f6d77e,#bd8b28);color:#111}
+.admin-page{min-width:0}
+@media(max-width:520px){.admin-page-nav{top:65px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px}.admin-nav-btn{padding:11px 8px;font-size:11px}.admin-nav-btn:last-child{grid-column:1/-1}}
