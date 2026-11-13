@@ -239,7 +239,7 @@ function addToCart(id, size, variant = null) {
     cart.push({
       id: product.id,
       name: product.name,
-      price: Number(product.price || 0),
+      price: Number(variant && variant.price !== null && variant.price !== "" ? variant.price : product.price || 0),
       image: variant?.images?.[0] || product.image || "",
       size: size,
       variant: variantName,
@@ -278,7 +278,7 @@ if (productList) {
       directOrderItems = [{
         id: product.id,
         name: product.name,
-        price: Number(product.price || 0),
+        price: Number(variant && variant.price !== null && variant.price !== "" ? variant.price : product.price || 0),
         image: variant?.images?.[0] || product.image || "",
         size,
         variant: variant?.name || "",
