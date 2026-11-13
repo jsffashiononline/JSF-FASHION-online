@@ -58,6 +58,15 @@
 
   <section id="dashboard" class="hidden">
 
+    <nav class="admin-page-nav" aria-label="Admin pages">
+      <button type="button" class="admin-nav-btn active" data-page="overview">Overview</button>
+      <button type="button" class="admin-nav-btn" data-page="products">Products</button>
+      <button type="button" class="admin-nav-btn" data-page="orders">Orders</button>
+      <button type="button" class="admin-nav-btn" data-page="banners">Website Banners</button>
+      <button type="button" class="admin-nav-btn" data-page="settings">Settings</button>
+    </nav>
+
+    <section id="page-overview" class="admin-page">
     <div class="welcome">
       <div>
         <p class="eyebrow">CONTROL CENTER</p>
@@ -93,7 +102,9 @@
         <strong id="total-sales">৳0</strong>
       </div>
     </div>
+    </section>
 
+    <section id="page-products" class="admin-page hidden">
     <section class="panel">
       <div class="section-heading">
         <div>
@@ -165,7 +176,9 @@
       <p id="product-message" class="message" role="status"></p>
       <div id="admin-products" class="data-list">Loading products...</div>
     </section>
+    </section>
 
+    <section id="page-orders" class="admin-page hidden">
     <section class="panel">
       <div class="section-heading">
         <div>
@@ -176,7 +189,9 @@
 
       <div id="admin-orders" class="data-list">Loading orders...</div>
     </section>
+    </section>
 
+    <section id="page-banners" class="admin-page hidden">
     <section class="panel">
       <div class="section-heading"><div><p class="eyebrow">HOMEPAGE SLIDESHOW</p><h2>Top Banner Images</h2></div></div>
       <p class="muted">গ্যালারি থেকে একাধিক ছবি নির্বাচন করুন। আপলোড করা ছবিগুলো ওয়েবসাইটের উপরে ৪.৫ সেকেন্ড পরপর পরিবর্তন হবে।</p>
@@ -186,7 +201,9 @@
       <p id="banner-upload-message" class="message" role="status"></p>
       <div id="banner-image-list" class="banner-image-list"></div>
     </section>
+    </section>
 
+    <section id="page-settings" class="admin-page hidden">
     <section class="panel">
       <div class="section-heading">
         <div>
@@ -232,6 +249,7 @@
 
       <p id="settings-message" class="message" role="status"></p>
     </section>
+    </section>
 
   </section>
 </main>
@@ -239,6 +257,23 @@
 <footer class="admin-footer">
   JSF FASHION ADMIN PANEL
 </footer>
+
+<script>
+  // Page navigation only: existing admin functions and Firebase data remain untouched.
+  document.querySelectorAll(".admin-nav-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.page;
+      document.querySelectorAll(".admin-page").forEach((page) => {
+        page.classList.toggle("hidden", page.id !== "page-" + target);
+      });
+      document.querySelectorAll(".admin-nav-btn").forEach((item) => {
+        const active = item === button;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-current", active ? "page" : "false");
+      });
+    });
+  });
+</script>
 
 <script type="module">
   import("./admin.js?v=8").catch((error) => {
