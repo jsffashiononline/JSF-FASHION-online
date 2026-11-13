@@ -335,7 +335,7 @@ if (productList) {
     if (button.classList.contains("direct-order-btn")) {
       const product = products.find(item => item.id === id);
       if (!product) {
-        alert("Product not found.");
+        showJsfToast("প্রোডাক্টটি পাওয়া যায়নি।", "error");
         return;
       }
 
@@ -737,7 +737,7 @@ if ($("checkout-form")) {
 
     const orderItems = directOrderItems || cart;
     if (!orderItems.length) {
-      alert("Your cart is empty. Please choose Direct Order or add a product to cart.");
+      showJsfToast("আপনার কার্ট খালি। আগে একটি প্রোডাক্ট যোগ করুন।", "error");
       return;
     }
 
