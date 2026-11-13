@@ -580,6 +580,8 @@ function normalizeCategory(value) {
     "shirt": "shirts",
     "pant": "pants", "pants and jeans": "pants",
     "punjabi": "panjabi",
+    "ladies fashion": "ladies", "women's fashion": "ladies", "womens fashion": "ladies",
+    "saree": "ladies", "three piece": "ladies", "three-piece": "ladies",
     "hoodie": "hoodie & sweatshirt", "sweatshirt": "hoodie & sweatshirt"
   };
   return aliases[category] || category;
@@ -589,8 +591,11 @@ function applyProductFilters() {
   const q = String(searchInput?.value || "").toLowerCase().trim();
   const filtered = products.filter(product => {
     const category = String(product.category || "").toLowerCase().trim();
+    const selectedCategory = normalizeCategory(activeCategory);
+    const normalizedProductCategory = normalizeCategory(category);
     const matchesCategory = !activeCategory ||
-      normalizeCategory(category) === normalizeCategory(activeCategory) ||
+      normalizedProductCategory === selectedCategory ||
+      (selectedCategory === "ladies" && ["ladies", "saree", "three piece", "women's fashion", "womens fashion"].includes(normalizedProductCategory)) ||
       (activeCategory === "New Arrivals" && product.isNewArrival === true);
     const matchesSearch = !q ||
       String(product.name || "").toLowerCase().includes(q) ||
