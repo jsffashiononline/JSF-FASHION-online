@@ -358,21 +358,11 @@ logoutBtn.addEventListener("click", async () => {
 /* =================================
    PRODUCT COLORS
 ================================= */
-const variantEditor = document.createElement("section");
-variantEditor.className = "variant-editor";
-variantEditor.innerHTML = `
-  <div class="variant-editor-heading">
-    <div><h3>Product Colors</h3><p class="muted">একসাথে একাধিক কালারের নাম লিখুন।</p></div>
-  </div>
-  <div class="bulk-color-row">
-    <label for="bulk-product-colors">কালার</label>
-    <input id="bulk-product-colors" type="text" placeholder="Black, White, Red, Blue">
-    <button type="button" class="btn gold" id="bulk-add-product-colors">ADD COLORS</button>
-  </div>
-  <div class="variant-save-row"><button type="button" class="btn gold" id="save-product-colors">SAVE COLORS</button><small id="color-save-status">নতুন প্রোডাক্ট হলে প্রোডাক্ট Save করলেই কালার সেভ হবে।</small></div>
-  <div id="product-variant-list" class="variant-editor-list"></div>`;
-productForm.insertAdjacentElement("afterend", variantEditor);
-const variantList = variantEditor.querySelector("#product-variant-list");
+const variantEditor = $("variant-editor");
+const variantList = $("product-variant-list");
+if (!variantEditor || !variantList) throw new Error("Product color editor is missing from admin.html");
+if (productImageInput) productImageInput.required = false;
+
 if (productImageInput) productImageInput.required = false;
 
 function defaultColorHex(name) {
@@ -424,7 +414,7 @@ $("save-product-colors").addEventListener("click", async () => {
   const variants = collectProductVariants();
   const status = $("color-save-status");
   if (!id) {
-    showMessage(productMessage, "আগে প্রোডাক্টটি Save করুন, এরপর আলাদাভাবে কালার Save করতে পারবেন।", "error");
+    productForm.requestSubmit();
     return;
   }
   if (variants.some(item => !item.name)) {
