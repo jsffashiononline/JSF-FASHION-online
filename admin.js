@@ -383,6 +383,105 @@ logoutBtn.addEventListener("click", async () => {
   }
 });
 
+
+/* =================================
+   PRODUCT COLOR & DESIGN VARIANTS
+================================= */
+const variantEditor = document.createElement("section");
+variantEditor.className = "variant-editor";
+variantEditor.innerHTML = `
+  <div class="variant-editor-heading">
+    <div><p class="eyebrow">PRODUCT OPTIONS</p><h3>Color & Design Variants</h3><p class="muted">প্রতিটি কালার/ডিজাইনের জন্য আলাদা ৩–৪টি ছবি, দাম ও সাইজ দিন।</p></div>
+    <button type="button" class="btn gold" id="add-product-variant">+ ADD VARIANT</button>
+  </div>
+  <div id="product-variant-list" class="variant-editor-list"></div>`;
+productForm.insertAdjacentElement("afterend", variantEditor);
+const variantList = variantEditor.querySelector("#product-variant-list");
+const variantAddButton = variantEditor.querySelector("#add-product-variant");
+if (productImageInput) productImageInput.required = false;
+function variantImagesFromText(value) {
+  return String(value || "").split(/[\n,]+/).map(url => url.trim()).filter(url => /^https:\/\//i.test(url));
+}
+function addVariantEditorCard(variant = {}) {
+  const card = document.createElement("article");
+  card.className = "variant-editor-card";
+  const images = Array.isArray(variant.images) ? variant.images : (variant.image ? [variant.image] : []);
+  card.innerHTML = `
+    <div class="variant-card-top"><strong>Color / Design Variant</strong><button type="button" class="small-btn delete" data-remove-variant>REMOVE</button></div>
+    <div class="variant-fields">
+      <div><label>Color / Design Name *</label><input class="variant-name" maxlength="50" placeholder="Black / Graphic Print" value="${escapeHTML(variant.name || variant.color || "")}"></div>
+      <div><label>Color Code</label><input class="variant-color" type="color" value="${/^#[0-9a-f]{6}$/i.test(variant.colorHex || "") ? variant.colorHex : "#222222"}"></div>
+      <div><label>Variant Price (BDT, optional)</label><input class="variant-price" type="number" min="0" step="0.01" placeholder="Use main product price" value="${variant.price ?? ""}"></div>
+      <div><label>Available Sizes</label><input class="variant-sizes" placeholder="S, M, L, XL" value="${escapeHTML(Array.isArray(variant.sizes) ? variant.sizes.join(", ") : (variant.sizes || ""))}"></div>
+      <div class="variant-images-field"><label>Image URLs (one per line)</label><textarea class="variant-images" rows="3" placeholder="Uploaded image links will appear here">${escapeHTML(images.join("\n"))}</textarea>
+      <label>Upload 3–4 photos for this variant</label><input class="variant-files" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+      <div class="variant-image-preview">${images.map(url => `<img src="${escapeHTML(url)}" alt="Variant preview">`).join("")}</div><p class="variant-upload-status" aria-live="polite"></p></div>
+    </div>`;
+  variantList.appendChild(card);
+  const fileInput = card.querySelector(".variant-files");
+  fileInput.addEventListener("change", async () => {
+    const files = Array.from(fileInput.files || []);
+    if (!files.length) return;
+    const current = variantImagesFromText(card.querySelector(".variant-images").value);
+    if (files.length + current.length > 4) {
+      card.querySelector(".variant-upload-status").textContent = "একটি ভ্যারিয়েন্টে সর্বোচ্চ ৪টি ছবি রাখা যাবে।";
+      fileInput.value = ""; return;
+    }
+    if (files.some(file => !["image/jpeg","image/png","image/webp"].includes(file.type) || file.size > 10 * 1024 * 1024)) {
+      card.querySelector(".variant-upload-status").textContent = "শুধু JPG, PNG, WEBP এবং প্রতিটি ১০ MB-এর কম ছবি দিন।";
+      fileInput.value = ""; return;
+    }
+    const status = card.querySelector(".variant-upload-status");
+    status.textContent = "ছবি আপলোড হচ্ছে...";
+    fileInput.disabled = true;
+    try {
+      const urls = [...current];
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        formData.append("folder", "jsf-fashion-products");
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {method:"POST", body:formData});
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error?.message || "Cloudinary upload failed.");
+        urls.push(result.secure_url);
+      }
+      card.querySelector(".variant-images").value = urls.join("\n");
+      if (productImageInput && !productImageInput.value && urls[0]) productImageInput.value = urls[0];
+      status.textContent = urls.length + " টি ছবি প্রস্তুত হয়েছে।";
+      card.querySelector(".variant-image-preview").innerHTML = urls.map(url => `<img src="${escapeHTML(url)}" alt="Variant preview">`).join("");
+    } catch (error) {
+      status.textContent = "আপলোড হয়নি: " + error.message;
+    } finally {
+      fileInput.disabled = false;
+      fileInput.value = "";
+    }
+  });
+  card.querySelector(".variant-images").addEventListener("input", () => {
+    const urls = variantImagesFromText(card.querySelector(".variant-images").value).slice(0,4);
+    card.querySelector(".variant-image-preview").innerHTML = urls.map(url => `<img src="${escapeHTML(url)}" alt="Variant preview">`).join("");
+    if (productImageInput && !productImageInput.value && urls[0]) productImageInput.value = urls[0];
+  });
+}
+variantAddButton.addEventListener("click", () => addVariantEditorCard());
+variantList.addEventListener("click", event => {
+  const button = event.target.closest("[data-remove-variant]");
+  if (button) button.closest(".variant-editor-card").remove();
+});
+function collectProductVariants() {
+  return Array.from(variantList.querySelectorAll(".variant-editor-card")).map(card => ({
+    name: card.querySelector(".variant-name").value.trim(),
+    colorHex: card.querySelector(".variant-color").value,
+    price: card.querySelector(".variant-price").value === "" ? null : Number(card.querySelector(".variant-price").value),
+    sizes: card.querySelector(".variant-sizes").value.split(",").map(value => value.trim()).filter(Boolean),
+    images: variantImagesFromText(card.querySelector(".variant-images").value).slice(0,4)
+  }));
+}
+function loadProductVariants(variants) {
+  variantList.innerHTML = "";
+  (Array.isArray(variants) ? variants : []).forEach(addVariantEditorCard);
+}
+
 /* =================================
    8. PRODUCT MANAGEMENT
 ================================= */
@@ -452,15 +551,22 @@ productForm.addEventListener("submit", async (event) => {
 
   const id = $("product-id").value.trim();
 
+  const variants = collectProductVariants();
+  const firstVariantImage = variants.find(item => item.images.length)?.images[0] || "";
   const product = {
     name: $("product-name").value.trim(),
     price: Number($("product-price").value),
     category: $("product-category").value.trim(),
-    image: $("product-image").value.trim(),
+    image: $("product-image").value.trim() || firstVariantImage,
     sizes: $("product-sizes").value.trim(),
     description: $("product-description").value.trim(),
+    variants,
     updatedAt: Date.now()
   };
+  if (variants.some(item => !item.name || item.images.length < 3 || item.images.length > 4)) {
+    showMessage(productMessage, "প্রতিটি Variant-এর নাম এবং ৩–৪টি ছবি দিতে হবে।", "error");
+    return;
+  }
 
   if (
     !product.name ||
@@ -488,6 +594,7 @@ productForm.addEventListener("submit", async (event) => {
 
     productForm.reset();
     $("product-id").value = "";
+    loadProductVariants([]);
 
     showMessage(
       productMessage,
@@ -539,6 +646,7 @@ productList.addEventListener("click", async (event) => {
       $("product-image").value = product.image || "";
       $("product-sizes").value = product.sizes || "";
       $("product-description").value = product.description || "";
+      loadProductVariants(product.variants || []);
 
       $("product-name").scrollIntoView({
         behavior: "smooth",
@@ -582,6 +690,7 @@ productList.addEventListener("click", async (event) => {
 $("cancel-edit").addEventListener("click", () => {
   productForm.reset();
   $("product-id").value = "";
+  loadProductVariants([]);
   showMessage(productMessage, "Form পরিষ্কার করা হয়েছে।");
 });
 
