@@ -31,7 +31,7 @@ button,a{-webkit-tap-highlight-color:transparent}
 .category-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .category-card{position:relative;min-height:84px;padding:22px 14px;display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(145deg,#201a0e,#121212);border:1px solid var(--border);border-radius:9px;color:var(--gold-light);font-size:14px;font-weight:800;transition:.22s}
 .category-card:after{content:"↗";position:absolute;right:13px;top:10px;color:rgba(223,185,87,.6);font-size:13px}
-.category-card:hover{transform:translateY(-3px);border-color:var(--gold);background:#241d10}
+.category-card:hover,.category-card.active{transform:translateY(-3px);border-color:var(--gold);background:#241d10;box-shadow:0 0 0 1px rgba(223,185,87,.16)}
 .search-box{width:100%;max-width:520px;min-height:48px;margin:0 0 24px;padding:0 17px;background:#090909;color:#fff;border:1px solid #393124;border-radius:7px;outline:none}
 .search-box::placeholder{color:#817b70}
 .search-box:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(223,185,87,.1)}
