@@ -369,6 +369,7 @@ variantEditor.innerHTML = `
     <input id="bulk-product-colors" type="text" placeholder="Black, White, Red, Blue">
     <button type="button" class="btn gold" id="bulk-add-product-colors">ADD COLORS</button>
   </div>
+  <div class="variant-save-row"><button type="button" class="btn gold" id="save-product-colors">SAVE COLORS</button><small id="color-save-status">নতুন প্রোডাক্ট হলে প্রোডাক্ট Save করলেই কালার সেভ হবে।</small></div>
   <div id="product-variant-list" class="variant-editor-list"></div>`;
 productForm.insertAdjacentElement("afterend", variantEditor);
 const variantList = variantEditor.querySelector("#product-variant-list");
