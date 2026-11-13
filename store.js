@@ -121,16 +121,16 @@ function money(value) {
 }
 
 // Product size support
+function normalizeSizes(value) {
+  if (Array.isArray(value)) return value.map(size => String(size).trim()).filter(Boolean);
+  if (typeof value === "string" && value.trim()) return value.split(/[,،;\\n]+/).map(size => size.trim()).filter(Boolean);
+  return [];
+}
 function getSizes(product) {
-  if (Array.isArray(product.sizes) && product.sizes.length) {
-    return product.sizes;
-  }
-
-  if (typeof product.sizes === "string" && product.sizes.trim()) {
-    return product.sizes.split(",").map(s => s.trim()).filter(Boolean);
-  }
-
-  return ["Free Size"];
+  const sizes = normalizeSizes(product?.sizes).length ? normalizeSizes(product.sizes)
+    : normalizeSizes(product?.availableSizes).length ? normalizeSizes(product.availableSizes)
+    : normalizeSizes(product?.sizeOptions);
+  return sizes.length ? [...new Set(sizes)] : ["Free Size"];
 }
 
 // Save cart
@@ -326,7 +326,7 @@ function getColorChoiceDialog() {
       <div class="jsf-color-options"></div>
       <label class="jsf-size-label" for="jsf-modal-size">সাইজ নির্বাচন করুন</label>
       <select class="jsf-size-options" id="jsf-modal-size"><option value="">সাইজ নির্বাচন করুন</option></select>
-      <button type="button" class="jsf-color-confirm">✓ সেভ করুন</button>
+      <button type="button" class="jsf-color-confirm">✓ নির্বাচন নিশ্চিত করুন</button>
     </div>`;
   document.body.appendChild(dialog);
   dialog.addEventListener("click", event => {
@@ -376,10 +376,14 @@ function openColorChoice(id, action, product, variants) {
   const fillSizes = sizes => {
     sizeSelect.innerHTML = '<option value="">সাইজ নির্বাচন করুন</option>' + sizes.map(size => `<option value="${safeText(size)}">${safeText(size)}</option>`).join("");
   };
-  fillSizes(variants.length ? [] : getSizes(product));
+  // Show the product's saved sizes immediately; a color-specific size list overrides it when available.
+  fillSizes(getSizes(product));
   if (variants.length) {
     colorArea.querySelectorAll(".jsf-color-option").forEach(option => option.addEventListener("click", () => {
-      fillSizes(getSizesForVariant(variants[Number(option.dataset.modalColorIndex)], product));
+      const variant = variants[Number(option.dataset.modalColorIndex)];
+      const variantSizes = normalizeSizes(variant?.sizes);
+      fillSizes(variantSizes.length ? variantSizes : getSizes(product));
+      dialog.querySelectorAll(".jsf-color-option").forEach(item => item.classList.toggle("selected", item === option));
     }));
   }
   dialog.hidden = false;
