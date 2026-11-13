@@ -417,18 +417,22 @@ function continueProductAction(id, action, size, variantIndex) {
   localStorage.removeItem("jsf_direct_order");
   addToCart(id, size, variant);
 }
-if (productList) {
-  productList.addEventListener("click", event => {
-    const button = event.target.closest(".add-cart-btn, .direct-order-btn");
-    if (!button) return;
-    const id = button.dataset.productId;
-    const product = products.find(item => item.id === id);
-    if (!product) { showJsfToast("প্রোডাক্টটি পাওয়া যায়নি।", "error"); return; }
-    const variants = Array.isArray(product.variants) ? product.variants.filter(v => v && String(v.name || "").trim()) : [];
-    const action = button.classList.contains("direct-order-btn") ? "direct" : "cart";
+// Use document-level delegation so the chooser still opens after product cards re-render.
+document.addEventListener("click", event => {
+  const button = event.target.closest?.(".add-cart-btn, .direct-order-btn");
+  if (!button) return;
+  const id = button.dataset.productId;
+  const product = products.find(item => String(item.id) === String(id));
+  if (!product) { showJsfToast("প্রোডাক্টটি পাওয়া যায়নি।", "error"); return; }
+  const variants = Array.isArray(product.variants) ? product.variants.filter(v => v && String(v.name || "").trim()) : [];
+  const action = button.classList.contains("direct-order-btn") ? "direct" : "cart";
+  try {
     openColorChoice(id, action, product, variants);
-  });
-}
+  } catch (error) {
+    console.error("JSF product option dialog error:", error);
+    showJsfToast("কালার ও সাইজ অপশন খুলতে সমস্যা হয়েছে। আবার চেষ্টা করুন।", "error");
+  }
+});
 
 // Change quantity
 function changeQty(index, amount) {
