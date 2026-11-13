@@ -424,7 +424,11 @@ $("save-product-colors").addEventListener("click", async () => {
   const button = $("save-product-colors");
   button.disabled = true;
   try {
-    await update(ref(db, "products/" + id), { variants, updatedAt: Date.now() });
+    await update(ref(db, "products/" + id), {
+      variants,
+      sizes: $("product-sizes").value.trim(),
+      updatedAt: Date.now()
+    });
     status.textContent = "কালার সফলভাবে সেভ হয়েছে।";
     showMessage(productMessage, "Product colors সফলভাবে Save হয়েছে।", "success");
   } catch (error) {
