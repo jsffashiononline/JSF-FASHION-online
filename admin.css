@@ -425,3 +425,22 @@ textarea {
 .admin-profile-detail span{font-size:12px;color:var(--muted)}
 .admin-profile-detail strong{font-size:15px;overflow-wrap:anywhere;color:var(--gold-light)}
 .admin-profile-detail .profile-active{color:#73d99c}
+
+/* Professional product variant editor */
+.variant-editor{margin:18px 0 22px;padding:20px;background:linear-gradient(145deg,#151515,#0b0b0b);border:1px solid rgba(223,185,87,.28);border-radius:13px}
+.variant-editor-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:16px}
+.variant-editor-heading h3{font-size:18px;color:var(--gold-light)}
+.variant-editor-heading .muted{margin:5px 0 0;font-size:12px}
+.variant-editor-list{display:grid;gap:14px}
+.variant-editor-card{padding:16px;background:#0c0c0c;border:1px solid #3a3020;border-radius:10px}
+.variant-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid #302719;color:var(--gold-light)}
+.variant-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
+.variant-fields>div{min-width:0}
+.variant-fields input[type=color]{height:46px;padding:5px;cursor:pointer}
+.variant-images-field{grid-column:1/-1}
+.variant-images-field textarea{min-height:76px}
+.variant-images-field input[type=file]{border:1px dashed #66532d;padding:12px}
+.variant-image-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.variant-image-preview img{width:72px;height:82px;object-fit:cover;border:1px solid var(--border);border-radius:6px}
+.variant-upload-status{min-height:18px;color:var(--gold);font-size:12px;margin-top:6px}
+@media(max-width:520px){.variant-editor{padding:13px}.variant-editor-heading{align-items:flex-start;flex-direction:column}.variant-fields{grid-template-columns:1fr}.variant-images-field{grid-column:auto}}
