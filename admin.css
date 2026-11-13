@@ -455,3 +455,39 @@ textarea {
 .variant-image-preview img{width:72px;height:82px;object-fit:cover;border:1px solid var(--border);border-radius:6px}
 .variant-upload-status{min-height:18px;color:var(--gold);font-size:12px;margin-top:6px}
 @media(max-width:520px){.variant-editor{padding:13px}.variant-editor-heading{align-items:flex-start;flex-direction:column}.variant-fields{grid-template-columns:1fr}.variant-images-field{grid-column:auto}}
+
+
+/* JSF FASHION navy, royal blue & gold admin theme */
+:root{
+  --gold:#f7c600;
+  --gold-light:#ffe978;
+  --bg:#06152f;
+  --panel:#0b2145;
+  --panel-2:#102d59;
+  --text:#ffffff;
+  --muted:#c3cee0;
+  --border:rgba(247,198,0,.28);
+  --danger:#ff7777;
+}
+body{background:var(--bg);color:var(--text)}
+.admin-header{background:#071a38;border-bottom-color:var(--border)}
+.panel,.stat-card{background:var(--panel);border-color:var(--border)}
+.data-card{background:var(--panel-2);border-color:var(--border)}
+input,select,textarea{background:#071a38;color:#fff;border-color:#31517b}
+select option{background:#0b2145;color:#fff}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(247,198,0,.18)}
+.gold{background:linear-gradient(135deg,#ffe978,#f7c600);color:#06152f}
+.secondary{background:#173b6b;color:#fff;border:1px solid #31517b}
+.danger{background:#56252f;color:#ffd5d9;border:1px solid #8b3947}
+.small-btn{background:#173b6b;color:#fff;border-color:#31517b}
+.admin-page-nav{background:#0b2145;border-color:var(--border)}
+.admin-nav-btn{background:#102d59;color:#eaf1ff;border-color:#31517b}
+.admin-nav-btn:hover,.admin-nav-btn.active{border-color:var(--gold);background:linear-gradient(135deg,#ffe978,#f7c600);color:#06152f}
+.admin-profile-avatar{background:#102d59}
+.admin-profile-detail{background:#102d59;border-color:var(--border)}
+.variant-editor{background:linear-gradient(145deg,#102d59,#071a38);border-color:var(--border)}
+.variant-editor-card{background:#0b2145;border-color:#31517b}
+.variant-card-top{border-bottom-color:#31517b}
+.banner-image-card{background:#102d59;border-color:var(--border)}
+.banner-image-card img{background:#071a38}
+#banner-image-files{background:#071a38;border-color:#52709a}
