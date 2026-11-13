@@ -416,8 +416,32 @@ function collectProductVariants() {
   return Array.from(variantList.querySelectorAll(".color-only-card")).map(card => ({
     name: card.querySelector(".variant-name").value.trim(),
     colorHex: card.querySelector(".variant-color").value
-  }));
+  })).filter(item => item.name);
 }
+$("save-product-colors").addEventListener("click", async () => {
+  const id = $("product-id").value.trim();
+  const variants = collectProductVariants();
+  const status = $("color-save-status");
+  if (!id) {
+    showMessage(productMessage, "আগে প্রোডাক্টটি Save করুন, এরপর আলাদাভাবে কালার Save করতে পারবেন।", "error");
+    return;
+  }
+  if (variants.some(item => !item.name)) {
+    showMessage(productMessage, "প্রতিটি কালারের নাম লিখুন।", "error");
+    return;
+  }
+  const button = $("save-product-colors");
+  button.disabled = true;
+  try {
+    await update(ref(db, "products/" + id), { variants, updatedAt: Date.now() });
+    status.textContent = "কালার সফলভাবে সেভ হয়েছে।";
+    showMessage(productMessage, "Product colors সফলভাবে Save হয়েছে।", "success");
+  } catch (error) {
+    showMessage(productMessage, "কালার Save হয়নি: " + firebaseError(error), "error");
+  } finally {
+    button.disabled = false;
+  }
+});
 function loadProductVariants(variants) {
   variantList.innerHTML = "";
   (Array.isArray(variants) ? variants : []).forEach(addVariantEditorCard);
@@ -493,7 +517,7 @@ productForm.addEventListener("submit", async (event) => {
   const id = $("product-id").value.trim();
 
   const variants = collectProductVariants();
-  const firstVariantImage = variants.find(item => item.images.length)?.images[0] || "";
+  const firstVariantImage = "";
   const product = {
     name: $("product-name").value.trim(),
     price: Number($("product-price").value),
@@ -505,8 +529,8 @@ productForm.addEventListener("submit", async (event) => {
     variants,
     updatedAt: Date.now()
   };
-  if (variants.some(item => !item.name || item.images.length > 4)) {
-    showMessage(productMessage, "প্রতিটি Variant-এর নাম দিন। আলাদা ছবি দিলে সর্বোচ্চ ৪টি দিতে পারবেন।", "error");
+  if (variants.some(item => !item.name)) {
+    showMessage(productMessage, "প্রতিটি কালারের নাম লিখুন।", "error");
     return;
   }
 
