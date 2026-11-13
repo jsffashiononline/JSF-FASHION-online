@@ -696,8 +696,8 @@ function updateCheckoutSummary() {
   const items = directOrderItems || cart;
   const subtotal = items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
   const shipping = detectDeliveryArea($("checkout-form")?.elements.namedItem("address")?.value) === "Outside Dhaka" ? 120 : 60;
-  const cod = $("payment-method")?.value === "Cash on Delivery" ? 20 : 0;
-  summary.innerHTML = '<strong>অর্ডারের হিসাব</strong><p>পণ্যের মূল্য: ৳' + money(subtotal) + '</p><p>ডেলিভারি চার্জ: ৳' + money(shipping) + '</p><p>Cash on Delivery চার্জ: ৳' + money(cod) + '</p><hr><strong>সর্বমোট: ৳' + money(subtotal + shipping + cod) + '</strong>';
+  const cod = 0;
+  summary.innerHTML = '<strong>অর্ডারের হিসাব</strong><p>পণ্যের মূল্য: ৳' + money(subtotal) + '</p><p>ডেলিভারি চার্জ: ৳' + money(shipping) + '</p><hr><strong>সর্বমোট: ৳' + money(subtotal + shipping + cod) + '</strong>';
 }
 $("delivery-area")?.addEventListener("change", updateCheckoutSummary);
 $("payment-method")?.addEventListener("change", () => { updatePaymentInfo(); updateCheckoutSummary(); });
@@ -731,7 +731,7 @@ if ($("checkout-form")) {
       transactionId: String(data.get("transactionId") || "").trim(),
       deliveryArea: detectDeliveryArea(data.get("address")),
       shippingCharge: detectDeliveryArea(data.get("address")) === "Outside Dhaka" ? 120 : 60,
-      codFee: String(data.get("payment") || "") === "Cash on Delivery" ? 20 : 0,
+      codFee: 0,
 
       items: orderItems.map(item => ({
         id: item.id,
