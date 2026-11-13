@@ -174,3 +174,50 @@ body.image-viewer-open{overflow:hidden}
 .image-viewer-prev[hidden],.image-viewer-next[hidden]{display:none}
 .image-viewer-hint{color:#d8cba9;font-size:12px;text-align:center}
 @media(max-width:600px){.image-viewer-prev,.image-viewer-next{width:36px;height:48px;font-size:32px}.image-viewer-prev{left:7px}.image-viewer-next{right:7px}}
+
+
+/* JSF FASHION brand refresh: navy, royal blue, golden yellow and white */
+:root{
+  --bg:#06152f;
+  --surface:#0b2145;
+  --surface2:#102d59;
+  --gold:#f7c600;
+  --gold-light:#ffe978;
+  --white:#ffffff;
+  --muted:#c3cee0;
+  --border:rgba(247,198,0,.28);
+  --shadow:0 18px 45px rgba(0,8,25,.32);
+}
+body{background:var(--bg);color:#fff}
+.site-header{background:rgba(4,17,42,.96);border-bottom-color:rgba(247,198,0,.35)}
+.brand span,.eyebrow,.hero h1 span{color:var(--gold)}
+.nav-links a{color:#e6edfa}
+.nav-links a:hover,.nav-links a:focus-visible{background:#123d78;color:#ffe978}
+.hero{background:radial-gradient(ellipse at 82% 40%,rgba(20,91,180,.48),transparent 38%),linear-gradient(112deg,#06152f 5%,#092653 58%,#0b3d80)}
+.hero-content>p:not(.eyebrow){color:#d5e0f2}
+.btn{background:linear-gradient(135deg,#ffe45c,#f0b900);color:#07152e}
+.btn:hover{box-shadow:0 9px 24px rgba(247,198,0,.24)}
+.section{background:linear-gradient(145deg,#0c2852,#071a38);border-color:rgba(247,198,0,.2)}
+.section-title h2{color:#fff}
+.category-grid{display:flex;flex-wrap:wrap;gap:9px}
+.category-card{min-height:40px;padding:9px 17px;background:#0d3268;border:1px solid rgba(135,178,235,.32);border-radius:7px;color:#fff;font-size:12px}
+.category-card:after{display:none}
+.category-card:hover,.category-card.active{transform:translateY(-1px);border-color:var(--gold);background:#f7c600;color:#06152f;box-shadow:0 5px 16px rgba(0,0,0,.18)}
+.search-box{background:#071a38;color:#fff;border-color:#31558a}
+.search-box::placeholder{color:#aebed7}
+.product-card{background:#0b2145;border-color:rgba(135,178,235,.24)}
+.product-card:hover{border-color:var(--gold)}
+.product-info h3{color:#fff}
+.product-info>p,.product-price,.description-toggle{color:var(--gold)}
+.product-info .product-description{color:#c3cee0}
+.product-info select,.checkout-box input,.checkout-box select,.checkout-box textarea{background:#071a38;border-color:#31558a;color:#fff}
+.cart-box,.checkout-box,.checkout-side{background:#0b2145;border-color:rgba(247,198,0,.28)}
+.cart-total,.checkout-side h3,.checkout-box label{color:#ffe978}
+.cart-row{border-bottom-color:rgba(247,198,0,.2)}
+.site-footer{background:#041127;border-top-color:rgba(247,198,0,.32);color:#c3cee0}
+.payment-info{background:linear-gradient(145deg,#12376b,#0b2145);border-color:rgba(247,198,0,.55)}
+.payment-number-copy{background:#06152f;border-color:var(--gold);color:#ffe978}
+@media(max-width:760px){
+  .category-grid{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding:2px 1px 9px;scrollbar-width:thin}
+  .category-card{flex:0 0 auto;min-height:36px;padding:8px 13px;white-space:nowrap}
+}
