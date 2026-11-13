@@ -238,7 +238,7 @@ if (productList) {
     const galleryButton = event.target.closest("[data-gallery-thumb]");
     if (galleryButton) {
       const id = galleryButton.dataset.productId;
-      const current = selectedProductVariants.get(id) || {variantIndex:0,imageIndex:0};
+      const current = selectedProductVariants.get(id) || {variantIndex:-1,imageIndex:0};
       selectedProductVariants.set(id, {...current,imageIndex:Number(galleryButton.dataset.galleryThumb)});
       renderProducts(visibleProducts);
       return;
@@ -300,7 +300,7 @@ if (productList) {
     const id = button.dataset.productId;
     const size = sizeSelect ? sizeSelect.value : "Free Size";
     const product = products.find(item => item.id === id);
-    const saved = selectedProductVariants.get(id) || {variantIndex:0,imageIndex:0};
+    const saved = selectedProductVariants.get(id) || {variantIndex:-1,imageIndex:0};
     const variants = Array.isArray(product?.variants) ? product.variants : [];
     const variant = variants[saved.variantIndex] || null;
 
