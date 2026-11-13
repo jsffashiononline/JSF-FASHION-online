@@ -499,7 +499,7 @@ productForm.addEventListener("submit", async (event) => {
     price: Number($("product-price").value),
     category: $("product-category").value.trim(),
     image: $("product-image").value.trim() || firstVariantImage,
-    images: productGalleryImages.length ? [...productGalleryImages] : ($("product-image").value.trim() ? [$("product-image").value.trim()] : (firstVariantImage ? [firstVariantImage] : [])),
+    images: productGalleryImages.length ? [...productGalleryImages] : ($("product-image").value.trim() ? [$("product-image").value.trim()] : []),
     sizes: $("product-sizes").value.trim(),
     description: $("product-description").value.trim(),
     variants,
