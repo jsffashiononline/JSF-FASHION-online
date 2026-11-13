@@ -765,8 +765,9 @@ function loadOrders() {
         ? order.items.map((item) => {
             const itemName = item.name || item.productName || "Product";
             const itemSize = item.size || item.selectedSize || "Not specified";
+            const itemVariant = item.color || item.variant || "";
             const itemQty = item.qty || item.quantity || 1;
-            return `${itemName} (Size: ${itemSize}) × ${itemQty}`;
+            return `${itemName}${itemVariant ? ` (Color/Design: ${itemVariant})` : ""} (Size: ${itemSize}) × ${itemQty}`;
           }).join(" | ")
         : "See order details in database";
 
