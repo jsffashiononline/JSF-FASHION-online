@@ -578,6 +578,7 @@ function normalizeCategory(value) {
   const aliases = {
     "t shirt": "t-shirts", "t shirts": "t-shirts", "tee": "t-shirts", "tees": "t-shirts",
     "shirt": "shirts",
+    "drop shoulders": "drop shoulder", "drop shoulder t shirt": "drop shoulder",
     "pant": "pants", "pants and jeans": "pants",
     "punjabi": "panjabi",
     "ladies": "saree", "ladies fashion": "saree", "women's fashion": "saree", "womens fashion": "saree",
