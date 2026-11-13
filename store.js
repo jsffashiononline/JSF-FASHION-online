@@ -573,12 +573,24 @@ if ($("payment-method")) {
 }
 
 // Category and product search filters
+function normalizeCategory(value) {
+  const category = String(value || "").toLowerCase().trim().replace(/[_-]+/g, " ").replace(/\\s+/g, " ");
+  const aliases = {
+    "t shirt": "t-shirts", "t shirts": "t-shirts", "tee": "t-shirts", "tees": "t-shirts",
+    "shirt": "shirts",
+    "pant": "pants", "pants and jeans": "pants",
+    "punjabi": "panjabi",
+    "hoodie": "hoodie & sweatshirt", "sweatshirt": "hoodie & sweatshirt"
+  };
+  return aliases[category] || category;
+}
+
 function applyProductFilters() {
   const q = String(searchInput?.value || "").toLowerCase().trim();
   const filtered = products.filter(product => {
     const category = String(product.category || "").toLowerCase().trim();
     const matchesCategory = !activeCategory ||
-      category === activeCategory.toLowerCase() ||
+      normalizeCategory(category) === normalizeCategory(activeCategory) ||
       (activeCategory === "New Arrivals" && product.isNewArrival === true);
     const matchesSearch = !q ||
       String(product.name || "").toLowerCase().includes(q) ||
