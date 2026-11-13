@@ -846,7 +846,7 @@ async function loadOrders() {
         ? order.items.map((item) => {
             const itemName = item.name || item.productName || "Product";
             const itemSize = item.size || item.selectedSize || "Not specified";
-            const itemVariant = item.color || item.variant || item.selectedColor || "";
+            const itemVariant = [item.color || item.variant || item.selectedColor || "", item.design ? "More Design: " + item.design : ""].filter(Boolean).join(" · ");
             const itemQty = item.qty || item.quantity || 1;
             const savedProduct = catalogProducts[item.id] || {};
             const matchingVariant = Array.isArray(savedProduct.variants)
