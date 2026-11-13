@@ -356,98 +356,43 @@ logoutBtn.addEventListener("click", async () => {
 
 
 /* =================================
-   PRODUCT COLOR & DESIGN VARIANTS
+   PRODUCT COLORS
 ================================= */
 const variantEditor = document.createElement("section");
 variantEditor.className = "variant-editor";
 variantEditor.innerHTML = `
   <div class="variant-editor-heading">
-    <div><p class="eyebrow">PRODUCT OPTIONS</p><h3>Color & Design Variants</h3><p class="muted">একসাথে কয়েকটি কালারের নাম লিখে যোগ করুন। চাইলে প্রতিটি কালারের আলাদা ছবি দিতে পারবেন; না দিলেও মূল প্রোডাক্টের ছবি দেখাবে।</p></div>
-    <button type="button" class="btn gold" id="add-product-variant">+ ADD ONE</button>
+    <div><h3>Product Colors</h3><p class="muted">একসাথে একাধিক কালারের নাম লিখুন।</p></div>
   </div>
   <div class="bulk-color-row">
-    <label for="bulk-product-colors">একসাথে কালার যোগ করুন</label>
+    <label for="bulk-product-colors">কালার</label>
     <input id="bulk-product-colors" type="text" placeholder="Black, White, Red, Blue">
-    <button type="button" class="btn gold" id="bulk-add-product-colors">ADD ALL COLORS</button>
-    <small>কমা দিয়ে আলাদা করে কালারের নাম লিখুন।</small>
+    <button type="button" class="btn gold" id="bulk-add-product-colors">ADD COLORS</button>
   </div>
   <div id="product-variant-list" class="variant-editor-list"></div>`;
 productForm.insertAdjacentElement("afterend", variantEditor);
 const variantList = variantEditor.querySelector("#product-variant-list");
-const variantAddButton = variantEditor.querySelector("#add-product-variant");
 if (productImageInput) productImageInput.required = false;
-function variantImagesFromText(value) {
-  return String(value || "").split(/[\n,]+/).map(url => url.trim()).filter(url => /^https:\/\//i.test(url));
-}
-function addVariantEditorCard(variant = {}) {
-  const card = document.createElement("article");
-  card.className = "variant-editor-card";
-  const images = Array.isArray(variant.images) ? variant.images : (variant.image ? [variant.image] : []);
-  card.innerHTML = `
-    <div class="variant-card-top"><strong>Color / Design Variant</strong><button type="button" class="small-btn delete" data-remove-variant>REMOVE</button></div>
-    <div class="variant-fields">
-      <div><label>Color / Design Name *</label><input class="variant-name" maxlength="50" placeholder="Black / Graphic Print" value="${escapeHTML(variant.name || variant.color || "")}"></div>
-      <div><label>Color Code</label><input class="variant-color" type="color" value="${/^#[0-9a-f]{6}$/i.test(variant.colorHex || "") ? variant.colorHex : "#222222"}"></div>
-      <div><label>Variant Price (BDT, optional)</label><input class="variant-price" type="number" min="0" step="0.01" placeholder="Use main product price" value="${variant.price ?? ""}"></div>
-      <div><label>Available Sizes</label><input class="variant-sizes" placeholder="S, M, L, XL" value="${escapeHTML(Array.isArray(variant.sizes) ? variant.sizes.join(", ") : (variant.sizes || ""))}"></div>
-      <div class="variant-images-field"><label>Image URLs (one per line)</label><textarea class="variant-images" rows="3" placeholder="Uploaded image links will appear here">${escapeHTML(images.join("\n"))}</textarea>
-      <label>Upload 3–4 photos for this variant</label><input class="variant-files" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-      <div class="variant-image-preview">${images.map(url => `<img src="${escapeHTML(url)}" alt="Variant preview">`).join("")}</div><p class="variant-upload-status" aria-live="polite"></p></div>
-    </div>`;
-  variantList.appendChild(card);
-  const fileInput = card.querySelector(".variant-files");
-  fileInput.addEventListener("change", async () => {
-    const files = Array.from(fileInput.files || []);
-    if (!files.length) return;
-    const current = variantImagesFromText(card.querySelector(".variant-images").value);
-    if (files.length + current.length > 4) {
-      card.querySelector(".variant-upload-status").textContent = "একটি ভ্যারিয়েন্টে সর্বোচ্চ ৪টি ছবি রাখা যাবে।";
-      fileInput.value = ""; return;
-    }
-    if (files.some(file => !["image/jpeg","image/png","image/webp"].includes(file.type) || file.size > 10 * 1024 * 1024)) {
-      card.querySelector(".variant-upload-status").textContent = "শুধু JPG, PNG, WEBP এবং প্রতিটি ১০ MB-এর কম ছবি দিন।";
-      fileInput.value = ""; return;
-    }
-    const status = card.querySelector(".variant-upload-status");
-    status.textContent = "ছবি আপলোড হচ্ছে...";
-    fileInput.disabled = true;
-    try {
-      const urls = [...current];
-      for (const file of files) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        formData.append("folder", "jsf-fashion-products");
-        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {method:"POST", body:formData});
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error?.message || "Cloudinary upload failed.");
-        urls.push(result.secure_url);
-      }
-      card.querySelector(".variant-images").value = urls.join("\n");
-      if (productImageInput && !productImageInput.value && urls[0]) productImageInput.value = urls[0];
-      status.textContent = urls.length + " টি ছবি প্রস্তুত হয়েছে।";
-      card.querySelector(".variant-image-preview").innerHTML = urls.map(url => `<img src="${escapeHTML(url)}" alt="Variant preview">`).join("");
-    } catch (error) {
-      status.textContent = "আপলোড হয়নি: " + error.message;
-    } finally {
-      fileInput.disabled = false;
-      fileInput.value = "";
-    }
-  });
-  card.querySelector(".variant-images").addEventListener("input", () => {
-    const urls = variantImagesFromText(card.querySelector(".variant-images").value).slice(0,4);
-    card.querySelector(".variant-image-preview").innerHTML = urls.map(url => `<img src="${escapeHTML(url)}" alt="Variant preview">`).join("");
-    if (productImageInput && !productImageInput.value && urls[0]) productImageInput.value = urls[0];
-  });
-}
+
 function defaultColorHex(name) {
   const key = String(name || "").trim().toLowerCase();
   const colors = {black:"#111111",white:"#ffffff",red:"#e53935",blue:"#1565c0",navy:"#061b49",green:"#2e7d32",yellow:"#fdd835",pink:"#f48fb1",grey:"#808080",gray:"#808080",maroon:"#800000",purple:"#7b1fa2",orange:"#ef6c00",brown:"#795548"};
   return colors[key] || "#777777";
 }
+function addVariantEditorCard(variant = {}) {
+  const card = document.createElement("article");
+  card.className = "variant-editor-card color-only-card";
+  card.innerHTML = `
+    <label>কালারের নাম</label>
+    <input class="variant-name" maxlength="50" placeholder="যেমন: Black" value="${escapeHTML(variant.name || variant.color || "")}">
+    <label>কালার</label>
+    <input class="variant-color" type="color" value="${/^#[0-9a-f]{6}$/i.test(variant.colorHex || "") ? variant.colorHex : defaultColorHex(variant.name || variant.color || "")}">
+    <button type="button" class="small-btn delete" data-remove-variant>REMOVE</button>`;
+  variantList.appendChild(card);
+}
 $("bulk-add-product-colors").addEventListener("click", () => {
   const input = $("bulk-product-colors");
-  const names = [...new Set(input.value.split(",").map(name => name.trim()).filter(Boolean))];
+  const names = [...new Set(input.value.split(/[，,\\n]+/).map(name => name.trim()).filter(Boolean))];
   if (!names.length) {
     showMessage(productMessage, "কালারের নাম লিখুন।", "error");
     return;
@@ -461,20 +406,16 @@ $("bulk-add-product-colors").addEventListener("click", () => {
     added++;
   });
   input.value = "";
-  showMessage(productMessage, added ? added + " টি কালার যোগ হয়েছে। প্রতিটি কালারের ছবি চাইলে আলাদাভাবে দিতে পারবেন।" : "এই কালারগুলো আগে থেকেই আছে।", added ? "success" : "error");
+  showMessage(productMessage, added ? added + " টি কালার যোগ হয়েছে।" : "এই কালারগুলো আগে থেকেই আছে।", added ? "success" : "error");
 });
-variantAddButton.addEventListener("click", () => addVariantEditorCard());
 variantList.addEventListener("click", event => {
   const button = event.target.closest("[data-remove-variant]");
-  if (button) button.closest(".variant-editor-card").remove();
+  if (button) button.closest(".color-only-card").remove();
 });
 function collectProductVariants() {
-  return Array.from(variantList.querySelectorAll(".variant-editor-card")).map(card => ({
+  return Array.from(variantList.querySelectorAll(".color-only-card")).map(card => ({
     name: card.querySelector(".variant-name").value.trim(),
-    colorHex: card.querySelector(".variant-color").value,
-    price: card.querySelector(".variant-price").value === "" ? null : Number(card.querySelector(".variant-price").value),
-    sizes: card.querySelector(".variant-sizes").value.split(",").map(value => value.trim()).filter(Boolean),
-    images: variantImagesFromText(card.querySelector(".variant-images").value).slice(0,4)
+    colorHex: card.querySelector(".variant-color").value
   }));
 }
 function loadProductVariants(variants) {
