@@ -227,3 +227,17 @@ body{background:var(--bg);color:#fff}
 .nav-links .header-order-btn{margin-left:6px;padding:10px 18px;background:linear-gradient(135deg,#ffe45c,#f0b900);color:#06152f;border:1px solid #ffe978;border-radius:7px;font-weight:900;letter-spacing:.6px}
 .nav-links .header-order-btn:hover,.nav-links .header-order-btn:focus-visible{background:#fff0a6;color:#06152f;transform:translateY(-1px)}
 @media(max-width:760px){.nav-links .header-order-btn{padding:7px 12px;margin-left:3px}}
+
+
+/* JSF FASHION color selection checkmark and branded toast */
+.variant-swatch{position:relative;min-height:38px;padding:6px 27px 6px 9px;transition:border-color .18s,background .18s,transform .18s}
+.variant-swatch .variant-check{position:absolute;right:7px;top:50%;transform:translateY(-50%) scale(.6);width:16px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--gold);color:#06152f;font-size:11px;line-height:1;opacity:0;transition:opacity .18s,transform .18s}
+.variant-swatch.active{border-color:var(--gold);background:#f7c600;color:#06152f;box-shadow:0 0 0 2px rgba(247,198,0,.2)}
+.variant-swatch.active .variant-check{opacity:1;transform:translateY(-50%) scale(1)}
+.variant-swatch.active small{color:#06152f}
+.jsf-toast{position:fixed;z-index:10020;left:50%;bottom:24px;transform:translate(-50%,18px);width:max-content;max-width:calc(100vw - 32px);display:flex;align-items:center;gap:10px;padding:13px 18px;border:1px solid rgba(247,198,0,.65);border-radius:10px;background:linear-gradient(135deg,#12376b,#071a38);color:#fff;font-size:13px;font-weight:750;box-shadow:0 14px 38px rgba(0,0,0,.42);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s}
+.jsf-toast.show{opacity:1;transform:translate(-50%,0)}
+.jsf-toast-icon{width:23px;height:23px;flex:0 0 23px;display:grid;place-items:center;border-radius:50%;background:#f7c600;color:#06152f;font-size:14px;font-weight:1000}
+.jsf-toast.error{border-color:#e69a6d}
+.jsf-toast.error .jsf-toast-icon{background:#e69a6d}
+@media(max-width:600px){.jsf-toast{bottom:16px;padding:12px 15px;font-size:12px}}
