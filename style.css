@@ -167,3 +167,10 @@ body.image-viewer-open{overflow:hidden}
 .gallery-thumb{width:54px;height:58px;flex:0 0 54px;padding:2px;background:#090909;border:1px solid #38332a;border-radius:5px;overflow:hidden;cursor:pointer}
 .gallery-thumb.active{border:2px solid var(--gold)}
 .product-gallery-thumbs .gallery-thumb img{display:block;width:100%;height:100%;object-fit:cover;border-radius:3px}
+
+
+.image-viewer-prev,.image-viewer-next{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:56px;border:1px solid rgba(223,185,87,.7);border-radius:9px;background:rgba(15,15,15,.82);color:#fff0bd;font-size:38px;line-height:1;cursor:pointer;z-index:2}
+.image-viewer-prev{left:14px}.image-viewer-next{right:14px}
+.image-viewer-prev[hidden],.image-viewer-next[hidden]{display:none}
+.image-viewer-hint{color:#d8cba9;font-size:12px;text-align:center}
+@media(max-width:600px){.image-viewer-prev,.image-viewer-next{width:36px;height:48px;font-size:32px}.image-viewer-prev{left:7px}.image-viewer-next{right:7px}}
