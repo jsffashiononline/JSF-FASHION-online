@@ -639,6 +639,19 @@ if ($("checkout-open")) {
   });
 }
 
+// Checkout delivery and payment price summary
+function updateCheckoutSummary() {
+  const summary = $("checkout-price-summary");
+  if (!summary) return;
+  const items = directOrderItems || cart;
+  const subtotal = items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
+  const shipping = $("delivery-area")?.value === "Outside Dhaka" ? 120 : 60;
+  const cod = $("payment-method")?.value === "Cash on Delivery" ? 20 : 0;
+  summary.innerHTML = '<strong>অর্ডারের হিসাব</strong><p>পণ্যের মূল্য: ৳' + money(subtotal) + '</p><p>ডেলিভারি চার্জ: ৳' + money(shipping) + '</p><p>Cash on Delivery চার্জ: ৳' + money(cod) + '</p><hr><strong>সর্বমোট: ৳' + money(subtotal + shipping + cod) + '</strong>';
+}
+$("delivery-area")?.addEventListener("change", updateCheckoutSummary);
+$("payment-method")?.addEventListener("change", () => { updatePaymentInfo(); updateCheckoutSummary(); });
+
 // Submit order
 if ($("checkout-form")) {
   $("checkout-form").addEventListener("submit", async event => {
@@ -666,10 +679,14 @@ if ($("checkout-form")) {
 
       paymentMethod: String(data.get("payment") || ""),
       transactionId: String(data.get("transactionId") || "").trim(),
+      deliveryArea: String(data.get("deliveryArea") || "Dhaka"),
+      shippingCharge: String(data.get("deliveryArea") || "Dhaka") === "Outside Dhaka" ? 120 : 60,
+      codFee: String(data.get("payment") || "") === "Cash on Delivery" ? 20 : 0,
 
       items: orderItems.map(item => ({
         id: item.id,
         name: item.name,
+        image: item.image || item.images?.[0] || "",
         price: Number(item.price),
         size: item.size,
         variant: item.variant || "",
@@ -677,14 +694,16 @@ if ($("checkout-form")) {
         qty: Number(item.qty)
       })),
 
-      total: orderItems.reduce(
-        (sum, item) =>
-          sum + Number(item.price) * Number(item.qty), 0
+      subtotal: orderItems.reduce(
+        (sum, item) => sum + Number(item.price) * Number(item.qty), 0
       ),
+      total: 0,
 
       status: "Pending",
       createdAt: Date.now()
     };
+
+    order.total = order.subtotal + order.shippingCharge + order.codFee;
 
     if (
       (order.paymentMethod === "bKash" || order.paymentMethod === "Nagad") &&
@@ -738,6 +757,7 @@ if ($("checkout-form")) {
 
       form.reset();
       updatePaymentInfo();
+      updateCheckoutSummary();
 
       if (message) {
         message.textContent =
@@ -761,4 +781,5 @@ if ($("checkout-form")) {
 // Initial load
 renderCart();
 updatePaymentInfo();
+updateCheckoutSummary();
       
