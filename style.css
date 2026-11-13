@@ -258,3 +258,8 @@ body{background:var(--bg);color:#fff}
 .jsf-color-confirm{width:100%;min-height:48px;margin-top:17px;border:0;border-radius:8px;background:linear-gradient(135deg,#f4d37c,#b78a32);color:#090909;font-size:13px;font-weight:900;cursor:pointer}
 .variant-save-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0}
 .variant-save-row small{color:#aaa;font-size:11px}
+
+/* Combined customer color and size selection */
+.jsf-size-label{display:block;margin:18px 0 7px;color:#fff0bd;font-size:13px;font-weight:800}
+.jsf-size-options{width:100%;min-height:46px;padding:10px 12px;border:1px solid #50617b;border-radius:8px;background:#0a1a31;color:#fff;font-size:14px}
+.jsf-no-color{margin:8px 0;color:#c8d5e8;font-size:13px}
