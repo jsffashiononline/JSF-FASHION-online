@@ -772,7 +772,7 @@ async function loadOrders() {
         : "পণ্যের বিস্তারিত পাওয়া যায়নি";
       const subtotal = money(order.subtotal ?? (Array.isArray(order.items) ? order.items.reduce((sum,item)=>sum + Number(item.price||0)*Number(item.qty||item.quantity||1),0) : 0));
       const shipping = money(order.shippingCharge || 0);
-      const codFee = money(order.codFee || 0);
+      const codFee = 0;
       const total = money(order.total || order.totalAmount || order.amount || 0);
 
       return `
@@ -782,7 +782,7 @@ async function loadOrders() {
           <p>Phone: ${phone}</p>
           <p>Address: ${address}</p>
           <div><strong>অর্ডার করা পণ্য:</strong>${itemsHTML}</div>
-          <p>ডেলিভারি এলাকা: ${escapeHTML(order.deliveryArea || "পুরোনো অর্ডার")}</p><p>Payment Method: ${escapeHTML(order.paymentMethod || "Not specified")}</p><p>পণ্যের মূল্য: ${subtotal} · ডেলিভারি: ${shipping} · COD চার্জ: ${codFee}</p>
+          <p>ডেলিভারি এলাকা: ${escapeHTML(order.deliveryArea || "পুরোনো অর্ডার")}</p><p>Payment Method: ${escapeHTML(order.paymentMethod || "Not specified")}</p><p>পণ্যের মূল্য: ${subtotal} · ডেলিভারি: ${shipping}</p>
           ${order.paymentMethod === "bKash" || order.paymentMethod === "Nagad"
             ? `<p>Transaction ID: <strong>${escapeHTML(order.transactionId || "Not provided")}</strong></p>`
             : ""}
