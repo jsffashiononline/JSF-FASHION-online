@@ -128,11 +128,12 @@ function renderProducts(list) {
   visibleProducts = list;
   if (!list.length) { productList.innerHTML = '<p class="muted">No products found.</p>'; return; }
   productList.innerHTML = list.map(p => {
-    const variants = Array.isArray(p.variants) ? p.variants.filter(v => v && v.name && variantPhotoList(v).length) : [];
+    const variants = Array.isArray(p.variants) ? p.variants.filter(v => v && String(v.name || "").trim()) : [];
     const saved = selectedProductVariants.get(p.id) || {variantIndex:0,imageIndex:0};
     const variantIndex = variants.length ? Math.min(saved.variantIndex || 0, variants.length - 1) : -1;
     const variant = variantIndex >= 0 ? variants[variantIndex] : null;
-    const photos = variant ? variantPhotoList(variant) : (Array.isArray(p.images) ? p.images : [p.image]).filter(Boolean);
+    const productPhotos = (Array.isArray(p.images) ? p.images : [p.image]).filter(Boolean);
+    const photos = variant ? (variantPhotoList(variant).length ? variantPhotoList(variant) : productPhotos) : productPhotos;
     const imageIndex = Math.min(saved.imageIndex || 0, Math.max(0,photos.length - 1));
     const mainImage = photos[imageIndex] || p.image || "";
     const sizes = variant && Array.isArray(variant.sizes) && variant.sizes.length ? variant.sizes : getSizes(p);
@@ -210,9 +211,10 @@ function activateImageTrigger(target) {
   const product = visibleProducts.find(item => String(item.id) === String(id));
   if (!product) { openImageViewer([image.currentSrc || image.src], 0, image.alt); return; }
   const saved = selectedProductVariants.get(id) || {variantIndex:0,imageIndex:0};
-  const variants = Array.isArray(product.variants) ? product.variants.filter(v => v && v.name && variantPhotoList(v).length) : [];
+  const variants = Array.isArray(product.variants) ? product.variants.filter(v => v && String(v.name || "").trim()) : [];
   const variant = variants.length ? variants[Math.min(saved.variantIndex || 0, variants.length - 1)] : null;
-  const photos = variant ? variantPhotoList(variant) : (Array.isArray(product.images) ? product.images : [product.image]).filter(Boolean);
+  const productPhotos = (Array.isArray(product.images) ? product.images : [product.image]).filter(Boolean);
+  const photos = variant ? (variantPhotoList(variant).length ? variantPhotoList(variant) : productPhotos) : productPhotos;
   openImageViewer(photos.length ? photos : [image.currentSrc || image.src], saved.imageIndex || 0, product.name);
 }
 document.addEventListener("click", event => activateImageTrigger(event.target));
@@ -273,7 +275,8 @@ function addToCart(id, size, variant = null) {
       id: product.id,
       name: product.name,
       price: Number(variant && variant.price !== null && variant.price !== "" ? variant.price : product.price || 0),
-      image: variant?.images?.[0] || product.image || "",
+      image: variant?.images?.[0] || variant?.image || product.images?.[0] || product.image || "",
+      images: variant?.images?.length ? [...variant.images] : (product.images?.length ? [...product.images] : (product.image ? [product.image] : [])),
       size: size,
       variant: variantName,
       color: variantName,
@@ -312,7 +315,8 @@ if (productList) {
         id: product.id,
         name: product.name,
         price: Number(variant && variant.price !== null && variant.price !== "" ? variant.price : product.price || 0),
-        image: variant?.images?.[0] || product.image || "",
+        image: variant?.images?.[0] || variant?.image || product.images?.[0] || product.image || "",
+        images: variant?.images?.length ? [...variant.images] : (product.images?.length ? [...product.images] : (product.image ? [product.image] : [])),
         size,
         variant: variant?.name || "",
         color: variant?.name || "",
@@ -640,12 +644,28 @@ if ($("checkout-open")) {
 }
 
 // Checkout delivery and payment price summary
+function detectDeliveryArea(address) {
+  const value = String(address || "").toLowerCase();
+  // Dhaka city/district addresses use the inside-Dhaka rate; other district addresses use outside-Dhaka.
+  return /ঢাকা|\bdhaka\b/.test(value) ? "Dhaka" : "Outside Dhaka";
+}
+function syncDeliveryArea() {
+  const address = $("checkout-form")?.elements.namedItem("address")?.value || "";
+  const area = detectDeliveryArea(address);
+  const selector = $("delivery-area");
+  const hiddenArea = $("delivery-area-value");
+  if (selector) selector.value = area;
+  if (hiddenArea) hiddenArea.value = area;
+  updateCheckoutSummary();
+}
+$("checkout-form")?.elements.namedItem("address")?.addEventListener("input", syncDeliveryArea);
+
 function updateCheckoutSummary() {
   const summary = $("checkout-price-summary");
   if (!summary) return;
   const items = directOrderItems || cart;
   const subtotal = items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
-  const shipping = $("delivery-area")?.value === "Outside Dhaka" ? 120 : 60;
+  const shipping = detectDeliveryArea($("checkout-form")?.elements.namedItem("address")?.value) === "Outside Dhaka" ? 120 : 60;
   const cod = $("payment-method")?.value === "Cash on Delivery" ? 20 : 0;
   summary.innerHTML = '<strong>অর্ডারের হিসাব</strong><p>পণ্যের মূল্য: ৳' + money(subtotal) + '</p><p>ডেলিভারি চার্জ: ৳' + money(shipping) + '</p><p>Cash on Delivery চার্জ: ৳' + money(cod) + '</p><hr><strong>সর্বমোট: ৳' + money(subtotal + shipping + cod) + '</strong>';
 }
@@ -679,14 +699,14 @@ if ($("checkout-form")) {
 
       paymentMethod: String(data.get("payment") || ""),
       transactionId: String(data.get("transactionId") || "").trim(),
-      deliveryArea: String(data.get("deliveryArea") || "Dhaka"),
-      shippingCharge: String(data.get("deliveryArea") || "Dhaka") === "Outside Dhaka" ? 120 : 60,
+      deliveryArea: detectDeliveryArea(data.get("address")),
+      shippingCharge: detectDeliveryArea(data.get("address")) === "Outside Dhaka" ? 120 : 60,
       codFee: String(data.get("payment") || "") === "Cash on Delivery" ? 20 : 0,
 
       items: orderItems.map(item => ({
         id: item.id,
         name: item.name,
-        image: item.image || item.images?.[0] || "",
+        image: item.image || item.images?.[0] || products.find(product => String(product.id) === String(item.id))?.images?.[0] || products.find(product => String(product.id) === String(item.id))?.image || "",
         price: Number(item.price),
         size: item.size,
         variant: item.variant || "",
@@ -781,5 +801,6 @@ if ($("checkout-form")) {
 // Initial load
 renderCart();
 updatePaymentInfo();
+syncDeliveryArea();
 updateCheckoutSummary();
       
