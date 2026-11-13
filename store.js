@@ -777,6 +777,7 @@ if ($("checkout-form")) {
 
       form.reset();
       updatePaymentInfo();
+      syncDeliveryArea();
       updateCheckoutSummary();
 
       if (message) {
