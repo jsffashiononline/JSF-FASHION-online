@@ -417,3 +417,11 @@ textarea {
 .admin-nav-btn:hover,.admin-nav-btn.active{border-color:var(--gold);background:linear-gradient(135deg,#f6d77e,#bd8b28);color:#111}
 .admin-page{min-width:0}
 @media(max-width:520px){.admin-page-nav{top:65px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px}.admin-nav-btn{padding:11px 8px;font-size:11px}.admin-nav-btn:last-child{grid-column:1/-1}}
+
+
+.admin-profile-panel{max-width:650px;margin:0 auto}
+.admin-profile-avatar{width:76px;height:76px;display:grid;place-items:center;margin:8px 0 15px;border:2px solid var(--gold);border-radius:50%;color:var(--gold);font-size:24px;font-weight:900;background:#080808}
+.admin-profile-detail{display:flex;flex-direction:column;gap:8px;padding:15px;margin-top:12px;border:1px solid var(--border);border-radius:9px;background:var(--panel-2)}
+.admin-profile-detail span{font-size:12px;color:var(--muted)}
+.admin-profile-detail strong{font-size:15px;overflow-wrap:anywhere;color:var(--gold-light)}
+.admin-profile-detail .profile-active{color:#73d99c}
