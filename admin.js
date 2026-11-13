@@ -808,7 +808,33 @@ async function loadOrders() {
 }
 
 /* =================================
-   12. UPDATE ORDER STATUS
+   12. DELETE ALL CUSTOMER ORDERS
+================================= */
+
+const deleteAllOrdersBtn = $("delete-all-orders");
+deleteAllOrdersBtn?.addEventListener("click", async () => {
+  const firstConfirm = confirm("আপনি কি নিশ্চিত? ওয়েবসাইটের সব Customer Order স্থায়ীভাবে মুছে যাবে। Products বা Settings মুছবে না।");
+  if (!firstConfirm) return;
+
+  const confirmationText = prompt('স্থায়ীভাবে ডিলিট করতে লিখুন: DELETE ALL ORDERS');
+  if (confirmationText !== "DELETE ALL ORDERS") {
+    alert("নিশ্চিতকরণ মেলেনি। কোনো অর্ডার ডিলিট করা হয়নি।");
+    return;
+  }
+
+  deleteAllOrdersBtn.disabled = true;
+  try {
+    await remove(ref(db, "orders"));
+    alert("সব Customer Order ডিলিট করা হয়েছে।");
+  } catch (error) {
+    alert("Orders delete failed: " + firebaseError(error));
+  } finally {
+    deleteAllOrdersBtn.disabled = false;
+  }
+});
+
+/* =================================
+   13. UPDATE ORDER STATUS
 ================================= */
 
 orderList.addEventListener("change", async (event) => {
