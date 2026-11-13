@@ -93,6 +93,29 @@ function safeText(value) {
   })[c]);
 }
 
+// Branded, non-blocking notification instead of browser alert popups
+let jsfToastTimer = null;
+function showJsfToast(message, type = "success") {
+  let toast = document.getElementById("jsf-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "jsf-toast";
+    toast.className = "jsf-toast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    document.body.appendChild(toast);
+  }
+  toast.className = "jsf-toast " + (type === "error" ? "error" : "success");
+  toast.textContent = message;
+  const icon = document.createElement("span");
+  icon.className = "jsf-toast-icon";
+  icon.textContent = type === "error" ? "!" : "✓";
+  toast.prepend(icon);
+  requestAnimationFrame(() => toast.classList.add("show"));
+  if (jsfToastTimer) clearTimeout(jsfToastTimer);
+  jsfToastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+}
+
 function money(value) {
   return Number(value || 0).toLocaleString("en-BD");
 }
@@ -138,7 +161,7 @@ function renderProducts(list) {
     const mainImage = photos[imageIndex] || p.image || "";
     const sizes = variant && Array.isArray(variant.sizes) && variant.sizes.length ? variant.sizes : getSizes(p);
     const price = variant && variant.price !== null && variant.price !== "" && Number.isFinite(Number(variant.price)) ? Number(variant.price) : Number(p.price || 0);
-    const controls = variants.length ? `<div class="variant-select-area"><label>Choose Color / Design: <span style="color:#ff7777">*</span></label><div class="variant-swatches">${variants.map((item,index)=>`<button type="button" class="variant-swatch ${index===variantIndex?"active":""}" data-variant-index="${index}" data-product-id="${safeText(p.id)}" title="${safeText(item.name)}" aria-label="${safeText(item.name)}" style="--swatch-color:${/^#[0-9a-f]{6}$/i.test(item.colorHex||"")?item.colorHex:"#777777"}"><span></span><small>${safeText(item.name)}</small></button>`).join("")}</div><p class="selected-variant-name">${variant ? `Selected: <strong>${safeText(variant.name)}</strong>` : `<strong style="color:#ffcc66">Please select a color / design</strong>`}</p></div>` : "";
+    const controls = variants.length ? `<div class="variant-select-area"><label>Choose Color / Design: <span style="color:#ff7777">*</span></label><div class="variant-swatches">${variants.map((item,index)=>`<button type="button" class="variant-swatch ${index===variantIndex?"active":""}" data-variant-index="${index}" data-product-id="${safeText(p.id)}" title="${safeText(item.name)}" aria-label="${safeText(item.name)}" style="--swatch-color:${/^#[0-9a-f]{6}$/i.test(item.colorHex||"")?item.colorHex:"#777777"}"><span></span><small>${safeText(item.name)}</small><b class="variant-check" aria-hidden="true">✓</b></button>`).join("")}</div><p class="selected-variant-name">${variant ? `Selected: <strong>${safeText(variant.name)}</strong>` : `<strong style="color:#ffcc66">Please select a color / design</strong>`}</p></div>` : "";
     const thumbs = photos.length > 1 ? `<div class="product-gallery-thumbs">${photos.map((url,index)=>`<button type="button" class="gallery-thumb ${index===imageIndex?"active":""}" data-gallery-thumb="${index}" data-product-id="${safeText(p.id)}" aria-label="View product photo ${index+1}"><img src="${safeText(url)}" alt=""></button>`).join("")}</div>` : "";
     return `<article class="product-card" data-product-card="${safeText(p.id)}"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}<div class="product-info"><h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p>${controls}${p.description ? `<div class="description-wrap"><p class="product-description">${safeText(p.description)}</p><button type="button" class="description-toggle" aria-expanded="false">আরও</button></div>` : ""}<div class="product-price">৳${money(price)}</div><label>Choose Size:</label><select class="product-size">${sizes.map(size=>`<option value="${safeText(size)}">${safeText(size)}</option>`).join("")}</select><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">DIRECT ORDER</button></div></div></article>`;
   }).join("");
@@ -259,7 +282,7 @@ function addToCart(id, size, variant = null) {
   const product = products.find(p => p.id === id);
 
   if (!product) {
-    alert("Product not found.");
+    showJsfToast("প্রোডাক্টটি পাওয়া যায়নি।", "error");
     return;
   }
 
@@ -285,7 +308,7 @@ function addToCart(id, size, variant = null) {
   }
 
   saveCart();
-  alert("Product added to cart!");
+  showJsfToast("প্রোডাক্টটি কার্টে যোগ হয়েছে।");
 }
 
 // Add button click
@@ -305,7 +328,7 @@ if (productList) {
     const variant = variants[saved.variantIndex] || null;
 
     if (variants.length && !variant) {
-      alert("অর্ডার করার আগে একটি কালার / ডিজাইন নির্বাচন করুন।");
+      showJsfToast("অর্ডার করার আগে একটি কালার সিলেক্ট করুন।", "error");
       return;
     }
 
