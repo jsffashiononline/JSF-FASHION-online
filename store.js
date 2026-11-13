@@ -141,6 +141,7 @@ function saveCart() {
 
 // Render products
 const selectedProductVariants = new Map();
+const selectedProductDesigns = new Map();
 let visibleProducts = [];
 function variantPhotoList(variant) {
   const list = Array.isArray(variant?.images) ? variant.images : [];
@@ -158,10 +159,14 @@ function renderProducts(list) {
     const productPhotos = (Array.isArray(p.images) ? p.images : [p.image]).filter(Boolean);
     const photos = variant ? (variantPhotoList(variant).length ? variantPhotoList(variant) : productPhotos) : productPhotos;
     const imageIndex = Math.min(saved.imageIndex || 0, Math.max(0,photos.length - 1));
-    const mainImage = photos[imageIndex] || p.image || "";
+    const selectedDesignIndex = selectedProductDesigns.get(p.id) ?? -1;
+    const moreDesigns = Array.isArray(p.moreDesigns) ? p.moreDesigns.filter(item => item && /^https:\/\//i.test(item.image || "")) : [];
+    const selectedDesign = selectedDesignIndex >= 0 ? moreDesigns[selectedDesignIndex] : null;
+    const mainImage = selectedDesign?.image || photos[imageIndex] || p.image || "";
+    const designPicker = moreDesigns.length ? `<div class="more-design-picker"><strong>More Design</strong><div class="more-design-options">${moreDesigns.map((item,index)=>`<button type="button" class="more-design-option ${index===selectedDesignIndex?"active":""}" data-more-design-index="${index}" data-product-id="${safeText(p.id)}" aria-label="Select More Design ${index+1}"><img src="${safeText(item.image)}" alt="Design ${index+1}"><span>Design ${index+1}</span></button>`).join("")}</div></div>` : "";
     const price = variant && variant.price !== null && variant.price !== "" && Number.isFinite(Number(variant.price)) ? Number(variant.price) : Number(p.price || 0);
     const thumbs = photos.length > 1 ? `<div class="product-gallery-thumbs">${photos.map((url,index)=>`<button type="button" class="gallery-thumb ${index===imageIndex?"active":""}" data-gallery-thumb="${index}" data-product-id="${safeText(p.id)}" aria-label="View product photo ${index+1}"><img src="${safeText(url)}" alt=""></button>`).join("")}</div>` : "";
-    return `<article class="product-card" data-product-card="${safeText(p.id)}"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}<div class="product-info"><h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p>${p.description ? `<div class="description-wrap"><p class="product-description">${safeText(p.description)}</p><button type="button" class="description-toggle" aria-expanded="false">আরও</button></div>` : ""}<div class="product-price">৳${money(price)}</div><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">DIRECT ORDER</button></div></div></article>`;
+    return `<article class="product-card" data-product-card="${safeText(p.id)}"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}${designPicker}<div class="product-info"><h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p>${p.description ? `<div class="description-wrap"><p class="product-description">${safeText(p.description)}</p><button type="button" class="description-toggle" aria-expanded="false">আরও</button></div>` : ""}<div class="product-price">৳${money(price)}</div><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">DIRECT ORDER</button></div></div></article>`;
   }).join("");
 }
 
@@ -249,6 +254,12 @@ document.addEventListener("keydown", event => {
 // Expand/collapse product descriptions
 if (productList) {
   productList.addEventListener("click", event => {
+    const designButton = event.target.closest("[data-more-design-index]");
+    if (designButton) {
+      selectedProductDesigns.set(designButton.dataset.productId, Number(designButton.dataset.moreDesignIndex));
+      renderProducts(visibleProducts);
+      return;
+    }
     const variantButton = event.target.closest("[data-variant-index]");
     if (variantButton) {
       const id = variantButton.dataset.productId;
@@ -285,8 +296,11 @@ function addToCart(id, size, variant = null) {
   }
 
   const variantName = variant?.name || "";
+  const designIndex = selectedProductDesigns.get(id) ?? -1;
+  const selectedDesign = Array.isArray(product.moreDesigns) && designIndex >= 0 ? product.moreDesigns[designIndex] : null;
+  const designName = selectedDesign?.name || "";
   const existing = cart.find(item =>
-    item.id === id && item.size === size && (item.variant || "") === variantName
+    item.id === id && item.size === size && (item.variant || "") === variantName && (item.design || "") === designName
   );
 
   if (existing) {
@@ -296,9 +310,11 @@ function addToCart(id, size, variant = null) {
       id: product.id,
       name: product.name,
       price: Number(variant && variant.price !== null && variant.price !== "" ? variant.price : product.price || 0),
-      image: variant?.images?.[0] || variant?.image || product.images?.[0] || product.image || "",
-      images: variant?.images?.length ? [...variant.images] : (product.images?.length ? [...product.images] : (product.image ? [product.image] : [])),
+      image: selectedDesign?.image || variant?.images?.[0] || variant?.image || product.images?.[0] || product.image || "",
+      images: selectedDesign?.image ? [selectedDesign.image] : (variant?.images?.length ? [...variant.images] : (product.images?.length ? [...product.images] : (product.image ? [product.image] : []))),
       size: size,
+      design: designName,
+      designImage: selectedDesign?.image || "",
       variant: variantName,
       color: variantName,
       qty: 1
@@ -406,9 +422,11 @@ function continueProductAction(id, action, size, variantIndex) {
       id: product.id,
       name: product.name,
       price: Number(variant && variant.price !== null && variant.price !== "" ? variant.price : product.price || 0),
-      image: variant?.images?.[0] || variant?.image || product.images?.[0] || product.image || "",
-      images: variant?.images?.length ? [...variant.images] : (product.images?.length ? [...product.images] : (product.image ? [product.image] : [])),
+      image: (Array.isArray(product.moreDesigns) && selectedProductDesigns.has(id) ? product.moreDesigns[selectedProductDesigns.get(id)]?.image : "") || variant?.images?.[0] || variant?.image || product.images?.[0] || product.image || "",
+      images: (Array.isArray(product.moreDesigns) && selectedProductDesigns.has(id) ? [product.moreDesigns[selectedProductDesigns.get(id)]?.image].filter(Boolean) : (variant?.images?.length ? [...variant.images] : (product.images?.length ? [...product.images] : (product.image ? [product.image] : [])))),
       size,
+      design: (Array.isArray(product.moreDesigns) && selectedProductDesigns.has(id) ? product.moreDesigns[selectedProductDesigns.get(id)]?.name : "") || "",
+      designImage: (Array.isArray(product.moreDesigns) && selectedProductDesigns.has(id) ? product.moreDesigns[selectedProductDesigns.get(id)]?.image : "") || "",
       variant: variant?.name || "",
       color: variant?.name || "",
       qty: 1
@@ -488,7 +506,7 @@ function renderCart() {
         <strong>${safeText(item.name)}</strong>
 
         <p class="muted">
-${item.color ? "Color / Design: " + safeText(item.color) + " · " : ""}Size: ${safeText(item.size)}
+${item.color ? "Color: " + safeText(item.color) + " · " : ""}${item.design ? "More Design: " + safeText(item.design) + " · " : ""}Size: ${safeText(item.size)}
           · ৳${money(item.price)}
         </p>
 
