@@ -494,3 +494,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 
 
 
 .bulk-color-row{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin:16px 0;padding:14px;background:rgba(7,26,56,.7);border:1px solid rgba(247,198,0,.3);border-radius:9px}.bulk-color-row label{grid-column:1/-1;margin:0;font-weight:800;color:#ffe978}.bulk-color-row input{width:100%;min-height:43px;padding:10px 12px;background:#06152f;color:#fff;border:1px solid #31558a;border-radius:6px}.bulk-color-row small{grid-column:1/-1;color:#c3cee0}.bulk-color-row .btn{white-space:nowrap}@media(max-width:520px){.bulk-color-row{grid-template-columns:1fr}.bulk-color-row label,.bulk-color-row small{grid-column:1}}
+
+
+/* Minimal color-only product options */
+.color-only-card{display:grid;grid-template-columns:minmax(0,1fr) 76px auto;align-items:center;gap:10px;padding:12px;background:#0b2145;border:1px solid #31517b;border-radius:9px}
+.color-only-card label{font-size:12px;font-weight:700;color:#ffe978}
+.color-only-card input.variant-name{min-width:0;width:100%;padding:10px;background:#071a38;color:#fff;border:1px solid #31517b;border-radius:6px}
+.color-only-card input.variant-color{width:56px;height:40px;padding:3px;cursor:pointer}
+.color-only-card button{white-space:nowrap}
+@media(max-width:520px){.color-only-card{grid-template-columns:minmax(0,1fr) 62px;gap:8px}.color-only-card label:nth-of-type(2){display:none}.color-only-card button{grid-column:1/-1}}
