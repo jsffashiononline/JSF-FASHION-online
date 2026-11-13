@@ -161,9 +161,8 @@ function renderProducts(list) {
     const mainImage = photos[imageIndex] || p.image || "";
     const sizes = variant && Array.isArray(variant.sizes) && variant.sizes.length ? variant.sizes : getSizes(p);
     const price = variant && variant.price !== null && variant.price !== "" && Number.isFinite(Number(variant.price)) ? Number(variant.price) : Number(p.price || 0);
-    const controls = variants.length ? `<div class="variant-select-area"><label>Choose Color / Design: <span style="color:#ff7777">*</span></label><div class="variant-swatches">${variants.map((item,index)=>`<button type="button" class="variant-swatch ${index===variantIndex?"active":""}" data-variant-index="${index}" data-product-id="${safeText(p.id)}" title="${safeText(item.name)}" aria-label="${safeText(item.name)}" style="--swatch-color:${/^#[0-9a-f]{6}$/i.test(item.colorHex||"")?item.colorHex:"#777777"}"><span></span><small>${safeText(item.name)}</small><b class="variant-check" aria-hidden="true">✓</b></button>`).join("")}</div><p class="selected-variant-name">${variant ? `Selected: <strong>${safeText(variant.name)}</strong>` : `<strong style="color:#ffcc66">Please select a color / design</strong>`}</p></div>` : "";
-    const thumbs = photos.length > 1 ? `<div class="product-gallery-thumbs">${photos.map((url,index)=>`<button type="button" class="gallery-thumb ${index===imageIndex?"active":""}" data-gallery-thumb="${index}" data-product-id="${safeText(p.id)}" aria-label="View product photo ${index+1}"><img src="${safeText(url)}" alt=""></button>`).join("")}</div>` : "";
-    return `<article class="product-card" data-product-card="${safeText(p.id)}"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}<div class="product-info"><h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p>${p.description ? `<div class="description-wrap"><p class="product-description">${safeText(p.description)}</p><button type="button" class="description-toggle" aria-expanded="false">আরও</button></div>` : ""}<div class="product-price">৳${money(price)}</div><label>Choose Size:</label><select class="product-size">${sizes.map(size=>`<option value="${safeText(size)}">${safeText(size)}</option>`).join("")}</select><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">DIRECT ORDER</button></div></div></article>`;
+    const controls = "";    const thumbs = photos.length > 1 ? `<div class="product-gallery-thumbs">${photos.map((url,index)=>`<button type="button" class="gallery-thumb ${index===imageIndex?"active":""}" data-gallery-thumb="${index}" data-product-id="${safeText(p.id)}" aria-label="View product photo ${index+1}"><img src="${safeText(url)}" alt=""></button>`).join("")}</div>` : "";
+    return `<article class="product-card" data-product-card="${safeText(p.id)}"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}<div class="product-info"><h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p>${p.description ? `<div class="description-wrap"><p class="product-description">${safeText(p.description)}</p><button type="button" class="description-toggle" aria-expanded="false">আরও</button></div>` : ""}<div class="product-price">৳${money(price)}</div><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">DIRECT ORDER</button></div></div></article>`;
   }).join("");
 }
 
@@ -323,10 +322,12 @@ function getColorChoiceDialog() {
   dialog.innerHTML = `
     <div class="jsf-color-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="jsf-color-title">
       <button type="button" class="jsf-color-close" aria-label="Close">×</button>
-      <h3 id="jsf-color-title">আপনি কোন কালারটি নিতে চান?</h3>
+      <h3 id="jsf-color-title">প্রোডাক্টের কালার ও সাইজ নির্বাচন করুন</h3>
       <p class="jsf-color-product-name"></p>
       <div class="jsf-color-options"></div>
-      <button type="button" class="jsf-color-confirm">✓ কালার সেভ করুন</button>
+      <label class="jsf-size-label" for="jsf-modal-size">সাইজ নির্বাচন করুন</label>
+      <select class="jsf-size-options" id="jsf-modal-size"><option value="">সাইজ নির্বাচন করুন</option></select>
+      <button type="button" class="jsf-color-confirm">✓ সেভ করুন</button>
     </div>`;
   document.body.appendChild(dialog);
   dialog.addEventListener("click", event => {
@@ -343,29 +344,50 @@ function getColorChoiceDialog() {
       return;
     }
     if (event.target.closest(".jsf-color-confirm")) {
-      if (!pendingColorChoice || pendingColorChoice.variantIndex < 0) {
+      if (!pendingColorChoice) return;
+      if (pendingColorChoice.variants.length && pendingColorChoice.variantIndex < 0) {
         showJsfToast("একটি কালার সিলেক্ট করুন।", "error");
+        return;
+      }
+      const size = dialog.querySelector(".jsf-size-options").value;
+      if (!size) {
+        showJsfToast("একটি সাইজ সিলেক্ট করুন।", "error");
         return;
       }
       const choice = pendingColorChoice;
       dialog.hidden = true;
       pendingColorChoice = null;
-      selectedProductVariants.set(choice.id, {variantIndex:choice.variantIndex,imageIndex:0});
-      continueProductAction(choice.id, choice.action, choice.size, choice.variantIndex);
+      if (choice.variantIndex >= 0) selectedProductVariants.set(choice.id, {variantIndex:choice.variantIndex,imageIndex:0});
+      continueProductAction(choice.id, choice.action, size, choice.variantIndex);
     }
   });
   return dialog;
 }
-function openColorChoice(id, action, size, product, variants) {
+function openColorChoice(id, action, product, variants) {
   const dialog = getColorChoiceDialog();
-  pendingColorChoice = {id, action, size, variantIndex:-1};
+  pendingColorChoice = {id, action, variantIndex:variants.length ? -1 : -1, variants};
   dialog.querySelector(".jsf-color-product-name").textContent = product.name || "";
-  dialog.querySelector(".jsf-color-options").innerHTML = variants.map((variant,index) => `
+  const colorArea = dialog.querySelector(".jsf-color-options");
+  colorArea.innerHTML = variants.length ? variants.map((variant,index) => `
     <button type="button" class="jsf-color-option" data-modal-color-index="${index}">
       <span class="jsf-color-dot" style="--swatch-color:${/^#[0-9a-f]{6}$/i.test(variant.colorHex || "") ? variant.colorHex : "#777777"}"></span>
       <span>${safeText(variant.name)}</span><b>✓</b>
-    </button>`).join("");
+    </button>`).join("") : '<p class="jsf-no-color">এই প্রোডাক্টে আলাদা কালার অপশন নেই।</p>';
+  const sizeSelect = dialog.querySelector(".jsf-size-options");
+  const fillSizes = sizes => {
+    sizeSelect.innerHTML = '<option value="">সাইজ নির্বাচন করুন</option>' + sizes.map(size => `<option value="${safeText(size)}">${safeText(size)}</option>`).join("");
+  };
+  fillSizes(variants.length ? [] : getSizes(product));
+  if (variants.length) {
+    colorArea.querySelectorAll(".jsf-color-option").forEach(option => option.addEventListener("click", () => {
+      fillSizes(getSizesForVariant(variants[Number(option.dataset.modalColorIndex)], product));
+    }));
+  }
   dialog.hidden = false;
+}
+function getSizesForVariant(variant, product) {
+  if (Array.isArray(variant?.sizes) && variant.sizes.length) return variant.sizes;
+  return getSizes(product);
 }
 function continueProductAction(id, action, size, variantIndex) {
   const product = products.find(item => item.id === id);
@@ -400,19 +422,12 @@ if (productList) {
   productList.addEventListener("click", event => {
     const button = event.target.closest(".add-cart-btn, .direct-order-btn");
     if (!button) return;
-    const card = button.closest(".product-card");
-    const sizeSelect = card.querySelector(".product-size");
     const id = button.dataset.productId;
-    const size = sizeSelect ? sizeSelect.value : "Free Size";
     const product = products.find(item => item.id === id);
     if (!product) { showJsfToast("প্রোডাক্টটি পাওয়া যায়নি।", "error"); return; }
     const variants = Array.isArray(product.variants) ? product.variants.filter(v => v && String(v.name || "").trim()) : [];
     const action = button.classList.contains("direct-order-btn") ? "direct" : "cart";
-    if (variants.length) {
-      openColorChoice(id, action, size, product, variants);
-      return;
-    }
-    continueProductAction(id, action, size, -1);
+    openColorChoice(id, action, product, variants);
   });
 }
 
