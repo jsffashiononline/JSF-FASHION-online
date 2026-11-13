@@ -97,118 +97,89 @@ function firebaseError(error) {
 }
 
 /* =================================
-   4. CLOUDINARY GALLERY UPLOAD
+   4. CLOUDINARY PRODUCT PHOTO GALLERY
 ================================= */
 
 const productImageInput = $("product-image");
+let productGalleryImages = [];
+let productGalleryPreview = null;
+let productGalleryStatus = null;
+let productGalleryInput = null;
+
+function renderProductGalleryPreview() {
+  if (!productGalleryPreview) return;
+  productGalleryPreview.innerHTML = productGalleryImages.map((url, index) =>
+    `<div style="position:relative"><img src="${escapeHTML(url)}" alt="Product photo ${index+1}" style="width:76px;height:86px;object-fit:cover;border:1px solid #444;border-radius:7px"><button type="button" data-remove-product-photo="${index}" aria-label="Remove photo" style="position:absolute;top:2px;right:2px;background:#7b2222;color:white;border:0;border-radius:50%;width:22px;height:22px;cursor:pointer">×</button></div>`
+  ).join("");
+}
 
 if (productImageInput) {
   const uploadContainer = document.createElement("div");
-
-  uploadContainer.style.marginTop = "10px";
-  uploadContainer.style.display = "flex";
-  uploadContainer.style.flexDirection = "column";
-  uploadContainer.style.gap = "10px";
-
+  uploadContainer.style.cssText = "margin-top:10px;display:flex;flex-direction:column;gap:10px";
   const galleryButton = document.createElement("button");
-
   galleryButton.type = "button";
-  galleryButton.textContent = "📷 CHOOSE PHOTO FROM GALLERY";
-  galleryButton.style.padding = "12px";
-  galleryButton.style.background = "#dfb957";
-  galleryButton.style.color = "#080808";
-  galleryButton.style.border = "none";
-  galleryButton.style.borderRadius = "6px";
-  galleryButton.style.fontWeight = "bold";
-  galleryButton.style.cursor = "pointer";
-
-  const galleryInput = document.createElement("input");
-
-  galleryInput.type = "file";
-  galleryInput.accept = "image/jpeg,image/png,image/webp";
-  galleryInput.hidden = true;
-
-  const uploadStatus = document.createElement("p");
-  uploadStatus.style.fontSize = "13px";
-  uploadStatus.style.margin = "0";
-
-  uploadContainer.appendChild(galleryButton);
-  uploadContainer.appendChild(galleryInput);
-  uploadContainer.appendChild(uploadStatus);
-
-  productImageInput.insertAdjacentElement(
-    "afterend",
-    uploadContainer
-  );
-
-  galleryButton.addEventListener("click", () => {
-    galleryInput.click();
+  galleryButton.textContent = "📷 CHOOSE MULTIPLE PRODUCT PHOTOS";
+  galleryButton.style.cssText = "padding:12px;background:#dfb957;color:#080808;border:0;border-radius:6px;font-weight:bold;cursor:pointer";
+  productGalleryInput = document.createElement("input");
+  productGalleryInput.type = "file";
+  productGalleryInput.accept = "image/jpeg,image/png,image/webp";
+  productGalleryInput.multiple = true;
+  productGalleryInput.hidden = true;
+  productGalleryStatus = document.createElement("p");
+  productGalleryStatus.style.cssText = "font-size:13px;margin:0";
+  productGalleryPreview = document.createElement("div");
+  productGalleryPreview.style.cssText = "display:flex;flex-wrap:wrap;gap:8px";
+  uploadContainer.append(galleryButton, productGalleryInput, productGalleryStatus, productGalleryPreview);
+  productImageInput.insertAdjacentElement("afterend", uploadContainer);
+  galleryButton.addEventListener("click", () => productGalleryInput.click());
+  productGalleryPreview.addEventListener("click", event => {
+    const button = event.target.closest("[data-remove-product-photo]");
+    if (!button) return;
+    productGalleryImages.splice(Number(button.dataset.removeProductPhoto), 1);
+    productImageInput.value = productGalleryImages[0] || "";
+    renderProductGalleryPreview();
   });
-
-  galleryInput.addEventListener("change", async () => {
-    const file = galleryInput.files[0];
-
-    if (!file) return;
-
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      uploadStatus.textContent = "শুধু JPG, PNG অথবা WEBP ছবি দিন।";
-      uploadStatus.style.color = "red";
-      galleryInput.value = "";
+  productGalleryInput.addEventListener("change", async () => {
+    const files = Array.from(productGalleryInput.files || []);
+    if (!files.length) return;
+    if (productGalleryImages.length + files.length > 8) {
+      productGalleryStatus.textContent = "একটি প্রোডাক্টে সর্বোচ্চ ৮টি ছবি রাখা যাবে।";
+      productGalleryInput.value = "";
       return;
     }
-
-    if (file.size > 10 * 1024 * 1024) {
-      uploadStatus.textContent = "ছবির সাইজ 10 MB-এর কম হতে হবে।";
-      uploadStatus.style.color = "red";
-      galleryInput.value = "";
+    const invalid = files.find(file => !["image/jpeg","image/png","image/webp"].includes(file.type) || file.size > 10*1024*1024);
+    if (invalid) {
+      productGalleryStatus.textContent = "শুধু JPG, PNG, WEBP এবং প্রতিটি ছবি ১০ MB-এর কম হতে হবে।";
+      productGalleryInput.value = "";
       return;
     }
-
     galleryButton.disabled = true;
-    galleryButton.textContent = "UPLOADING PHOTO...";
-    uploadStatus.textContent = "Cloudinary-তে ছবি আপলোড হচ্ছে...";
-    uploadStatus.style.color = "#dfb957";
-
+    galleryButton.textContent = "UPLOADING PHOTOS...";
+    let uploaded = 0;
     try {
-      const formData = new FormData();
-
-      formData.append("file", file);
-      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-      formData.append("folder", "jsf-fashion-products");
-
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: formData
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error?.message || "Cloudinary upload failed."
-        );
+      for (const file of files) {
+        const data = new FormData();
+        data.append("file", file);
+        data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        data.append("folder", "jsf-fashion-products");
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {method:"POST",body:data});
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error?.message || "Cloudinary upload failed.");
+        productGalleryImages.push(result.secure_url);
+        uploaded++;
+        productGalleryStatus.textContent = uploaded + " / " + files.length + " ছবি আপলোড হয়েছে...";
+        renderProductGalleryPreview();
       }
-
-      productImageInput.value = result.secure_url;
-
-      uploadStatus.textContent = "ছবি সফলভাবে আপলোড হয়েছে!";
-      uploadStatus.style.color = "green";
-
+      productImageInput.value = productGalleryImages[0] || "";
+      productGalleryStatus.textContent = productGalleryImages.length + " টি প্রোডাক্ট ছবি প্রস্তুত হয়েছে।";
+      productGalleryStatus.style.color = "#70d99a";
     } catch (error) {
-      console.error("Cloudinary upload error:", error);
-
-      uploadStatus.textContent =
-        "ছবি আপলোড হয়নি: " + error.message;
-
-      uploadStatus.style.color = "red";
-
+      productGalleryStatus.textContent = "আপলোডে সমস্যা: " + error.message;
+      productGalleryStatus.style.color = "#ff7777";
     } finally {
       galleryButton.disabled = false;
-      galleryButton.textContent = "📷 CHOOSE PHOTO FROM GALLERY";
-      galleryInput.value = "";
+      galleryButton.textContent = "📷 CHOOSE MULTIPLE PRODUCT PHOTOS";
+      productGalleryInput.value = "";
     }
   });
 }
@@ -558,6 +529,7 @@ productForm.addEventListener("submit", async (event) => {
     price: Number($("product-price").value),
     category: $("product-category").value.trim(),
     image: $("product-image").value.trim() || firstVariantImage,
+    images: productGalleryImages.length ? [...productGalleryImages] : ($("product-image").value.trim() ? [$("product-image").value.trim()] : (firstVariantImage ? [firstVariantImage] : [])),
     sizes: $("product-sizes").value.trim(),
     description: $("product-description").value.trim(),
     variants,
@@ -594,6 +566,9 @@ productForm.addEventListener("submit", async (event) => {
 
     productForm.reset();
     $("product-id").value = "";
+    productGalleryImages = [];
+    renderProductGalleryPreview();
+    if (productGalleryStatus) productGalleryStatus.textContent = "";
     loadProductVariants([]);
 
     showMessage(
@@ -644,6 +619,9 @@ productList.addEventListener("click", async (event) => {
       $("product-price").value = product.price ?? "";
       $("product-category").value = product.category || "";
       $("product-image").value = product.image || "";
+      productGalleryImages = Array.isArray(product.images) && product.images.length ? [...product.images] : (product.image ? [product.image] : []);
+      renderProductGalleryPreview();
+      if (productGalleryStatus) productGalleryStatus.textContent = productGalleryImages.length + " টি সংরক্ষিত ছবি";
       $("product-sizes").value = product.sizes || "";
       $("product-description").value = product.description || "";
       loadProductVariants(product.variants || []);
