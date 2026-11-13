@@ -645,9 +645,39 @@ if ($("checkout-open")) {
 
 // Checkout delivery and payment price summary
 function detectDeliveryArea(address) {
-  const value = String(address || "").toLowerCase();
-  // Dhaka city/district addresses use the inside-Dhaka rate; other district addresses use outside-Dhaka.
-  return /ঢাকা|\bdhaka\b/.test(value) ? "Dhaka" : "Outside Dhaka";
+  const value = String(address || "").toLowerCase()
+    .replace(/[.,/\\-]+/g, " ")
+    .replace(/\s+/g, " ").trim();
+
+  // Detect a clearly named district outside Dhaka first, so an address
+  // mentioning "Dhaka Division" but naming another district is not misclassified.
+  const outsideDistricts = [
+    ["চট্টগ্রাম","chattogram","chittagong"], ["কক্সবাজার","cox's bazar","coxsbazar"],
+    ["কুমিল্লা","cumilla","comilla"], ["ফেনী","feni"], ["নোয়াখালী","noakhali"],
+    ["লক্ষ্মীপুর","lakshmipur"], ["চাঁদপুর","chandpur"], ["ব্রাহ্মণবাড়িয়া","brahmanbaria"],
+    ["রাঙ্গামাটি","rangamati"], ["খাগড়াছড়ি","khagrachhari"], ["বান্দরবান","bandarban"],
+    ["সিলেট","sylhet"], ["মৌলভীবাজার","moulvibazar"], ["হবিগঞ্জ","habiganj","habiganj"],
+    ["রাজশাহী","rajshahi"], ["নাটোর","natore"], ["নওগাঁ","naogaon"], ["চাঁপাইনবাবগঞ্জ","chapainawabganj"],
+    ["পাবনা","pabna"], ["সিরাজগঞ্জ","sirajganj"], ["বগুড়া","bogura","bogra"],
+    ["জয়পুরহাট","joypurhat"], ["রংপুর","rangpur"], ["দিনাজপুর","dinajpur"],
+    ["গাইবান্ধা","gaibandha"], ["কুড়িগ্রাম","kurigram"], ["লালমনিরহাট","lalmonirhat"],
+    ["নীলফামারী","nilphamari"], ["পঞ্চগড়","panchagarh"], ["ঠাকুরগাঁও","thakurgaon"],
+    ["খুলনা","khulna"], ["যশোর","jashore","jeshore"], ["সাতক্ষীরা","satkhira"],
+    ["বাগেরহাট","bagerhat"], ["নড়াইল","narail"], ["মাগুরা","magura"],
+    ["ঝিনাইদহ","jhenaidah"], ["কুষ্টিয়া","kushtia"], ["চুয়াডাঙ্গা","chuadanga"],
+    ["মেহেরপুর","meherpur"], ["বরিশাল","barishal","barisal"], ["ভোলা","bhola"],
+    ["পটুয়াখালী","patuakhali"], ["বরগুনা","barguna"], ["ঝালকাঠি","jhalokati"],
+    ["পিরোজপুর","pirojpur"], ["ময়মনসিংহ","mymensingh"], ["জামালপুর","jamalpur"],
+    ["শেরপুর","sherpur"], ["নেত্রকোনা","netrokona"], ["টাঙ্গাইল","tangail"],
+    ["গাজীপুর","gazipur"], ["নরসিংদী","narsingdi"], ["মানিকগঞ্জ","manikganj"],
+    ["মুন্সিগঞ্জ","munshiganj"], ["নারায়ণগঞ্জ","narayanganj"], ["ফরিদপুর","faridpur"],
+    ["গোপালগঞ্জ","gopalganj"], ["মাদারীপুর","madaripur"], ["রাজবাড়ী","rajbari"],
+    ["শরীয়তপুর","shariatpur"]
+  ];
+  const hasDistrict = terms => terms.some(term => value.includes(term));
+  if (outsideDistricts.some(terms => hasDistrict(terms))) return "Outside Dhaka";
+  if (/ঢাকা|\bdhaka\b/.test(value)) return "Dhaka";
+  return "Outside Dhaka";
 }
 function syncDeliveryArea() {
   const address = $("checkout-form")?.elements.namedItem("address")?.value || "";
@@ -710,7 +740,8 @@ if ($("checkout-form")) {
         price: Number(item.price),
         size: item.size,
         variant: item.variant || "",
-        color: item.color || "",
+        color: item.color || item.variant || "",
+        images: Array.isArray(item.images) ? item.images : (item.image ? [item.image] : []),
         qty: Number(item.qty)
       })),
 
