@@ -491,3 +491,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 
 .banner-image-card{background:#102d59;border-color:var(--border)}
 .banner-image-card img{background:#071a38}
 #banner-image-files{background:#071a38;border-color:#52709a}
+
+
+.bulk-color-row{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin:16px 0;padding:14px;background:rgba(7,26,56,.7);border:1px solid rgba(247,198,0,.3);border-radius:9px}.bulk-color-row label{grid-column:1/-1;margin:0;font-weight:800;color:#ffe978}.bulk-color-row input{width:100%;min-height:43px;padding:10px 12px;background:#06152f;color:#fff;border:1px solid #31558a;border-radius:6px}.bulk-color-row small{grid-column:1/-1;color:#c3cee0}.bulk-color-row .btn{white-space:nowrap}@media(max-width:520px){.bulk-color-row{grid-template-columns:1fr}.bulk-color-row label,.bulk-color-row small{grid-column:1}}
