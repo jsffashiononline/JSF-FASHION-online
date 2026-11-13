@@ -362,8 +362,14 @@ const variantEditor = document.createElement("section");
 variantEditor.className = "variant-editor";
 variantEditor.innerHTML = `
   <div class="variant-editor-heading">
-    <div><p class="eyebrow">PRODUCT OPTIONS</p><h3>Color & Design Variants</h3><p class="muted">প্রতিটি কালার/ডিজাইনের জন্য আলাদা ৩–৪টি ছবি, দাম ও সাইজ দিন।</p></div>
-    <button type="button" class="btn gold" id="add-product-variant">+ ADD VARIANT</button>
+    <div><p class="eyebrow">PRODUCT OPTIONS</p><h3>Color & Design Variants</h3><p class="muted">একসাথে কয়েকটি কালারের নাম লিখে যোগ করুন। চাইলে প্রতিটি কালারের আলাদা ছবি দিতে পারবেন; না দিলেও মূল প্রোডাক্টের ছবি দেখাবে।</p></div>
+    <button type="button" class="btn gold" id="add-product-variant">+ ADD ONE</button>
+  </div>
+  <div class="bulk-color-row">
+    <label for="bulk-product-colors">একসাথে কালার যোগ করুন</label>
+    <input id="bulk-product-colors" type="text" placeholder="Black, White, Red, Blue">
+    <button type="button" class="btn gold" id="bulk-add-product-colors">ADD ALL COLORS</button>
+    <small>কমা দিয়ে আলাদা করে কালারের নাম লিখুন।</small>
   </div>
   <div id="product-variant-list" class="variant-editor-list"></div>`;
 productForm.insertAdjacentElement("afterend", variantEditor);
@@ -434,6 +440,29 @@ function addVariantEditorCard(variant = {}) {
     if (productImageInput && !productImageInput.value && urls[0]) productImageInput.value = urls[0];
   });
 }
+function defaultColorHex(name) {
+  const key = String(name || "").trim().toLowerCase();
+  const colors = {black:"#111111",white:"#ffffff",red:"#e53935",blue:"#1565c0",navy:"#061b49",green:"#2e7d32",yellow:"#fdd835",pink:"#f48fb1",grey:"#808080",gray:"#808080",maroon:"#800000",purple:"#7b1fa2",orange:"#ef6c00",brown:"#795548"};
+  return colors[key] || "#777777";
+}
+$("bulk-add-product-colors").addEventListener("click", () => {
+  const input = $("bulk-product-colors");
+  const names = [...new Set(input.value.split(",").map(name => name.trim()).filter(Boolean))];
+  if (!names.length) {
+    showMessage(productMessage, "কালারের নাম লিখুন।", "error");
+    return;
+  }
+  const existing = new Set(Array.from(variantList.querySelectorAll(".variant-name")).map(field => field.value.trim().toLowerCase()));
+  let added = 0;
+  names.forEach(name => {
+    if (existing.has(name.toLowerCase())) return;
+    addVariantEditorCard({name, colorHex:defaultColorHex(name)});
+    existing.add(name.toLowerCase());
+    added++;
+  });
+  input.value = "";
+  showMessage(productMessage, added ? added + " টি কালার যোগ হয়েছে। প্রতিটি কালারের ছবি চাইলে আলাদাভাবে দিতে পারবেন।" : "এই কালারগুলো আগে থেকেই আছে।", added ? "success" : "error");
+});
 variantAddButton.addEventListener("click", () => addVariantEditorCard());
 variantList.addEventListener("click", event => {
   const button = event.target.closest("[data-remove-variant]");
@@ -535,8 +564,8 @@ productForm.addEventListener("submit", async (event) => {
     variants,
     updatedAt: Date.now()
   };
-  if (variants.some(item => !item.name || item.images.length < 3 || item.images.length > 4)) {
-    showMessage(productMessage, "প্রতিটি Variant-এর নাম এবং ৩–৪টি ছবি দিতে হবে।", "error");
+  if (variants.some(item => !item.name || item.images.length > 4)) {
+    showMessage(productMessage, "প্রতিটি Variant-এর নাম দিন। আলাদা ছবি দিলে সর্বোচ্চ ৪টি দিতে পারবেন।", "error");
     return;
   }
 
