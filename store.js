@@ -583,8 +583,8 @@ function normalizeCategory(value) {
     "ladies": "saree", "ladies fashion": "saree", "women's fashion": "saree", "womens fashion": "saree",
     "hoodie": "hoodie & jacket", "hoodies": "hoodie & jacket", "hoodie & sweatshirt": "hoodie & jacket",
     "sweatshirt": "hoodie & jacket", "jacket": "hoodie & jacket", "jackets": "hoodie & jacket",
-    "combo": "comb & couple", "comb": "comb & couple", "couple": "comb & couple",
-    "couple set": "comb & couple", "comb & couple": "comb & couple",
+    "combo": "combo & couple", "comb": "combo & couple", "couple": "combo & couple",
+    "couple set": "combo & couple", "combo & couple": "combo & couple",
     "three piece": "three piece", "three-piece": "three piece"
   };
   return aliases[category] || category;
