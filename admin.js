@@ -797,6 +797,7 @@ async function loadOrders() {
           >
             ${options}
           </select>
+          <button type="button" class="small-btn delete" data-delete-order="${escapeHTML(id)}">DELETE THIS ORDER</button>
         </article>
       `;
     }).join("");
@@ -808,28 +809,23 @@ async function loadOrders() {
 }
 
 /* =================================
-   12. DELETE ALL CUSTOMER ORDERS
+   12. DELETE INDIVIDUAL CUSTOMER ORDER
 ================================= */
 
-const deleteAllOrdersBtn = $("delete-all-orders");
-deleteAllOrdersBtn?.addEventListener("click", async () => {
-  const firstConfirm = confirm("আপনি কি নিশ্চিত? ওয়েবসাইটের সব Customer Order স্থায়ীভাবে মুছে যাবে। Products বা Settings মুছবে না।");
-  if (!firstConfirm) return;
+orderList.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-delete-order]");
+  if (!button) return;
 
-  const confirmationText = prompt('স্থায়ীভাবে ডিলিট করতে লিখুন: DELETE ALL ORDERS');
-  if (confirmationText !== "DELETE ALL ORDERS") {
-    alert("নিশ্চিতকরণ মেলেনি। কোনো অর্ডার ডিলিট করা হয়নি।");
-    return;
-  }
+  const id = button.dataset.deleteOrder;
+  const confirmed = confirm("এই অর্ডারটি স্থায়ীভাবে ডিলিট করতে চান? অন্য অর্ডারগুলো অক্ষত থাকবে।");
+  if (!confirmed) return;
 
-  deleteAllOrdersBtn.disabled = true;
+  button.disabled = true;
   try {
-    await remove(ref(db, "orders"));
-    alert("সব Customer Order ডিলিট করা হয়েছে।");
+    await remove(ref(db, "orders/" + id));
   } catch (error) {
-    alert("Orders delete failed: " + firebaseError(error));
-  } finally {
-    deleteAllOrdersBtn.disabled = false;
+    button.disabled = false;
+    alert("Order delete failed: " + firebaseError(error));
   }
 });
 
