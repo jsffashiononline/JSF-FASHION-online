@@ -116,72 +116,29 @@ function saveCart() {
 }
 
 // Render products
+const selectedProductVariants = new Map();
+let visibleProducts = [];
+function variantPhotoList(variant) {
+  const list = Array.isArray(variant?.images) ? variant.images : [];
+  return list.filter(url => typeof url === "string" && /^https:\/\//i.test(url)).slice(0,4);
+}
 function renderProducts(list) {
   if (!productList) return;
-
-  if (!list.length) {
-    productList.innerHTML =
-      '<p class="muted">No products found.</p>';
-    return;
-  }
-
+  visibleProducts = list;
+  if (!list.length) { productList.innerHTML = '<p class="muted">No products found.</p>'; return; }
   productList.innerHTML = list.map(p => {
-    const sizes = getSizes(p);
-
-    return `
-      <article class="product-card">
-
-        <img
-          class="product-view-image image-view-trigger"
-          src="${safeText(p.image || "")}"
-          alt="${safeText(p.name)}"
-          loading="lazy"
-          role="button"
-          tabindex="0"
-          aria-label="${safeText(p.name)} ছবি বড় করে দেখুন"
-          onerror="this.style.display='none'"
-        >
-
-        <div class="product-info">
-
-          <h3>${safeText(p.name)}</h3>
-
-          <p>${safeText(p.category || "Fashion")}</p>
-
-          ${p.description ? `<div class="description-wrap"><p class="product-description">${safeText(p.description)}</p><button type="button" class="description-toggle" aria-expanded="false">আরও</button></div>` : ""}
-
-          <div class="product-price">
-            ৳${money(p.price)}
-          </div>
-
-          <label>Choose Size:</label>
-
-          <select class="product-size">
-            ${sizes.map(size => `
-              <option value="${safeText(size)}">
-                ${safeText(size)}
-              </option>
-            `).join("")}
-          </select>
-
-          <div class="product-actions">
-            <button
-              class="btn add-cart-btn"
-              data-product-id="${safeText(p.id)}"
-            >
-              ADD TO CART
-            </button>
-            <button
-              class="btn direct-order-btn"
-              data-product-id="${safeText(p.id)}"
-            >
-              DIRECT ORDER
-            </button>
-          </div>
-
-        </div>
-      </article>
-    `;
+    const variants = Array.isArray(p.variants) ? p.variants.filter(v => v && v.name && variantPhotoList(v).length) : [];
+    const saved = selectedProductVariants.get(p.id) || {variantIndex:0,imageIndex:0};
+    const variantIndex = variants.length ? Math.min(saved.variantIndex || 0, variants.length - 1) : -1;
+    const variant = variantIndex >= 0 ? variants[variantIndex] : null;
+    const photos = variant ? variantPhotoList(variant) : (Array.isArray(p.images) ? p.images : [p.image]).filter(Boolean);
+    const imageIndex = Math.min(saved.imageIndex || 0, Math.max(0,photos.length - 1));
+    const mainImage = photos[imageIndex] || p.image || "";
+    const sizes = variant && Array.isArray(variant.sizes) && variant.sizes.length ? variant.sizes : getSizes(p);
+    const price = variant && variant.price !== null && variant.price !== "" && Number.isFinite(Number(variant.price)) ? Number(variant.price) : Number(p.price || 0);
+    const controls = variants.length ? `<div class="variant-select-area"><label>Choose Color / Design:</label><div class="variant-swatches">${variants.map((item,index)=>`<button type="button" class="variant-swatch ${index===variantIndex?"active":""}" data-variant-index="${index}" data-product-id="${safeText(p.id)}" title="${safeText(item.name)}" aria-label="${safeText(item.name)}" style="--swatch-color:${/^#[0-9a-f]{6}$/i.test(item.colorHex||"")?item.colorHex:"#777777"}"><span></span><small>${safeText(item.name)}</small></button>`).join("")}</div><p class="selected-variant-name">Selected: <strong>${safeText(variant?.name || "")}</strong></p></div>` : "";
+    const thumbs = photos.length > 1 ? `<div class="product-gallery-thumbs">${photos.map((url,index)=>`<button type="button" class="gallery-thumb ${index===imageIndex?"active":""}" data-gallery-thumb="${index}" data-product-id="${safeText(p.id)}" aria-label="View product photo ${index+1}"><img src="${safeText(url)}" alt=""></button>`).join("")}</div>` : "";
+    return `<article class="product-card" data-product-card="${safeText(p.id)}"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}<div class="product-info"><h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p>${controls}${p.description ? `<div class="description-wrap"><p class="product-description">${safeText(p.description)}</p><button type="button" class="description-toggle" aria-expanded="false">আরও</button></div>` : ""}<div class="product-price">৳${money(price)}</div><label>Choose Size:</label><select class="product-size">${sizes.map(size=>`<option value="${safeText(size)}">${safeText(size)}</option>`).join("")}</select><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">DIRECT ORDER</button></div></div></article>`;
   }).join("");
 }
 
@@ -236,6 +193,21 @@ document.addEventListener("keydown", event => {
 // Expand/collapse product descriptions
 if (productList) {
   productList.addEventListener("click", event => {
+    const variantButton = event.target.closest("[data-variant-index]");
+    if (variantButton) {
+      const id = variantButton.dataset.productId;
+      selectedProductVariants.set(id, {variantIndex:Number(variantButton.dataset.variantIndex),imageIndex:0});
+      renderProducts(visibleProducts);
+      return;
+    }
+    const galleryButton = event.target.closest("[data-gallery-thumb]");
+    if (galleryButton) {
+      const id = galleryButton.dataset.productId;
+      const current = selectedProductVariants.get(id) || {variantIndex:0,imageIndex:0};
+      selectedProductVariants.set(id, {...current,imageIndex:Number(galleryButton.dataset.galleryThumb)});
+      renderProducts(visibleProducts);
+      return;
+    }
     const toggle = event.target.closest(".description-toggle");
     if (!toggle) return;
     const wrap = toggle.closest(".description-wrap");
@@ -248,7 +220,7 @@ if (productList) {
 }
 
 // Add product to cart
-function addToCart(id, size) {
+function addToCart(id, size, variant = null) {
   const product = products.find(p => p.id === id);
 
   if (!product) {
@@ -256,8 +228,9 @@ function addToCart(id, size) {
     return;
   }
 
+  const variantName = variant?.name || "";
   const existing = cart.find(item =>
-    item.id === id && item.size === size
+    item.id === id && item.size === size && (item.variant || "") === variantName
   );
 
   if (existing) {
@@ -267,8 +240,10 @@ function addToCart(id, size) {
       id: product.id,
       name: product.name,
       price: Number(product.price || 0),
-      image: product.image || "",
+      image: variant?.images?.[0] || product.image || "",
       size: size,
+      variant: variantName,
+      color: variantName,
       qty: 1
     });
   }
@@ -286,9 +261,12 @@ if (productList) {
 
     const card = button.closest(".product-card");
     const sizeSelect = card.querySelector(".product-size");
-
     const id = button.dataset.productId;
     const size = sizeSelect ? sizeSelect.value : "Free Size";
+    const product = products.find(item => item.id === id);
+    const saved = selectedProductVariants.get(id) || {variantIndex:0,imageIndex:0};
+    const variants = Array.isArray(product?.variants) ? product.variants : [];
+    const variant = variants[saved.variantIndex] || null;
 
     if (button.classList.contains("direct-order-btn")) {
       const product = products.find(item => item.id === id);
@@ -301,8 +279,10 @@ if (productList) {
         id: product.id,
         name: product.name,
         price: Number(product.price || 0),
-        image: product.image || "",
+        image: variant?.images?.[0] || product.image || "",
         size,
+        variant: variant?.name || "",
+        color: variant?.name || "",
         qty: 1
       }];
       localStorage.setItem("jsf_direct_order", JSON.stringify(directOrderItems));
@@ -312,7 +292,7 @@ if (productList) {
 
     directOrderItems = null;
     localStorage.removeItem("jsf_direct_order");
-    addToCart(id, size);
+    addToCart(id, size, variant);
   });
 }
 
@@ -366,7 +346,7 @@ function renderCart() {
         <strong>${safeText(item.name)}</strong>
 
         <p class="muted">
-          Size: ${safeText(item.size)}
+${item.color ? "Color / Design: " + safeText(item.color) + " · " : ""}Size: ${safeText(item.size)}
           · ৳${money(item.price)}
         </p>
 
@@ -615,6 +595,8 @@ if ($("checkout-form")) {
         name: item.name,
         price: Number(item.price),
         size: item.size,
+        variant: item.variant || "",
+        color: item.color || "",
         qty: Number(item.qty)
       })),
 
