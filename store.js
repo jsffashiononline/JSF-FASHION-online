@@ -18,6 +18,7 @@ const paymentInfo = document.getElementById("payment-info");
 
 let products = [];
 let settings = {};
+let activeCategory = "";
 
 let cart = [];
 let directOrderItems = null;
@@ -436,7 +437,7 @@ try {
       }
     });
 
-    renderProducts(products);
+    applyProductFilters();
 
   }, error => {
     console.error("Products read error:", error);
@@ -571,18 +572,41 @@ if ($("payment-method")) {
   );
 }
 
-// Product search
-if (searchInput) {
-  searchInput.addEventListener("input", () => {
-    const q = searchInput.value.toLowerCase().trim();
-
-    const filtered = products.filter(product =>
+// Category and product search filters
+function applyProductFilters() {
+  const q = String(searchInput?.value || "").toLowerCase().trim();
+  const filtered = products.filter(product => {
+    const category = String(product.category || "").toLowerCase().trim();
+    const matchesCategory = !activeCategory ||
+      category === activeCategory.toLowerCase() ||
+      (activeCategory === "New Arrivals" && product.isNewArrival === true);
+    const matchesSearch = !q ||
       String(product.name || "").toLowerCase().includes(q) ||
-      String(product.category || "").toLowerCase().includes(q)
-    );
-
-    renderProducts(filtered);
+      category.includes(q) ||
+      String(product.description || "").toLowerCase().includes(q);
+    return matchesCategory && matchesSearch;
   });
+  renderProducts(filtered);
+}
+
+const categoryGrid = $("category-grid");
+if (categoryGrid) {
+  categoryGrid.addEventListener("click", event => {
+    const card = event.target.closest("[data-category]");
+    if (!card) return;
+    event.preventDefault();
+    activeCategory = card.dataset.category || "";
+    categoryGrid.querySelectorAll("[data-category]").forEach(item => {
+      item.classList.toggle("active", item === card);
+      item.setAttribute("aria-pressed", String(item === card));
+    });
+    applyProductFilters();
+    $("products")?.scrollIntoView({behavior:"smooth", block:"start"});
+  });
+}
+
+if (searchInput) {
+  searchInput.addEventListener("input", applyProductFilters);
 }
 
 // Open checkout
