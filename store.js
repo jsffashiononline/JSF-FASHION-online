@@ -391,7 +391,7 @@ function getSizesForVariant(variant, product) {
 function continueProductAction(id, action, size, variantIndex) {
   const product = products.find(item => item.id === id);
   if (!product) { showJsfToast("প্রোডাক্টটি পাওয়া যায়নি।", "error"); return; }
-  const variants = Array.isArray(product.variants) ? product.variants : [];
+  const variants = Array.isArray(product.variants) ? product.variants.filter(v => v && String(v.name || "").trim()) : [];
   const variant = variants.length ? variants[variantIndex] : null;
   if (variants.length && !variant) {
     showJsfToast("একটি কালার সিলেক্ট করুন।", "error");
