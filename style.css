@@ -152,3 +152,18 @@ button,a{-webkit-tap-highlight-color:transparent}
 .image-viewer-hint{color:#c9c0ae;font-size:12px;text-align:center}
 body.image-viewer-open{overflow:hidden}
 @media(max-width:600px){.image-viewer{padding:58px 10px 20px}.image-viewer-full{max-width:96vw;max-height:calc(100dvh - 115px)}}
+
+/* Product color/design selector and multi-photo gallery */
+.variant-select-area{margin-top:13px;padding:11px;background:#0c0c0c;border:1px solid rgba(223,185,87,.18);border-radius:8px}
+.variant-select-area>label{margin:0 0 9px;color:#e8d9b2;font-size:11px;font-weight:800}
+.variant-swatches{display:flex;flex-wrap:wrap;gap:9px}
+.variant-swatch{display:flex;align-items:center;gap:6px;padding:5px 8px;background:#171717;border:1px solid #39332a;border-radius:20px;color:#ddd;cursor:pointer}
+.variant-swatch>span{width:17px;height:17px;flex:0 0 17px;border-radius:50%;background:var(--swatch-color);border:1px solid #aaa}
+.variant-swatch small{font-size:10px;font-weight:700}
+.variant-swatch.active{border-color:var(--gold);background:#28200f;color:var(--gold-light);box-shadow:0 0 0 1px #dfb95735}
+.selected-variant-name{margin:8px 0 0;color:#aaa;font-size:10px}
+.selected-variant-name strong{color:var(--gold-light)}
+.product-gallery-thumbs{display:flex;gap:7px;padding:9px 10px 0;overflow-x:auto;background:#151515}
+.gallery-thumb{width:54px;height:58px;flex:0 0 54px;padding:2px;background:#090909;border:1px solid #38332a;border-radius:5px;overflow:hidden;cursor:pointer}
+.gallery-thumb.active{border:2px solid var(--gold)}
+.product-gallery-thumbs .gallery-thumb img{display:block;width:100%;height:100%;object-fit:cover;border-radius:3px}
