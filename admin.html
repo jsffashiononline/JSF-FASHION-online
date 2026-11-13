@@ -15,7 +15,6 @@
     JSF <span>FASHION</span>
   </a>
   <div class="header-right">
-    <span id="admin-email"></span>
     <button id="logout-btn" class="btn danger hidden" type="button">
       Logout
     </button>
@@ -64,7 +63,29 @@
       <button type="button" class="admin-nav-btn" data-page="orders">Orders</button>
       <button type="button" class="admin-nav-btn" data-page="banners">Website Banners</button>
       <button type="button" class="admin-nav-btn" data-page="settings">Settings</button>
+      <button type="button" class="admin-nav-btn" data-page="profile">Admin Profile</button>
     </nav>
+
+    <section id="page-profile" class="admin-page hidden">
+      <section class="panel admin-profile-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">ACCOUNT DETAILS</p>
+            <h2>Admin Profile</h2>
+          </div>
+        </div>
+        <div class="admin-profile-avatar">JSF</div>
+        <p class="muted">Logged in admin account</p>
+        <div class="admin-profile-detail">
+          <span>Gmail / Email Address</span>
+          <strong id="admin-email"></strong>
+        </div>
+        <div class="admin-profile-detail">
+          <span>Account Status</span>
+          <strong class="profile-active">Authorized Admin</strong>
+        </div>
+      </section>
+    </section>
 
     <section id="page-overview" class="admin-page">
     <div class="welcome">
