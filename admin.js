@@ -392,7 +392,7 @@ function addVariantEditorCard(variant = {}) {
 }
 $("bulk-add-product-colors").addEventListener("click", () => {
   const input = $("bulk-product-colors");
-  const names = [...new Set(input.value.split(/[，,\\n]+/).map(name => name.trim()).filter(Boolean))];
+  const names = [...new Set(input.value.split(/[，,\n]+/).map(name => name.trim()).filter(Boolean))];
   if (!names.length) {
     showMessage(productMessage, "কালারের নাম লিখুন।", "error");
     return;
