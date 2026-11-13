@@ -684,8 +684,15 @@ $("cancel-edit").addEventListener("click", () => {
    11. CUSTOMER ORDERS
 ================================= */
 
-function loadOrders() {
+async function loadOrders() {
   const ordersRef = ref(db, "orders");
+  let catalogProducts = {};
+  try {
+    const catalogSnapshot = await get(ref(db, "products"));
+    catalogProducts = catalogSnapshot.val() || {};
+  } catch (error) {
+    console.warn("Product image fallback could not load:", error);
+  }
 
   onValue(ordersRef, (snapshot) => {
     const orders = snapshot.val() || {};
@@ -751,10 +758,15 @@ function loadOrders() {
         ? order.items.map((item) => {
             const itemName = item.name || item.productName || "Product";
             const itemSize = item.size || item.selectedSize || "Not specified";
-            const itemVariant = item.color || item.variant || "";
+            const itemVariant = item.color || item.variant || item.selectedColor || "";
             const itemQty = item.qty || item.quantity || 1;
-            const savedProduct = {};
-            const itemImage = item.image || item.images?.[0] || savedProduct.images?.[0] || savedProduct.image || "";
+            const savedProduct = catalogProducts[item.id] || {};
+            const matchingVariant = Array.isArray(savedProduct.variants)
+              ? savedProduct.variants.find(variant => String(variant.name || "") === String(item.color || item.variant || ""))
+              : null;
+            const itemImage = item.image || item.images?.[0] ||
+              matchingVariant?.images?.[0] || matchingVariant?.image ||
+              savedProduct.images?.[0] || savedProduct.image || "";
             return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)">${itemImage ? `<img src="${escapeHTML(itemImage)}" alt="${escapeHTML(itemName)}" loading="lazy" style="width:76px;height:86px;object-fit:cover;border-radius:8px;background:#fff">` : `<div style="width:76px;height:86px;display:grid;place-items:center;background:#26344d;border-radius:8px;font-size:11px">No Image</div>`}<div><strong>${escapeHTML(itemName)}</strong><p>সাইজ: ${escapeHTML(itemSize)} · কালার/ডিজাইন: ${escapeHTML(itemVariant || "N/A")}</p><p>পরিমাণ: ${escapeHTML(itemQty)} · একক মূল্য: ${money(item.price)} · মোট: ${money(Number(item.price || 0) * Number(itemQty))}</p></div></div>`;
           }).join("")
         : "পণ্যের বিস্তারিত পাওয়া যায়নি";
