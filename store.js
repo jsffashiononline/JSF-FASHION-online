@@ -646,7 +646,7 @@ if ($("checkout-open")) {
 // Checkout delivery and payment price summary
 function detectDeliveryArea(address) {
   const value = String(address || "").toLowerCase()
-    .replace(/[.,/\\-]+/g, " ")
+    .replace(/[.,\/\\-]+/g, " ")
     .replace(/\s+/g, " ").trim();
 
   // Detect a clearly named district outside Dhaka first, so an address
