@@ -241,3 +241,20 @@ body{background:var(--bg);color:#fff}
 .jsf-toast.error{border-color:#e69a6d}
 .jsf-toast.error .jsf-toast-icon{background:#e69a6d}
 @media(max-width:600px){.jsf-toast{bottom:16px;padding:12px 15px;font-size:12px}}
+
+/* Customer color selection and save dialog */
+.jsf-color-dialog{position:fixed;inset:0;z-index:10030;display:grid;place-items:center;padding:18px;background:rgba(0,0,0,.78);backdrop-filter:blur(5px)}
+.jsf-color-dialog[hidden]{display:none}
+.jsf-color-dialog-panel{position:relative;width:min(100%,420px);max-height:85vh;overflow:auto;padding:24px 18px 18px;border:1px solid rgba(223,185,87,.65);border-radius:14px;background:linear-gradient(155deg,#102b52,#080f1d);box-shadow:0 22px 70px #000b}
+.jsf-color-dialog-panel h3{margin:0 34px 7px 0;color:#fff0bd;font-size:18px}
+.jsf-color-product-name{margin:0 0 16px;color:#c8d5e8;font-size:12px}
+.jsf-color-close{position:absolute;top:10px;right:12px;width:34px;height:34px;border:1px solid #dfb957;border-radius:50%;background:#0b1728;color:#fff0bd;font-size:23px;cursor:pointer}
+.jsf-color-options{display:grid;gap:9px}
+.jsf-color-option{width:100%;min-height:48px;display:flex;align-items:center;gap:11px;padding:9px 13px;border:1px solid #50617b;border-radius:8px;background:#0a1a31;color:#fff;text-align:left;font-weight:750;cursor:pointer}
+.jsf-color-dot{width:23px;height:23px;flex:0 0 23px;border:1px solid #aaa;border-radius:50%;background:var(--swatch-color)}
+.jsf-color-option b{margin-left:auto;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:#dfb957;color:#07152b;opacity:0}
+.jsf-color-option.selected{border-color:#dfb957;background:#263c5b}
+.jsf-color-option.selected b{opacity:1}
+.jsf-color-confirm{width:100%;min-height:48px;margin-top:17px;border:0;border-radius:8px;background:linear-gradient(135deg,#f4d37c,#b78a32);color:#090909;font-size:13px;font-weight:900;cursor:pointer}
+.variant-save-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0}
+.variant-save-row small{color:#aaa;font-size:11px}
