@@ -203,6 +203,16 @@
           </section>
         </div>
         <div class="wide">
+          <section id="more-design-editor" class="variant-editor">
+            <div class="variant-editor-heading"><div><h3>More Design</h3><p class="muted">একই প্রোডাক্ট ও একই দামের অতিরিক্ত ডিজাইন যোগ করুন। আগে প্রোডাক্ট Save করুন, তারপর Edit করে ডিজাইন আপলোড করুন।</p></div></div>
+            <label for="more-design-files">More Design Images</label>
+            <input id="more-design-files" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+            <button type="button" class="btn gold" id="upload-more-designs" style="margin-top:12px">UPLOAD MORE DESIGN</button>
+            <p id="more-design-status" class="message" role="status"></p>
+            <div id="more-design-list" class="variant-editor-list"></div>
+          </section>
+        </div>
+        <div class="wide">
           <label for="product-description">Description</label>
           <textarea
             id="product-description"
@@ -325,7 +335,7 @@
 </script>
 
 <script type="module">
-  import("./admin.js?v=18").catch((error) => {
+  import("./admin.js?v=19").catch((error) => {
     const message = document.getElementById("login-message");
 
     if (message) {
