@@ -747,19 +747,20 @@ function loadOrders() {
         >${item}</option>
       `).join("");
 
-      const itemsText = Array.isArray(order.items)
+      const itemsHTML = Array.isArray(order.items)
         ? order.items.map((item) => {
             const itemName = item.name || item.productName || "Product";
             const itemSize = item.size || item.selectedSize || "Not specified";
             const itemVariant = item.color || item.variant || "";
             const itemQty = item.qty || item.quantity || 1;
-            return `${itemName}${itemVariant ? ` (Color/Design: ${itemVariant})` : ""} (Size: ${itemSize}) × ${itemQty}`;
-          }).join(" | ")
-        : "See order details in database";
-
-      const total = money(
-        order.total || order.totalAmount || order.amount || 0
-      );
+            const itemImage = item.image || item.images?.[0] || "";
+            return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)">${itemImage ? `<img src="${escapeHTML(itemImage)}" alt="${escapeHTML(itemName)}" loading="lazy" style="width:76px;height:86px;object-fit:cover;border-radius:8px;background:#fff">` : `<div style="width:76px;height:86px;display:grid;place-items:center;background:#26344d;border-radius:8px;font-size:11px">No Image</div>`}<div><strong>${escapeHTML(itemName)}</strong><p>সাইজ: ${escapeHTML(itemSize)} · কালার/ডিজাইন: ${escapeHTML(itemVariant || "N/A")}</p><p>পরিমাণ: ${escapeHTML(itemQty)} · একক মূল্য: ${money(item.price)} · মোট: ${money(Number(item.price || 0) * Number(itemQty))}</p></div></div>`;
+          }).join("")
+        : "পণ্যের বিস্তারিত পাওয়া যায়নি";
+      const subtotal = money(order.subtotal ?? (Array.isArray(order.items) ? order.items.reduce((sum,item)=>sum + Number(item.price||0)*Number(item.qty||item.quantity||1),0) : 0));
+      const shipping = money(order.shippingCharge || 0);
+      const codFee = money(order.codFee || 0);
+      const total = money(order.total || order.totalAmount || order.amount || 0);
 
       return `
         <article class="data-card order-card">
@@ -767,8 +768,8 @@ function loadOrders() {
           <p>Customer: ${customer}</p>
           <p>Phone: ${phone}</p>
           <p>Address: ${address}</p>
-          <p>Items: ${escapeHTML(itemsText)}</p>
-          <p>Payment Method: ${escapeHTML(order.paymentMethod || "Not specified")}</p>
+          <div><strong>অর্ডার করা পণ্য:</strong>${itemsHTML}</div>
+          <p>ডেলিভারি এলাকা: ${escapeHTML(order.deliveryArea || "পুরোনো অর্ডার")}</p><p>Payment Method: ${escapeHTML(order.paymentMethod || "Not specified")}</p><p>পণ্যের মূল্য: ${subtotal} · ডেলিভারি: ${shipping} · COD চার্জ: ${codFee}</p>
           ${order.paymentMethod === "bKash" || order.paymentMethod === "Nagad"
             ? `<p>Transaction ID: <strong>${escapeHTML(order.transactionId || "Not provided")}</strong></p>`
             : ""}
