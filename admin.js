@@ -617,7 +617,15 @@ productList.addEventListener("click", async (event) => {
       $("product-id").value = id;
       $("product-name").value = product.name || "";
       $("product-price").value = product.price ?? "";
-      $("product-category").value = product.category || "";
+      const categorySelect = $("product-category");
+      const savedCategory = product.category || "";
+      if (savedCategory && !Array.from(categorySelect.options).some(option => option.value === savedCategory)) {
+        const legacyOption = document.createElement("option");
+        legacyOption.value = savedCategory;
+        legacyOption.textContent = savedCategory + " (Existing)";
+        categorySelect.appendChild(legacyOption);
+      }
+      categorySelect.value = savedCategory;
       $("product-image").value = product.image || "";
       productGalleryImages = Array.isArray(product.images) && product.images.length ? [...product.images] : (product.image ? [product.image] : []);
       renderProductGalleryPreview();
