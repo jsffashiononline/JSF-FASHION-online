@@ -143,7 +143,11 @@ function renderProducts(list) {
 }
 
 // Click-to-enlarge image viewer for product photos and homepage banners
+// Full-screen swipeable product photo viewer
 let imageViewer = null;
+let viewerImages = [];
+let viewerIndex = 0;
+let viewerTouchStartX = 0;
 function getImageViewer() {
   if (imageViewer) return imageViewer;
   imageViewer = document.createElement("div");
@@ -151,36 +155,64 @@ function getImageViewer() {
   imageViewer.hidden = true;
   imageViewer.setAttribute("role", "dialog");
   imageViewer.setAttribute("aria-modal", "true");
-  imageViewer.setAttribute("aria-label", "ছবি বড় করে দেখুন");
-  imageViewer.innerHTML = '<button type="button" class="image-viewer-close" aria-label="ছবি বন্ধ করুন">×</button><img class="image-viewer-full" alt=""><p class="image-viewer-hint">বন্ধ করতে বাইরে চাপ দিন অথবা Esc চাপুন</p>';
+  imageViewer.setAttribute("aria-label", "Product photo gallery");
+  imageViewer.innerHTML = '<button type="button" class="image-viewer-close" aria-label="Close">×</button><button type="button" class="image-viewer-prev" aria-label="Previous photo">‹</button><img class="image-viewer-full" alt=""><button type="button" class="image-viewer-next" aria-label="Next photo">›</button><p class="image-viewer-hint"></p>';
   document.body.appendChild(imageViewer);
   imageViewer.addEventListener("click", event => {
     if (event.target === imageViewer || event.target.closest(".image-viewer-close")) closeImageViewer();
+    if (event.target.closest(".image-viewer-prev")) showViewerImage(viewerIndex - 1);
+    if (event.target.closest(".image-viewer-next")) showViewerImage(viewerIndex + 1);
   });
+  imageViewer.addEventListener("touchstart", event => { viewerTouchStartX = event.changedTouches[0]?.clientX || 0; }, {passive:true});
+  imageViewer.addEventListener("touchend", event => {
+    const delta = (event.changedTouches[0]?.clientX || 0) - viewerTouchStartX;
+    if (Math.abs(delta) > 45) showViewerImage(viewerIndex + (delta < 0 ? 1 : -1));
+  }, {passive:true});
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && !imageViewer.hidden) closeImageViewer();
+    if (imageViewer.hidden) return;
+    if (event.key === "Escape") closeImageViewer();
+    if (event.key === "ArrowRight") showViewerImage(viewerIndex + 1);
+    if (event.key === "ArrowLeft") showViewerImage(viewerIndex - 1);
   });
   return imageViewer;
 }
-function openImageViewer(source) {
-  if (!source || !source.currentSrc && !source.src) return;
+function showViewerImage(index) {
+  if (!viewerImages.length) return;
+  viewerIndex = (index + viewerImages.length) % viewerImages.length;
+  imageViewer.querySelector(".image-viewer-full").src = viewerImages[viewerIndex];
+  imageViewer.querySelector(".image-viewer-hint").textContent = viewerImages.length > 1 ? (viewerIndex + 1) + " / " + viewerImages.length + " • Swipe or use arrows" : "Tap outside or × to close";
+  imageViewer.querySelector(".image-viewer-prev").hidden = viewerImages.length < 2;
+  imageViewer.querySelector(".image-viewer-next").hidden = viewerImages.length < 2;
+}
+function openImageViewer(images, index, alt) {
+  viewerImages = (Array.isArray(images) ? images : [images]).filter(url => typeof url === "string" && url);
+  if (!viewerImages.length) return;
   const viewer = getImageViewer();
-  const fullImage = viewer.querySelector(".image-viewer-full");
-  fullImage.src = source.currentSrc || source.src;
-  fullImage.alt = source.alt || "JSF FASHION product image";
+  viewer.querySelector(".image-viewer-full").alt = alt || "JSF FASHION product image";
   viewer.hidden = false;
   document.body.classList.add("image-viewer-open");
+  showViewerImage(index || 0);
   viewer.querySelector(".image-viewer-close").focus();
 }
 function closeImageViewer() {
   if (!imageViewer) return;
   imageViewer.hidden = true;
   imageViewer.querySelector(".image-viewer-full").removeAttribute("src");
+  viewerImages = [];
   document.body.classList.remove("image-viewer-open");
 }
 function activateImageTrigger(target) {
   const image = target.closest(".image-view-trigger");
-  if (image && image.tagName === "IMG") openImageViewer(image);
+  if (!image || image.tagName !== "IMG") return;
+  const card = image.closest("[data-product-card]");
+  const id = card?.getAttribute("data-product-card");
+  const product = visibleProducts.find(item => String(item.id) === String(id));
+  if (!product) { openImageViewer([image.currentSrc || image.src], 0, image.alt); return; }
+  const saved = selectedProductVariants.get(id) || {variantIndex:0,imageIndex:0};
+  const variants = Array.isArray(product.variants) ? product.variants.filter(v => v && v.name && variantPhotoList(v).length) : [];
+  const variant = variants.length ? variants[Math.min(saved.variantIndex || 0, variants.length - 1)] : null;
+  const photos = variant ? variantPhotoList(variant) : (Array.isArray(product.images) ? product.images : [product.image]).filter(Boolean);
+  openImageViewer(photos.length ? photos : [image.currentSrc || image.src], saved.imageIndex || 0, product.name);
 }
 document.addEventListener("click", event => activateImageTrigger(event.target));
 document.addEventListener("keydown", event => {
