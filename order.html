@@ -26,10 +26,12 @@
       <label>Delivery Address</label>
       <textarea name="address" required maxlength="500" placeholder="House, road, area, district"></textarea>
       <label>Delivery Area</label>
-      <select name="deliveryArea" id="delivery-area" required>
+      <input type="hidden" name="deliveryArea" id="delivery-area-value" value="Outside Dhaka">
+      <select id="delivery-area" aria-label="Automatically detected delivery area" disabled>
         <option value="Dhaka">ঢাকার ভিতরে — ৳৬০</option>
-        <option value="Outside Dhaka">ঢাকার বাইরে — ৳১২০</option>
+        <option value="Outside Dhaka" selected>ঢাকার বাইরে — ৳১২০</option>
       </select>
+      <small id="delivery-area-hint" class="muted">ঠিকানায় জেলা/এলাকা লিখুন। ঠিকানায় “ঢাকা / Dhaka” থাকলে ঢাকার ভিতরের চার্জ, অন্য জেলা হলে ঢাকার বাইরের চার্জ স্বয়ংক্রিয়ভাবে যোগ হবে।</small>
       <label>Payment Method</label>
       <select name="payment" id="payment-method" required>
         <option value="bKash">bKash</option><option value="Nagad">Nagad</option><option value="Cash on Delivery">Cash on Delivery</option>
