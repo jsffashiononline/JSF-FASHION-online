@@ -443,6 +443,96 @@ function loadProductVariants(variants) {
 }
 
 /* =================================
+   MORE DESIGN — SAME PRODUCT, SAME PRICE
+================================= */
+const moreDesignInput = $("more-design-files");
+const moreDesignButton = $("upload-more-designs");
+const moreDesignList = $("more-design-list");
+const moreDesignStatus = $("more-design-status");
+let moreDesignImages = [];
+
+function renderMoreDesigns() {
+  if (!moreDesignList) return;
+  moreDesignList.innerHTML = moreDesignImages.length
+    ? moreDesignImages.map((item, index) => `
+      <article class="variant-editor-card" style="display:flex;align-items:center;gap:12px">
+        <img src="${escapeHTML(item.image)}" alt="More Design ${index + 1}" style="width:76px;height:86px;object-fit:cover;border-radius:7px">
+        <div style="flex:1"><strong>Design ${index + 1}</strong><p class="muted">মূল প্রোডাক্টের একই দাম</p></div>
+        <button type="button" class="small-btn delete" data-remove-more-design="${index}">REMOVE</button>
+      </article>`).join("")
+    : '<p class="muted">এখনো কোনো More Design যোগ করা হয়নি।</p>';
+}
+
+if (moreDesignList) {
+  moreDesignList.addEventListener("click", async event => {
+    const button = event.target.closest("[data-remove-more-design]");
+    if (!button) return;
+    const id = $("product-id").value.trim();
+    if (!id) return;
+    const index = Number(button.dataset.removeMoreDesign);
+    const next = moreDesignImages.filter((_, i) => i !== index);
+    try {
+      await update(ref(db, "products/" + id), {moreDesigns: next, updatedAt: Date.now()});
+      moreDesignImages = next;
+      renderMoreDesigns();
+      showMessage(moreDesignStatus, "ডিজাইন সরানো হয়েছে।", "success");
+    } catch (error) {
+      showMessage(moreDesignStatus, "ডিজাইন সরানো যায়নি: " + firebaseError(error), "error");
+    }
+  });
+}
+
+if (moreDesignButton && moreDesignInput) {
+  moreDesignButton.addEventListener("click", async () => {
+    const id = $("product-id").value.trim();
+    const files = Array.from(moreDesignInput.files || []);
+    if (!id) {
+      showMessage(moreDesignStatus, "প্রথমে প্রোডাক্ট Save করুন, তারপর Edit করে More Design যোগ করুন।", "error");
+      return;
+    }
+    if (!files.length) {
+      showMessage(moreDesignStatus, "প্রথমে ডিজাইনের ছবি নির্বাচন করুন।", "error");
+      return;
+    }
+    if (moreDesignImages.length + files.length > 12) {
+      showMessage(moreDesignStatus, "একটি প্রোডাক্টে সর্বোচ্চ ১২টি More Design রাখা যাবে।", "error");
+      return;
+    }
+    const invalid = files.find(file => !["image/jpeg","image/png","image/webp"].includes(file.type) || file.size > 10*1024*1024);
+    if (invalid) {
+      showMessage(moreDesignStatus, "শুধু JPG, PNG, WEBP এবং প্রতিটি ছবি ১০ MB-এর কম হতে হবে।", "error");
+      return;
+    }
+    moreDesignButton.disabled = true;
+    moreDesignButton.textContent = "UPLOADING...";
+    try {
+      const uploaded = [];
+      for (const file of files) {
+        const data = new FormData();
+        data.append("file", file);
+        data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        data.append("folder", "jsf-fashion-more-designs");
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {method:"POST", body:data});
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error?.message || "Cloudinary upload failed.");
+        uploaded.push({name:"Design " + (moreDesignImages.length + uploaded.length + 1), image:result.secure_url});
+      }
+      const next = [...moreDesignImages, ...uploaded];
+      await update(ref(db, "products/" + id), {moreDesigns:next, updatedAt:Date.now()});
+      moreDesignImages = next;
+      renderMoreDesigns();
+      moreDesignInput.value = "";
+      showMessage(moreDesignStatus, uploaded.length + " টি More Design সফলভাবে Save হয়েছে।", "success");
+    } catch (error) {
+      showMessage(moreDesignStatus, "আপলোড/সেভ হয়নি: " + firebaseError(error), "error");
+    } finally {
+      moreDesignButton.disabled = false;
+      moreDesignButton.textContent = "UPLOAD MORE DESIGN";
+    }
+  });
+}
+
+/* =================================
    8. PRODUCT MANAGEMENT
 ================================= */
 
@@ -559,6 +649,9 @@ productForm.addEventListener("submit", async (event) => {
     renderProductGalleryPreview();
     if (productGalleryStatus) productGalleryStatus.textContent = "";
     loadProductVariants([]);
+    moreDesignImages = [];
+    renderMoreDesigns();
+    if (moreDesignStatus) moreDesignStatus.textContent = "";
 
     showMessage(
       productMessage,
@@ -622,6 +715,9 @@ productList.addEventListener("click", async (event) => {
       $("product-sizes").value = product.sizes || "";
       $("product-description").value = product.description || "";
       loadProductVariants(product.variants || []);
+      moreDesignImages = Array.isArray(product.moreDesigns) ? [...product.moreDesigns] : [];
+      renderMoreDesigns();
+      if (moreDesignStatus) moreDesignStatus.textContent = moreDesignImages.length + " টি সংরক্ষিত ডিজাইন";
 
       $("product-name").scrollIntoView({
         behavior: "smooth",
@@ -666,6 +762,9 @@ $("cancel-edit").addEventListener("click", () => {
   productForm.reset();
   $("product-id").value = "";
   loadProductVariants([]);
+  moreDesignImages = [];
+  renderMoreDesigns();
+  if (moreDesignStatus) moreDesignStatus.textContent = "";
   showMessage(productMessage, "Form পরিষ্কার করা হয়েছে।");
 });
 
