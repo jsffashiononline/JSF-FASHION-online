@@ -864,6 +864,8 @@ if ($("checkout-form")) {
         size: item.size,
         variant: item.variant || "",
         color: item.color || item.variant || "",
+        design: item.design || "",
+        designImage: item.designImage || "",
         images: Array.isArray(item.images) ? item.images : (item.image ? [item.image] : []),
         qty: Number(item.qty)
       })),
