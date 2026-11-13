@@ -580,9 +580,12 @@ function normalizeCategory(value) {
     "shirt": "shirts",
     "pant": "pants", "pants and jeans": "pants",
     "punjabi": "panjabi",
-    "ladies fashion": "ladies", "women's fashion": "ladies", "womens fashion": "ladies",
-    "saree": "ladies", "three piece": "ladies", "three-piece": "ladies",
-    "hoodie": "hoodie & sweatshirt", "sweatshirt": "hoodie & sweatshirt"
+    "ladies": "saree", "ladies fashion": "saree", "women's fashion": "saree", "womens fashion": "saree",
+    "hoodie": "hoodie & jacket", "hoodies": "hoodie & jacket", "hoodie & sweatshirt": "hoodie & jacket",
+    "sweatshirt": "hoodie & jacket", "jacket": "hoodie & jacket", "jackets": "hoodie & jacket",
+    "combo": "comb & couple", "comb": "comb & couple", "couple": "comb & couple",
+    "couple set": "comb & couple", "comb & couple": "comb & couple",
+    "three piece": "three piece", "three-piece": "three piece"
   };
   return aliases[category] || category;
 }
@@ -595,7 +598,7 @@ function applyProductFilters() {
     const normalizedProductCategory = normalizeCategory(category);
     const matchesCategory = !activeCategory ||
       normalizedProductCategory === selectedCategory ||
-      (selectedCategory === "ladies" && ["ladies", "saree", "three piece", "women's fashion", "womens fashion"].includes(normalizedProductCategory)) ||
+      (selectedCategory === "saree" && ["ladies", "ladies fashion", "women's fashion", "womens fashion"].includes(normalizedProductCategory)) ||
       (activeCategory === "New Arrivals" && product.isNewArrival === true);
     const matchesSearch = !q ||
       String(product.name || "").toLowerCase().includes(q) ||
