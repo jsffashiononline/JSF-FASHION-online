@@ -366,3 +366,171 @@ body{background:var(--bg);color:#fff}
   .product-actions{grid-template-columns:1fr}
 }
 /* End layout-only redesign */
+
+
+
+/* =========================================================
+   JSF FASHION — editorial fashion storefront layout
+   Inspired by the supplied reference; existing brand colors,
+   products, images, pricing and all store behavior are preserved.
+   ========================================================= */
+.site-header{
+  min-height:70px;
+  padding:0 clamp(18px,5vw,76px);
+  gap:22px;
+  box-shadow:0 7px 24px rgba(0,0,0,.16);
+}
+.brand{font-size:23px;letter-spacing:1.25px}
+.nav-links{gap:4px}
+.nav-links a{padding:9px 12px;font-size:12px;letter-spacing:.15px}
+.nav-links .header-order-btn{padding:9px 17px}
+
+/* Editorial, image-led hero with copy on the left */
+.hero{
+  width:min(1440px,96%);
+  min-height:clamp(410px,42vw,570px);
+  margin:16px auto 0;
+  padding:clamp(44px,7vw,88px) clamp(28px,6vw,88px);
+  display:flex;
+  align-items:center;
+  border:1px solid rgba(247,198,0,.24);
+  border-radius:4px;
+  box-shadow:0 14px 34px rgba(0,0,0,.18);
+}
+.hero-slides{inset:0}
+.hero-slide-image{
+  object-fit:cover;
+  object-position:72% center;
+}
+.hero-shade{
+  background:linear-gradient(90deg,rgba(4,17,42,.97) 0%,rgba(4,22,52,.88) 34%,rgba(4,22,52,.34) 66%,rgba(4,22,52,.08) 100%);
+}
+.hero-content{width:min(48%,610px);max-width:610px}
+.hero .eyebrow{font-size:10px;letter-spacing:2.7px}
+.hero h1{font-size:clamp(38px,5.2vw,68px);letter-spacing:-1.6px;line-height:1.04}
+.hero-content>p:not(.eyebrow){max-width:390px;font-size:13px;line-height:1.8}
+.hero .btn{min-width:145px;letter-spacing:.8px}
+.hero-arrow{width:38px;height:38px}
+.hero-dots{bottom:17px}
+
+/* Compact category navigation, like a fashion shop menu */
+.section{
+  width:min(1380px,94%);
+  margin:22px auto;
+  padding:clamp(20px,3vw,34px);
+  border-radius:4px;
+  box-shadow:0 10px 28px rgba(0,0,0,.16);
+}
+.section-title{
+  flex-direction:row;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:21px;
+  padding-bottom:13px;
+}
+.section-title .eyebrow{margin-right:auto}
+.section-title h2{font-size:clamp(19px,2.4vw,25px);letter-spacing:.25px}
+.section-title>p:not(.eyebrow){font-size:11px}
+.category-grid{
+  display:flex;
+  flex-wrap:nowrap;
+  gap:8px;
+  overflow-x:auto;
+  padding:2px 1px 8px;
+  scrollbar-width:thin;
+}
+.category-card{
+  flex:0 0 auto;
+  min-height:38px;
+  padding:8px 15px;
+  border-radius:3px;
+  font-size:11px;
+  white-space:nowrap;
+}
+.category-card:hover,.category-card.active{transform:translateY(-1px)}
+
+/* Product editorial grid: four columns on desktop */
+#products .section-title{margin-bottom:19px}
+.search-box{max-width:390px;min-height:43px;margin-bottom:20px;border-radius:3px}
+.product-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(11px,1.7vw,22px);
+}
+.product-card{
+  border-radius:3px;
+  box-shadow:0 5px 17px rgba(0,0,0,.15);
+}
+.product-card:hover{transform:translateY(-3px)}
+.product-card img{
+  height:clamp(190px,25vw,330px);
+  object-fit:cover;
+}
+.product-info{padding:12px 12px 14px}
+.product-info h3{font-size:13px;line-height:1.45}
+.product-info>p{font-size:10px}
+.product-price{margin:8px 0 6px;font-size:18px}
+.product-info label{font-size:10px}
+.product-info select{min-height:36px;border-radius:3px;font-size:11px}
+.product-actions{gap:6px;padding-top:10px}
+.product-actions .btn{min-height:37px;border-radius:3px;font-size:9px}
+
+/* Cart and footer keep the existing branded theme */
+#cart .section-title{display:block}
+.cart-box{border-radius:4px}
+.cart-row{padding:13px 0}
+.site-footer{margin-top:34px;padding:38px 18px}
+
+/* Tablet and mobile: preserve readable product cards */
+@media(max-width:900px){
+  .product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .product-card img{height:clamp(190px,30vw,270px)}
+  .hero-content{width:56%}
+}
+@media(max-width:600px){
+  .site-header{min-height:66px;padding:8px 4%;gap:4px}
+  .brand{font-size:21px}
+  .nav-links{justify-content:flex-start;overflow-x:auto;scrollbar-width:none}
+  .nav-links::-webkit-scrollbar{display:none}
+  .nav-links a{flex:0 0 auto;padding:7px 9px;font-size:10px;white-space:nowrap}
+  .nav-links .header-order-btn{padding:7px 11px}
+  .hero{
+    width:94%;
+    min-height:370px;
+    margin-top:10px;
+    padding:42px 12% 55px;
+    border-radius:3px;
+  }
+  .hero-slide-image{object-position:68% center}
+  .hero-shade{
+    background:linear-gradient(90deg,rgba(4,17,42,.94) 0%,rgba(4,22,52,.78) 48%,rgba(4,22,52,.28) 100%);
+  }
+  .hero-content{width:76%}
+  .hero h1{font-size:clamp(34px,9vw,48px);letter-spacing:-1px}
+  .hero-content>p:not(.eyebrow){font-size:12px;max-width:260px}
+  .hero-arrow{width:31px;height:31px;font-size:22px}
+  .hero-prev{left:6px}.hero-next{right:6px}
+  .hero-dots{bottom:12px}
+  .section{width:94%;margin:14px auto;padding:19px 4%;border-radius:3px}
+  .section-title{align-items:flex-start;flex-direction:column;gap:3px;margin-bottom:15px;padding-bottom:11px}
+  .section-title .eyebrow{margin:0}
+  .section-title h2{font-size:19px}
+  .category-grid{gap:7px}
+  .category-card{min-height:35px;padding:7px 12px;font-size:10px}
+  .search-box{min-height:42px;margin-bottom:14px}
+  .product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .product-card{border-radius:3px}
+  .product-card img{height:clamp(150px,51vw,230px)}
+  .product-info{padding:9px}
+  .product-info h3{font-size:12px}
+  .product-price{font-size:16px;margin:7px 0 5px}
+  .product-actions{gap:5px}
+  .product-actions .btn{min-height:36px;font-size:8px;padding:7px 3px}
+}
+@media(max-width:360px){
+  .brand{font-size:19px}
+  .nav-links a{padding:6px 7px;font-size:9px}
+  .hero-content{width:85%}
+  .product-actions{grid-template-columns:1fr}
+}
+/* End editorial layout */
