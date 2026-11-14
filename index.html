@@ -6,48 +6,69 @@
   <title>JSF FASHION | Premium Fashion Store</title>
   <meta name="description" content="Discover premium fashion at JSF FASHION.">
   <meta name="theme-color" content="#06152f">
-  <link rel="stylesheet" href="style.css?v=26">
+  <link rel="stylesheet" href="style.css?v=27">
 </head>
-<body>
-  <div class="announcement-bar"><span>WELCOME TO JSF FASHION</span><div><span>Free Shipping</span><i></i><span>Easy Return</span><i></i><span>24/7 Support</span></div></div>
+<body class="home-page">
+  <div class="announcement-bar">
+    <span>WELCOME TO JSF FASHION</span>
+    <div><span>Easy Ordering</span><i></i><span>Secure Checkout</span><i></i><span>Customer Support</span></div>
+  </div>
+
   <header class="site-header">
     <a href="index.html" class="brand">JSF <span>FASHION</span></a>
     <nav class="nav-links" aria-label="Main navigation">
-      <a href="#home">Home</a><a href="#products">Collection</a><a href="#contact">Contact</a>
+      <a href="#home">Home</a>
+      <a href="#products">Collection</a>
+      <a href="#contact">Contact</a>
       <a href="#cart">Cart (<span id="cart-count">0</span>)</a>
-      <a href="#products" class="header-order-btn">ORDER</a>
+      <a href="#products" class="header-order-btn">ORDER NOW</a>
     </nav>
   </header>
+
   <main>
-    <section class="hero" id="home" aria-label="JSF FASHION featured collection">
-      <div class="hero-slides" id="hero-slides" aria-live="polite"></div>
-      <div class="hero-shade"></div>
-      <div class="hero-content">
-        <p class="eyebrow">THE NEW FASHION EXPERIENCE</p>
-        <h1>STYLE THAT<br><span>DEFINES YOU.</span></h1>
-        <p>Discover your style with the latest fashion collection.</p>
-        <a class="btn" href="#products">SHOP COLLECTION</a>
-      </div>
-      <button class="hero-arrow hero-prev" id="hero-prev" type="button" aria-label="Previous banner">‹</button>
-      <button class="hero-arrow hero-next" id="hero-next" type="button" aria-label="Next banner">›</button>
-      <div class="hero-dots" id="hero-dots" aria-label="Banner slides"></div>
+    <div class="hero-layout" id="home">
+      <aside class="category-sidebar" aria-label="Shop by category">
+        <div class="category-sidebar-heading"><span>☰</span><h2>Categories</h2></div>
+        <div class="category-grid" id="category-grid">
+          <a class="category-card active" href="#products" data-category="" aria-pressed="true">All Products <span>›</span></a>
+          <a class="category-card" href="#products" data-category="T-Shirts" aria-pressed="false">T-Shirts <span>›</span></a>
+          <a class="category-card" href="#products" data-category="Drop Shoulder" aria-pressed="false">Drop Shoulder <span>›</span></a>
+          <a class="category-card" href="#products" data-category="Shirts" aria-pressed="false">Shirts <span>›</span></a>
+          <a class="category-card" href="#products" data-category="Panjabi" aria-pressed="false">Panjabi <span>›</span></a>
+          <a class="category-card" href="#products" data-category="Pants" aria-pressed="false">Pants <span>›</span></a>
+          <a class="category-card" href="#products" data-category="Hoodie & Jacket" aria-pressed="false">Hoodie &amp; Jacket <span>›</span></a>
+          <a class="category-card" href="#products" data-category="Combo & Couple" aria-pressed="false">Combo &amp; Couple <span>›</span></a>
+          <a class="category-card" href="#products" data-category="Saree" aria-pressed="false">Saree <span>›</span></a>
+          <a class="category-card" href="#products" data-category="New Arrivals" aria-pressed="false">New Arrivals <span>›</span></a>
+        </div>
+      </aside>
+
+      <section class="hero" aria-label="JSF FASHION featured collection">
+        <div class="hero-slides" id="hero-slides" aria-live="polite"></div>
+        <div class="hero-shade"></div>
+        <div class="hero-content">
+          <p class="eyebrow">THE NEW FASHION EXPERIENCE</p>
+          <h1>STYLE THAT<br><span>DEFINES YOU.</span></h1>
+          <p>Discover your style with the latest fashion collection from JSF FASHION.</p>
+          <a class="btn" href="#products">EXPLORE COLLECTION <span aria-hidden="true">→</span></a>
+        </div>
+        <button class="hero-arrow hero-prev" id="hero-prev" type="button" aria-label="Previous banner">‹</button>
+        <button class="hero-arrow hero-next" id="hero-next" type="button" aria-label="Next banner">›</button>
+        <div class="hero-dots" id="hero-dots" aria-label="Banner slides"></div>
+      </section>
+    </div>
+
+    <section class="benefit-strip" aria-label="Shopping benefits">
+      <div class="benefit-item"><span class="benefit-icon">✦</span><div><strong>Easy Ordering</strong><small>Simple product selection</small></div></div>
+      <div class="benefit-item"><span class="benefit-icon">✓</span><div><strong>Secure Checkout</strong><small>Convenient payment options</small></div></div>
+      <div class="benefit-item"><span class="benefit-icon">☎</span><div><strong>Customer Support</strong><small>We are here to help</small></div></div>
     </section>
-    <section class="section">
-      <div class="section-title"><p class="eyebrow">EXPLORE OUR STYLE</p><h2>OUR COLLECTION</h2></div>
-      <div class="category-grid" id="category-grid">
-        <a class="category-card active" href="#products" data-category="" aria-pressed="true">All</a>
-        <a class="category-card" href="#products" data-category="T-Shirts" aria-pressed="false">T-Shirts</a>
-        <a class="category-card" href="#products" data-category="Drop Shoulder" aria-pressed="false">Drop Shoulder</a>
-        <a class="category-card" href="#products" data-category="Shirts" aria-pressed="false">Shirts</a>
-        <a class="category-card" href="#products" data-category="Panjabi" aria-pressed="false">Panjabi</a>
-        <a class="category-card" href="#products" data-category="Pants" aria-pressed="false">Pants</a>
-        <a class="category-card" href="#products" data-category="Hoodie & Jacket" aria-pressed="false">Hoodie &amp; Jacket</a>
-        <a class="category-card" href="#products" data-category="Combo & Couple" aria-pressed="false">Comb &amp; Couple</a>
-        <a class="category-card" href="#products" data-category="Saree" aria-pressed="false">Saree</a>
-      </div>
-    </section>
+
     <section class="section" id="products">
-      <div class="section-title"><p class="eyebrow">HANDPICKED FOR YOU</p><h2>FEATURED PRODUCTS</h2><a class="view-all-link" href="#products">View All Products →</a></div>
+      <div class="section-title">
+        <div class="section-heading-copy"><p class="eyebrow">HANDPICKED FOR YOU</p><h2>EXPLORE OUR PRODUCTS</h2></div>
+        <a class="view-all-link" href="#products">View All Products <span aria-hidden="true">→</span></a>
+      </div>
       <div class="product-showcase-layout">
         <div class="product-showcase-main">
           <input id="product-search" class="search-box" type="search" placeholder="Search products..." aria-label="Search products">
@@ -55,12 +76,34 @@
         </div>
       </div>
     </section>
+
     <section class="collection-banner" aria-label="JSF Fashion collection">
-      <div class="collection-banner-copy"><p>JSF FASHION</p><h2>Fashion Collection</h2><span>Look Better. Feel Better.</span><a href="#products">Explore Collection →</a></div>
+      <div class="collection-banner-copy">
+        <p>JSF FASHION</p>
+        <h2>Fashion Collection</h2>
+        <span>Look Better. Feel Better.</span>
+        <a href="#products">Explore Collection <span aria-hidden="true">→</span></a>
+      </div>
       <div class="collection-banner-art"><span>NEW</span><b>COLLECTION</b></div>
     </section>
-    <section class="section" id="cart">
-      <div class="section-title"><h2>YOUR CART</h2><p>Review your selected items before checkout.</p></div>
+
+    <section class="journal-section" id="style-edit">
+      <div class="section-title">
+        <div class="section-heading-copy"><p class="eyebrow">FIND YOUR STYLE</p><h2>NEW ARRIVAL &amp; STYLE EDIT</h2></div>
+        <a class="view-all-link" href="#products">Shop Collection <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="journal-grid">
+        <a class="journal-card journal-one" href="#products"><div class="journal-card-copy"><span>01 / EVERYDAY STYLE</span><h3>Everyday Essentials</h3><p>Explore versatile styles for every day.</p><b>SHOP NOW →</b></div></a>
+        <a class="journal-card journal-two" href="#products"><div class="journal-card-copy"><span>02 / MODERN LOOK</span><h3>Modern Collection</h3><p>Find a look that feels like you.</p><b>SHOP NOW →</b></div></a>
+        <a class="journal-card journal-three" href="#products"><div class="journal-card-copy"><span>03 / NEW SEASON</span><h3>Fresh Fashion Picks</h3><p>Discover the latest JSF styles.</p><b>SHOP NOW →</b></div></a>
+      </div>
+    </section>
+
+    <section class="section cart-section" id="cart">
+      <div class="section-title">
+        <div class="section-heading-copy"><p class="eyebrow">YOUR SELECTED ITEMS</p><h2>YOUR CART</h2></div>
+        <p>Review your selected items before checkout.</p>
+      </div>
       <div class="cart-box">
         <div id="cart-items"></div>
         <h3 class="cart-total">Total: ৳<span id="cart-total">0</span></h3>
@@ -68,11 +111,17 @@
       </div>
     </section>
   </main>
+
   <footer class="site-footer" id="contact">
-    <a href="#home" class="brand">JSF <span>FASHION</span></a>
-    <p>Premium fashion. Timeless style.</p>
-    <p>© <span id="year"></span> JSF FASHION. All rights reserved.</p>
+    <div class="footer-main">
+      <div class="footer-brand-block"><a href="#home" class="brand">JSF <span>FASHION</span></a><p>Premium fashion. Timeless style. Find your look with JSF FASHION.</p></div>
+      <div class="footer-column"><h3>Quick Links</h3><a href="#home">Home</a><a href="#products">Shop Collection</a><a href="#style-edit">New Arrivals</a><a href="#cart">Shopping Cart</a></div>
+      <div class="footer-column"><h3>Customer Care</h3><a href="#products">Browse Products</a><a href="order.html">Checkout</a><a href="#contact">Contact</a></div>
+      <div class="footer-column"><h3>JSF FASHION</h3><span>Look Better. Feel Better.</span><span>© <span id="year"></span> JSF FASHION.</span></div>
+    </div>
+    <div class="footer-bottom"><span>All rights reserved.</span><span>Designed for JSF FASHION</span></div>
   </footer>
+
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="firebase.js?v=3"></script>
