@@ -724,3 +724,6 @@ body{background:#06152f;color:#fff}
  #products .product-price{font-size:14px}
  #products .product-actions .btn{min-height:29px;font-size:7.5px}
 }
+/* Flash Sale removed: let the product list use the full available width */
+.product-showcase-layout{grid-template-columns:minmax(0,1fr)!important}
+.product-showcase-main{width:100%;min-width:0}
