@@ -993,7 +993,6 @@ function loadSettings() {
     $("nagad-number").value = settings.nagadNumber || settings.nagad || "";
     $("store-picture").value = settings.storePicture || "";
     $("whatsapp-admin-1").value = settings.whatsappAdmin1 || "";
-    $("whatsapp-admin-2").value = settings.whatsappAdmin2 || "";
     bannerImages = Array.isArray(settings.bannerImages) ? settings.bannerImages : [];
     renderBannerImageList();
 
@@ -1012,7 +1011,6 @@ settingsForm.addEventListener("submit", async (event) => {
     nagadNumber: $("nagad-number").value.trim(),
     storePicture: $("store-picture").value.trim(),
     whatsappAdmin1: $("whatsapp-admin-1").value.trim(),
-    whatsappAdmin2: $("whatsapp-admin-2").value.trim(),
     updatedAt: Date.now()
   };
 
