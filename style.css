@@ -748,3 +748,38 @@ body{background:#06152f;color:#fff}
     object-fit:contain !important;
   }
 }
+
+
+/* JSF FASHION: remove unused vertical space inside product cards */
+#products .product-grid{
+  align-items:start;
+}
+#products .product-card{
+  height:auto;
+  align-self:start;
+}
+#products .product-info{
+  height:auto;
+  flex:0 0 auto;
+}
+#products .product-actions{
+  margin-top:8px;
+  padding-top:5px;
+}
+/* Keep customer-facing product photos perfectly square */
+#product-list .product-card > img.product-view-image[data-gallery-main]{
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:1 / 1 !important;
+  object-fit:cover !important;
+}
+@media(max-width:760px){
+  #products .product-grid{align-items:start}
+  #products .product-card{height:auto}
+  #products .product-info{height:auto}
+  #products .product-actions{margin-top:7px;padding-top:4px}
+  #product-list .product-card > img.product-view-image[data-gallery-main]{
+    aspect-ratio:1 / 1 !important;
+    object-fit:cover !important;
+  }
+}
