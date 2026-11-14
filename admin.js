@@ -80,6 +80,36 @@ function isAdmin(user) {
   return Boolean(user && ADMIN_UIDS.includes(user.uid));
 }
 
+function showAdminConfirm(message, title = "আপনি কি নিশ্চিত?", confirmLabel = "হ্যাঁ, ডিলিট করুন") {
+  const modal = $("admin-confirm-modal");
+  const messageEl = $("admin-confirm-message");
+  const titleEl = $("admin-confirm-title");
+  const cancelButton = $("admin-confirm-cancel");
+  const okButton = $("admin-confirm-ok");
+  if (!modal || !messageEl || !titleEl || !cancelButton || !okButton) {
+    return Promise.resolve(false);
+  }
+  titleEl.textContent = title;
+  messageEl.textContent = message;
+  okButton.textContent = confirmLabel;
+  modal.classList.remove("hidden");
+  return new Promise(resolve => {
+    const close = value => {
+      modal.classList.add("hidden");
+      cancelButton.removeEventListener("click", onCancel);
+      okButton.removeEventListener("click", onConfirm);
+      modal.removeEventListener("click", onBackdrop);
+      resolve(value);
+    };
+    const onCancel = () => close(false);
+    const onConfirm = () => close(true);
+    const onBackdrop = event => { if (event.target === modal) close(false); };
+    cancelButton.addEventListener("click", onCancel);
+    okButton.addEventListener("click", onConfirm);
+    modal.addEventListener("click", onBackdrop);
+  });
+}
+
 function firebaseError(error) {
   const messages = {
     "auth/invalid-credential": "Email অথবা Password ভুল।",
@@ -248,7 +278,7 @@ if (bannerList) {
     if (!button) return;
     const index = Number(button.dataset.removeBanner);
     if (!Number.isInteger(index) || index < 0 || index >= bannerImages.length) return;
-    if (!confirm("এই Banner Image ওয়েবসাইটের Slider থেকে সরাবেন?")) return;
+    if (!(await showAdminConfirm("এই Banner Image ওয়েবসাইটের Slider থেকে সরাতে চান?", "Banner Image সরাবেন?", "হ্যাঁ, সরান"))) return;
     const nextImages = bannerImages.filter((_, i) => i !== index);
     try {
       await set(ref(db, "settings/bannerImages"), nextImages);
@@ -732,7 +762,7 @@ productList.addEventListener("click", async (event) => {
   }
 
   if (action === "delete-product") {
-    const confirmed = confirm("আপনি কি এই Product Delete করতে চান?");
+    const confirmed = await showAdminConfirm("আপনি কি এই Product স্থায়ীভাবে Delete করতে চান?", "Product Delete");
     if (!confirmed) return;
 
     try {
@@ -917,7 +947,7 @@ orderList.addEventListener("click", async (event) => {
   if (!button) return;
 
   const id = button.dataset.deleteOrder;
-  const confirmed = confirm("এই অর্ডারটি স্থায়ীভাবে ডিলিট করতে চান? অন্য অর্ডারগুলো অক্ষত থাকবে।");
+  const confirmed = await showAdminConfirm("এই অর্ডারটি স্থায়ীভাবে ডিলিট করতে চান? অন্য অর্ডারগুলো অক্ষত থাকবে।", "অর্ডার ডিলিট করবেন?");
   if (!confirmed) return;
 
   button.disabled = true;
