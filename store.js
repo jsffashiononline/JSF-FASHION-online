@@ -14,6 +14,7 @@ const cartItems = document.getElementById("cart-items");
 const cartTotal = document.getElementById("cart-total");
 const cartCount = document.getElementById("cart-count");
 const searchInput = document.getElementById("product-search");
+const sortSelect = document.getElementById("sort-products");
 const paymentInfo = document.getElementById("payment-info");
 const CUSTOMER_IMAGE_CLOUD_NAME = "phvmgyj9";
 const CUSTOMER_IMAGE_UPLOAD_PRESET = "jsf_fashion_upload";
@@ -815,6 +816,11 @@ function applyProductFilters() {
       String(product.description || "").toLowerCase().includes(q);
     return matchesCategory && matchesSearch;
   });
+  const sortMode = sortSelect?.value || "default";
+  if (sortMode === "price-low") filtered.sort((a,b) => Number(a.price || 0) - Number(b.price || 0));
+  else if (sortMode === "price-high") filtered.sort((a,b) => Number(b.price || 0) - Number(a.price || 0));
+  else if (sortMode === "name") filtered.sort((a,b) => String(a.name || "").localeCompare(String(b.name || "")));
+  else if (sortMode === "newest") filtered.sort((a,b) => Number(b.createdAt || b.updatedAt || 0) - Number(a.createdAt || a.updatedAt || 0));
   renderProducts(filtered);
 }
 
@@ -837,6 +843,7 @@ if (categoryGrid) {
 if (searchInput) {
   searchInput.addEventListener("input", applyProductFilters);
 }
+if (sortSelect) sortSelect.addEventListener("change", applyProductFilters);
 
 // Open checkout
 if ($("checkout-open")) {
