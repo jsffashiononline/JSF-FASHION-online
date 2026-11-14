@@ -2172,3 +2172,68 @@ body{background:#06152f;color:#fff}
   .product-actions{grid-template-columns:1fr}
   .product-actions .product-details-btn{grid-column:auto}
 }
+
+
+/* JSF FASHION — professional compact storefront refresh */
+:root{--navy:#071a36;--royal:#123d78;--gold:#e5bd58;--gold-soft:#fff1c5}
+body{background:#f5f6f8;color:#171b24}
+.announcement-bar{background:#071a36;color:#fff}
+.site-header{background:rgba(7,26,54,.97);border-bottom:1px solid rgba(229,189,88,.3)}
+.brand span{color:#e5bd58}
+.nav-links a{color:#f0f3f8}
+.nav-links a:hover,.nav-links a:focus-visible{background:#173c70;color:#fff}
+.hero{border-radius:0 0 18px 18px;overflow:hidden}
+.benefit-strip{width:min(1320px,94%);margin:20px auto;padding:16px 20px;background:#fff;border:1px solid #e8ebf0;border-radius:12px;box-shadow:0 8px 24px rgba(20,35,60,.06)}
+.benefit-item strong{color:#102b52}
+.benefit-item small{color:#687386}
+.section{background:#fff;color:#171b24;border:1px solid #e6eaf0;box-shadow:0 8px 28px rgba(20,35,60,.06)}
+.section-title h2{color:#102b52}
+.eyebrow{color:#a47a20}
+.section-title{border-bottom-color:#e8ebf0}
+.product-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.search-field{position:relative;display:flex;align-items:center;flex:1;max-width:600px}
+.search-field>span{position:absolute;left:14px;color:#7c8798;font-size:24px;line-height:1}
+.search-box{max-width:none;margin:0;padding-left:44px;background:#fff;color:#172033;border:1px solid #dce2eb;border-radius:8px}
+.search-box::placeholder{color:#8993a3}
+.sort-field{display:flex;align-items:center;gap:8px;color:#657084;font-size:12px;font-weight:700}
+.sort-field select{min-height:46px;padding:0 30px 0 12px;background:#fff;color:#172033;border:1px solid #dce2eb;border-radius:8px}
+.product-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.product-card{background:#fff;border:1px solid #e5e9ef;border-radius:9px;box-shadow:0 3px 12px rgba(18,36,65,.045)}
+.product-card:hover{transform:translateY(-2px);border-color:#c9a34a;box-shadow:0 9px 22px rgba(18,36,65,.10)}
+.product-media{width:100%;aspect-ratio:1/1;overflow:hidden;background:#f0f2f5}
+.product-card .product-media>img,.product-card .product-view-image{display:block;width:100%;height:100%;aspect-ratio:1/1;object-fit:contain;background:#f0f2f5}
+.product-info{padding:10px 11px 11px;color:#1b2432}
+.product-info h3{font-size:13px;line-height:1.35;color:#172033;min-height:34px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.product-info>p{font-size:9px;color:#788397;letter-spacing:.55px}
+.product-price{margin:6px 0 5px;color:#102f5c;font-size:17px}
+.product-actions{grid-template-columns:1fr 1fr;gap:6px;padding-top:8px}
+.product-actions .btn{min-height:34px;padding:7px 4px;font-size:9px;border-radius:5px}
+.product-actions .add-cart-btn{background:#102f5c;color:#fff}
+.product-actions .direct-order-btn{background:#e5bd58;color:#15213a;border:1px solid #d4a83c}
+.product-actions .product-details-btn{grid-column:1/-1;min-height:30px;background:#f4f6f9;color:#233b5d;border:1px solid #dfe5ed}
+.category-sidebar{background:#fff;border:1px solid #e5e9ef;border-radius:12px}
+.category-sidebar-heading h2{color:#102b52}
+.category-card{min-height:54px;padding:13px 12px;background:#f7f8fa;color:#18345c;border:1px solid #e5e9ef;border-radius:7px;font-size:12px}
+.category-card:hover,.category-card.active{background:#102f5c;color:#fff;border-color:#102f5c}
+.cart-box{background:#f8f9fb;border-color:#e3e8ef;color:#172033}
+.cart-total{color:#102f5c}
+.site-footer{background:#071a36;border-top:3px solid #e5bd58;color:#d9e0eb}
+.site-footer .brand{color:#fff}
+.site-footer .footer-column h3{color:#f4d780}
+.collection-banner{border-radius:14px;overflow:hidden}
+@media(max-width:760px){
+ .product-toolbar{align-items:stretch;flex-direction:column}
+ .search-field{max-width:none;width:100%}
+ .sort-field{justify-content:space-between}
+ .sort-field select{flex:1;max-width:68%}
+ .product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .product-card{border-radius:7px}
+ .product-media{aspect-ratio:1/1}
+ .product-card .product-media>img,.product-card .product-view-image{height:100%;aspect-ratio:1/1;object-fit:contain}
+ .product-info{padding:8px}
+ .product-info h3{font-size:12px;min-height:32px}
+ .product-price{font-size:15px}
+ .product-actions{gap:5px}
+ .product-actions .btn{font-size:8px;min-height:32px}
+ .benefit-strip{display:grid;grid-template-columns:1fr;gap:12px}
+}
