@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Complete Your Order | JSF FASHION</title>
   <meta name="theme-color" content="#080808">
-  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="style.css?v=24">
 </head>
 <body class="order-page">
   <header class="site-header">
@@ -37,6 +37,12 @@
         <option value="bKash">bKash</option><option value="Nagad">Nagad</option><option value="Cash on Delivery">Cash on Delivery</option>
       </select>
       <div id="payment-info" class="payment-info" aria-live="polite"></div>
+      <div class="customer-reference-upload">
+        <label for="customer-product-image">আপনার পছন্দের প্রোডাক্টের ছবি আপলোড করুন (ঐচ্ছিক)</label>
+        <input id="customer-product-image" name="customerReferenceImage" type="file" accept="image/jpeg,image/png,image/webp">
+        <small class="muted">JPG, PNG বা WEBP ছবি দিন। সর্বোচ্চ ১০ MB।</small>
+        <div id="customer-product-image-preview" class="customer-reference-preview" hidden></div>
+      </div>
       <div id="checkout-price-summary" class="payment-info" aria-live="polite" style="margin:14px 0;padding:14px;border:1px solid var(--gold);border-radius:10px"></div>
       <div id="transaction-id-wrap" hidden>
         <label for="transaction-id">Transaction ID *</label>
@@ -62,6 +68,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="firebase.js?v=3"></script>
-  <script src="store.js?v=34"></script>
+  <script src="store.js?v=36"></script>
 </body>
 </html>
