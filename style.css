@@ -963,3 +963,120 @@ body{background:#06152f;color:#fff}
     grid-template-columns:repeat(2,minmax(0,1fr)) !important;
   }
 }
+
+
+/* FIX: uniform square product media and identical card/price alignment */
+#products #product-list.product-grid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  align-items:stretch !important;
+  grid-auto-rows:1fr !important;
+  column-gap:10px !important;
+  row-gap:12px !important;
+}
+#products #product-list .product-card{
+  min-width:0 !important;
+  height:100% !important;
+  align-self:stretch !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+#products #product-list .product-media{
+  width:100% !important;
+  aspect-ratio:1 / 1 !important;
+  min-height:0 !important;
+  flex:0 0 auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+  background:#0b2145 !important;
+}
+#products #product-list .product-media > img.product-view-image[data-gallery-main]{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  flex:1 1 auto !important;
+  aspect-ratio:auto !important;
+  object-fit:contain !important;
+  background:#0b2145 !important;
+}
+#products #product-list .product-media .product-gallery-thumbs{
+  flex:0 0 62px !important;
+  min-height:62px !important;
+  max-height:62px !important;
+  padding:4px !important;
+  gap:5px !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+}
+#products #product-list .product-media .gallery-thumb{
+  width:50px !important;
+  height:52px !important;
+  flex-basis:50px !important;
+}
+#products #product-list .product-media .more-design-picker{
+  flex:0 0 auto !important;
+  max-height:76px !important;
+  margin:0 !important;
+  padding:4px 6px !important;
+  overflow:hidden !important;
+}
+#products #product-list .product-media .more-design-picker>strong{
+  margin-bottom:3px !important;
+  font-size:9px !important;
+}
+#products #product-list .product-media .more-design-options{
+  gap:5px !important;
+  padding:0 1px 2px !important;
+}
+#products #product-list .product-media .more-design-option{
+  flex-basis:44px !important;
+  width:44px !important;
+  padding:2px !important;
+}
+#products #product-list .product-media .more-design-option img{
+  height:39px !important;
+}
+#products #product-list .product-media .more-design-option span{font-size:8px !important}
+#products #product-list .product-card .product-info{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  height:auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  padding:10px !important;
+}
+#products #product-list .product-card .product-info h3{
+  min-height:2.7em !important;
+  max-height:2.7em !important;
+  overflow:hidden !important;
+  display:-webkit-box !important;
+  -webkit-box-orient:vertical !important;
+  -webkit-line-clamp:2 !important;
+}
+#products #product-list .product-card .product-info>p{
+  min-height:1.6em !important;
+  max-height:1.6em !important;
+  overflow:hidden !important;
+}
+#products #product-list .product-card .product-price{
+  margin:auto 0 8px !important;
+  padding-top:10px !important;
+}
+#products #product-list .product-card .product-actions{
+  margin-top:0 !important;
+  padding-top:8px !important;
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:6px !important;
+}
+#products #product-list .product-card .product-actions .product-details-btn{
+  grid-column:1 / -1 !important;
+  width:100% !important;
+}
+@media(max-width:380px){
+  #products #product-list.product-grid{column-gap:7px !important}
+  #products #product-list .product-card .product-info{padding:8px !important}
+  #products #product-list .product-card .product-actions{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+}
