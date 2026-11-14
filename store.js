@@ -825,6 +825,42 @@ function updateCheckoutSummary() {
 $("delivery-area")?.addEventListener("change", updateCheckoutSummary);
 $("payment-method")?.addEventListener("change", () => { updatePaymentInfo(); updateCheckoutSummary(); });
 
+// Branded order confirmation dialog
+let orderConfirmationApproved = false;
+function getOrderConfirmationDialog() {
+  let dialog = document.getElementById("jsf-order-confirm-dialog");
+  if (dialog) return dialog;
+  dialog = document.createElement("div");
+  dialog.id = "jsf-order-confirm-dialog";
+  dialog.className = "jsf-order-confirm-dialog";
+  dialog.hidden = true;
+  dialog.innerHTML = `
+    <div class="jsf-order-confirm-panel" role="dialog" aria-modal="true" aria-labelledby="jsf-order-confirm-title">
+      <div class="jsf-order-confirm-mark">?</div>
+      <h2 id="jsf-order-confirm-title">অর্ডার কনফার্ম করবেন?</h2>
+      <p>আপনি কি নিশ্চিতভাবে এই অর্ডারটি JSF FASHION-এ জমা দিতে চান?</p>
+      <div class="jsf-order-confirm-actions">
+        <button type="button" class="jsf-order-cancel">না, ফিরে যান</button>
+        <button type="button" class="jsf-order-approve">হ্যাঁ, অর্ডার কনফার্ম করুন</button>
+      </div>
+    </div>`;
+  document.body.appendChild(dialog);
+  dialog.addEventListener("click", event => {
+    if (event.target === dialog || event.target.closest(".jsf-order-cancel")) {
+      dialog.hidden = true;
+      orderConfirmationApproved = false;
+      return;
+    }
+    if (event.target.closest(".jsf-order-approve")) {
+      dialog.hidden = true;
+      orderConfirmationApproved = true;
+      const form = $("checkout-form");
+      if (form?.requestSubmit) form.requestSubmit();
+    }
+  });
+  return dialog;
+}
+
 // Submit order
 if ($("checkout-form")) {
   $("checkout-form").addEventListener("submit", async event => {
@@ -909,6 +945,13 @@ if ($("checkout-form")) {
       return;
     }
 
+    // Ask for explicit confirmation only after all checkout details are valid.
+    if (!orderConfirmationApproved) {
+      getOrderConfirmationDialog().hidden = false;
+      return;
+    }
+    orderConfirmationApproved = false;
+
     if (button) button.disabled = true;
 
     if (message) {
@@ -936,10 +979,18 @@ if ($("checkout-form")) {
       syncDeliveryArea();
       updateCheckoutSummary();
 
-      if (message) {
-        message.textContent =
-          "Your order has been submitted successfully!";
-      }
+      // Show a separate branded thank-you screen after Firebase confirms the save.
+      const orderCode = newOrderRef.key ? newOrderRef.key.slice(-8).toUpperCase() : "";
+      form.innerHTML = `
+        <section class="jsf-order-success" role="status" aria-live="polite">
+          <div class="jsf-order-success-icon">✓</div>
+          <p class="eyebrow">JSF FASHION</p>
+          <h2>Thank You!</h2>
+          <h3>আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে।</h3>
+          <p>আমাদের সঙ্গে থাকার জন্য ধন্যবাদ। আপনার অর্ডারটি আমরা যত্নসহকারে প্রস্তুত করব। প্রয়োজন হলে আমাদের টিম আপনার দেওয়া মোবাইল নম্বরে যোগাযোগ করবে।</p>
+          ${orderCode ? '<div class="jsf-order-code">অর্ডার আইডি: <strong>' + safeText(orderCode) + '</strong></div>' : ""}
+          <a class="btn jsf-order-home-btn" href="index.html">BACK TO SHOP</a>
+        </section>`;
 
     } catch (error) {
       console.error("Order error:", error);
