@@ -1929,3 +1929,133 @@ body{background:#06152f;color:#fff}
   }
 }
 /* End compact navy-and-gold product cards */
+
+
+/* Smaller Daraz-like product CARD footprint */
+.home-page #products #product-list.product-grid{
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  gap:8px !important;
+  align-items:start !important;
+}
+.home-page #products #product-list .product-card{
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  align-self:start !important;
+  border-radius:5px !important;
+  overflow:hidden !important;
+  background:#0b2145 !important;
+  border-color:rgba(223,185,87,.32) !important;
+}
+.home-page #products #product-list .product-card .product-media{
+  padding:0 !important;
+  gap:0 !important;
+  background:#071a38 !important;
+}
+.home-page #products #product-list .product-card .product-media>img.product-view-image[data-gallery-main]{
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  aspect-ratio:1 / 1 !important;
+  flex:0 0 auto !important;
+  object-fit:contain !important;
+  padding:4px !important;
+  background:#071a38 !important;
+}
+.home-page #products #product-list .product-card .product-media .product-gallery-thumbs{
+  height:25px !important;
+  min-height:25px !important;
+  max-height:25px !important;
+  padding:2px 4px !important;
+  gap:3px !important;
+  background:#071a38 !important;
+}
+.home-page #products #product-list .product-card .product-media .gallery-thumb{
+  width:20px !important;
+  height:20px !important;
+  flex:0 0 20px !important;
+}
+.home-page #products #product-list .product-card .product-media .more-design-picker{
+  max-height:32px !important;
+  padding:2px 4px !important;
+  background:#071a38 !important;
+}
+.home-page #products #product-list .product-card .product-media .more-design-picker>strong{
+  font-size:7px !important;
+}
+.home-page #products #product-list .product-card .product-info{
+  flex:0 0 auto !important;
+  min-height:0 !important;
+  height:auto !important;
+  padding:6px !important;
+  gap:2px !important;
+  background:#0b2145 !important;
+}
+.home-page #products #product-list .product-card .product-info h3{
+  min-height:2.5em !important;
+  max-height:2.5em !important;
+  margin:0 !important;
+  font-size:10px !important;
+  line-height:1.25 !important;
+}
+.home-page #products #product-list .product-card .product-info>p{
+  font-size:8px !important;
+  line-height:1.15 !important;
+}
+.home-page #products #product-list .product-card .product-price{
+  margin:2px 0 !important;
+  font-size:14px !important;
+  line-height:1.2 !important;
+}
+.home-page #products #product-list .product-card .product-actions{
+  margin:0 !important;
+  padding-top:4px !important;
+  gap:3px !important;
+}
+.home-page #products #product-list .product-card .product-actions .btn{
+  min-height:23px !important;
+  padding:3px 2px !important;
+  font-size:7px !important;
+  line-height:1.1 !important;
+  border-radius:3px !important;
+}
+@media(max-width:1100px){
+  .home-page #products #product-list.product-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  }
+}
+@media(max-width:850px){
+  .home-page #products #product-list.product-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:7px !important;
+  }
+}
+@media(max-width:600px){
+  .home-page #products #product-list.product-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:7px !important;
+  }
+  .home-page #products #product-list .product-card .product-info{
+    padding:5px !important;
+  }
+  .home-page #products #product-list .product-card .product-info h3{
+    font-size:9px !important;
+  }
+  .home-page #products #product-list .product-card .product-price{
+    font-size:13px !important;
+  }
+  .home-page #products #product-list .product-card .product-actions .btn{
+    min-height:22px !important;
+    font-size:6.5px !important;
+  }
+}
+@media(max-width:360px){
+  .home-page #products #product-list .product-card .product-actions{
+    grid-template-columns:1fr 1fr !important;
+  }
+  .home-page #products #product-list .product-card .product-actions .product-details-btn{
+    grid-column:1 / -1 !important;
+  }
+}
+/* End smaller Daraz-like product card */
