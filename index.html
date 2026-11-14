@@ -6,9 +6,10 @@
   <title>JSF FASHION | Premium Fashion Store</title>
   <meta name="description" content="Discover premium fashion at JSF FASHION.">
   <meta name="theme-color" content="#06152f">
-  <link rel="stylesheet" href="style.css?v=18">
+  <link rel="stylesheet" href="style.css?v=19">
 </head>
 <body>
+  <div class="announcement-bar"><span>WELCOME TO JSF FASHION</span><div><span>Free Shipping</span><i></i><span>Easy Return</span><i></i><span>24/7 Support</span></div></div>
   <header class="site-header">
     <a href="index.html" class="brand">JSF <span>FASHION</span></a>
     <nav class="nav-links" aria-label="Main navigation">
@@ -46,9 +47,33 @@
       </div>
     </section>
     <section class="section" id="products">
-      <div class="section-title"><p class="eyebrow">HANDPICKED FOR YOU</p><h2>FEATURED PRODUCTS</h2></div>
-      <input id="product-search" class="search-box" type="search" placeholder="Search products..." aria-label="Search products">
-      <div id="product-list" class="product-grid"><p class="muted">Loading products...</p></div>
+      <div class="section-title"><p class="eyebrow">HANDPICKED FOR YOU</p><h2>FEATURED PRODUCTS</h2><a class="view-all-link" href="#products">View All Products →</a></div>
+      <div class="product-showcase-layout">
+        <div class="product-showcase-main">
+          <input id="product-search" class="search-box" type="search" placeholder="Search products..." aria-label="Search products">
+          <div id="product-list" class="product-grid"><p class="muted">Loading products...</p></div>
+        </div>
+        <aside class="flash-sale-panel">
+          <div class="flash-sale-heading"><span>⚡</span><h3>Flash Sale</h3></div>
+          <div class="flash-sale-timer"><span><b>02</b><small>Days</small></span><span><b>14</b><small>Hours</small></span><span><b>27</b><small>Mins</small></span><span><b>36</b><small>Secs</small></span></div>
+          <div class="flash-sale-art"><span>JSF</span><b>FASHION</b></div>
+          <h4>Discover Featured Styles</h4>
+          <p class="flash-sale-copy">Fresh looks. Signature style.</p>
+          <a class="flash-sale-button" href="#products">SHOP NOW</a>
+        </aside>
+      </div>
+    </section>
+    <section class="collection-banner" aria-label="JSF Fashion collection">
+      <div class="collection-banner-copy"><p>JSF FASHION</p><h2>Fashion Collection</h2><span>Look Better. Feel Better.</span><a href="#products">Explore Collection →</a></div>
+      <div class="collection-banner-art"><span>NEW</span><b>COLLECTION</b></div>
+    </section>
+    <section class="journal-section" aria-label="Fashion journal">
+      <div class="section-title"><p class="eyebrow">STYLE & INSPIRATION</p><h2>OUR JOURNAL</h2><a class="view-all-link" href="#products">Explore Collection →</a></div>
+      <div class="journal-grid">
+        <article class="journal-card"><div class="journal-card-image journal-one"></div><h3>Find Your Everyday Style</h3><p>Discover styles made for your everyday moments.</p></article>
+        <article class="journal-card"><div class="journal-card-image journal-two"></div><h3>New Season, New Looks</h3><p>Explore fresh fashion from JSF FASHION.</p></article>
+        <article class="journal-card"><div class="journal-card-image journal-three"></div><h3>Style That Feels Like You</h3><p>Make every look your own with timeless pieces.</p></article>
+      </div>
     </section>
     <section class="section" id="cart">
       <div class="section-title"><h2>YOUR CART</h2><p>Review your selected items before checkout.</p></div>
