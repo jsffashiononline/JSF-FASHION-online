@@ -706,3 +706,21 @@ body{background:#06152f;color:#fff}
  .details-product-copy{padding:0}
  .details-product-copy h2{font-size:19px}
 }
+/* Slightly smaller product tiles and square product photos */
+#products .product-grid{gap:11px}
+#products .product-card>img.product-view-image{aspect-ratio:1/1;height:auto!important;object-fit:cover}
+#products .product-info{padding:7px 8px 9px}
+#products .product-info h3{font-size:12px;line-height:1.25}
+#products .product-info>p{font-size:9px}
+#products .product-price{font-size:15px;margin:4px 0 6px}
+#products .product-actions{gap:5px}
+#products .product-actions .btn{min-height:31px;padding:5px 3px;font-size:8px}
+#products .product-actions .product-details-btn{min-height:29px}
+@media(max-width:680px){
+ #products .product-grid{gap:8px}
+ #products .product-card>img.product-view-image{aspect-ratio:1/1;height:auto!important}
+ #products .product-info{padding:6px}
+ #products .product-info h3{font-size:11px}
+ #products .product-price{font-size:14px}
+ #products .product-actions .btn{min-height:29px;font-size:7.5px}
+}
