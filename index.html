@@ -6,7 +6,7 @@
   <title>JSF FASHION | Premium Fashion Store</title>
   <meta name="description" content="Discover premium fashion at JSF FASHION.">
   <meta name="theme-color" content="#06152f">
-  <link rel="stylesheet" href="style.css?v=34">
+  <link rel="stylesheet" href="style.css?v=35">
 </head>
 <body class="home-page">
   <div class="announcement-bar">
@@ -19,7 +19,7 @@
     <nav class="nav-links" aria-label="Main navigation">
       <a href="#home">Home</a>
       <a href="#products">Collection</a>
-      <a href="#contact">Contact</a>
+      <a href="#contact">Contact</a><a href="order.html">Checkout</a>
       <a href="#cart">Cart (<span id="cart-count">0</span>)</a>
       <a href="#products" class="header-order-btn">ORDER NOW</a>
     </nav>
@@ -71,7 +71,7 @@
       </div>
       <div class="product-showcase-layout">
         <div class="product-showcase-main">
-          <input id="product-search" class="search-box" type="search" placeholder="Search products..." aria-label="Search products">
+          <div class="product-toolbar"><label class="search-field"><span aria-hidden="true">⌕</span><input id="product-search" class="search-box" type="search" placeholder="Search products..." aria-label="Search products"></label><label class="sort-field"><span>Sort by</span><select id="sort-products" aria-label="Sort products"><option value="default">Recommended</option><option value="newest">Newest first</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option><option value="name">Name: A to Z</option></select></label></div>
           <div id="product-list" class="product-grid"><p class="muted">Loading products...</p></div>
         </div>
       </div>
@@ -125,6 +125,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="firebase.js?v=3"></script>
-  <script src="store.js?v=39"></script>
+  <script src="store.js?v=40"></script>
 </body>
 </html>
