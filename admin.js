@@ -858,10 +858,16 @@ async function loadOrders() {
             return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)">${itemImage ? `<img src="${escapeHTML(itemImage)}" alt="${escapeHTML(itemName)}" loading="lazy" style="width:76px;height:86px;object-fit:cover;border-radius:8px;background:#fff">` : `<div style="width:76px;height:86px;display:grid;place-items:center;background:#26344d;border-radius:8px;font-size:11px">No Image</div>`}<div><strong>${escapeHTML(itemName)}</strong><p>সাইজ: ${escapeHTML(itemSize)} · কালার/ডিজাইন: ${escapeHTML(itemVariant || "N/A")}</p><p>পরিমাণ: ${escapeHTML(itemQty)} · একক মূল্য: ${money(item.price)} · মোট: ${money(Number(item.price || 0) * Number(itemQty))}</p></div></div>`;
           }).join("")
         : "পণ্যের বিস্তারিত পাওয়া যায়নি";
-      const subtotal = money(order.subtotal ?? (Array.isArray(order.items) ? order.items.reduce((sum,item)=>sum + Number(item.price||0)*Number(item.qty||item.quantity||1),0) : 0));
-      const shipping = money(order.shippingCharge || 0);
-      const codFee = 0;
-      const total = money(order.total || order.totalAmount || order.amount || 0);
+      const subtotalAmount = Number(order.subtotal ?? (Array.isArray(order.items) ? order.items.reduce((sum,item)=>sum + Number(item.price||0)*Number(item.qty||item.quantity||1),0) : 0));
+      const shippingAmount = Number(order.shippingCharge ?? 0);
+      const codFeeAmount = Number(order.codFee ?? 0);
+      const calculatedTotal = subtotalAmount + shippingAmount + codFeeAmount;
+      const savedTotal = Number(order.total ?? order.totalAmount ?? order.amount);
+      const totalAmount = Number.isFinite(savedTotal) && savedTotal > 0 ? savedTotal : calculatedTotal;
+      const subtotal = money(subtotalAmount);
+      const shipping = money(shippingAmount);
+      const codFee = money(codFeeAmount);
+      const total = money(totalAmount);
 
       return `
         <article class="data-card order-card">
@@ -870,11 +876,17 @@ async function loadOrders() {
           <p>Phone: ${phone}</p>
           <p>Address: ${address}</p>
           <div><strong>অর্ডার করা পণ্য:</strong>${itemsHTML}</div>
-          <p>ডেলিভারি এলাকা: ${escapeHTML(order.deliveryArea || "পুরোনো অর্ডার")}</p><p>Payment Method: ${escapeHTML(order.paymentMethod || "Not specified")}</p><p>পণ্যের মূল্য: ${subtotal} · ডেলিভারি: ${shipping}</p>
+          <p>ডেলিভারি এলাকা: ${escapeHTML(order.deliveryArea || "পুরোনো অর্ডার")}</p>
+          <p>Payment Method: ${escapeHTML(order.paymentMethod || "Not specified")}</p>
+          <div class="order-price-breakdown" style="margin:14px 0;padding:14px;border:1px solid rgba(223,185,87,.35);border-radius:10px;background:rgba(223,185,87,.06)">
+            <p style="display:flex;justify-content:space-between;gap:12px;margin:4px 0"><span>পণ্যের মূল্য</span><strong>${subtotal}</strong></p>
+            <p style="display:flex;justify-content:space-between;gap:12px;margin:4px 0"><span>ডেলিভারি চার্জ</span><strong>${shipping}</strong></p>
+            ${codFeeAmount > 0 ? `<p style="display:flex;justify-content:space-between;gap:12px;margin:4px 0"><span>অতিরিক্ত চার্জ</span><strong>${codFee}</strong></p>` : ""}
+            <p style="display:flex;justify-content:space-between;gap:12px;margin:10px 0 0;padding-top:10px;border-top:1px solid rgba(223,185,87,.35);font-size:17px"><strong>সর্বমোট</strong><strong>${total}</strong></p>
+          </div>
           ${order.paymentMethod === "bKash" || order.paymentMethod === "Nagad"
             ? `<p>Transaction ID: <strong>${escapeHTML(order.transactionId || "Not provided")}</strong></p>`
             : ""}
-          <p>Total: ${total}</p>
 
           <label for="status-${escapeHTML(id)}">Order Status</label>
 
