@@ -888,6 +888,14 @@ async function loadOrders() {
             return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)">${itemImage ? `<img src="${escapeHTML(itemImage)}" alt="${escapeHTML(itemName)}" loading="lazy" style="width:76px;height:86px;object-fit:cover;border-radius:8px;background:#fff">` : `<div style="width:76px;height:86px;display:grid;place-items:center;background:#26344d;border-radius:8px;font-size:11px">No Image</div>`}<div><strong>${escapeHTML(itemName)}</strong><p>সাইজ: ${escapeHTML(itemSize)} · কালার/ডিজাইন: ${escapeHTML(itemVariant || "N/A")}</p><p>পরিমাণ: ${escapeHTML(itemQty)} · একক মূল্য: ${money(item.price)} · মোট: ${money(Number(item.price || 0) * Number(itemQty))}</p></div></div>`;
           }).join("")
         : "পণ্যের বিস্তারিত পাওয়া যায়নি";
+      const customerReferenceImage = order.customerReferenceImage || order.referenceImage || "";
+      const customerReferenceImageHTML = customerReferenceImage
+        ? `<div class="customer-reference-admin" style="margin:12px 0;padding:12px;border:1px solid rgba(223,185,87,.35);border-radius:10px">
+            <strong>কাস্টমারের পছন্দের প্রোডাক্টের ছবি:</strong>
+            <a href="${escapeHTML(customerReferenceImage)}" target="_blank" rel="noopener noreferrer">
+              <img src="${escapeHTML(customerReferenceImage)}" alt="Customer product reference" loading="lazy" style="display:block;width:min(220px,100%);aspect-ratio:1/1;object-fit:cover;border-radius:8px;margin-top:8px">
+            </a>
+          </div>` : "";
       const subtotalAmount = Number(order.subtotal ?? (Array.isArray(order.items) ? order.items.reduce((sum,item)=>sum + Number(item.price||0)*Number(item.qty||item.quantity||1),0) : 0));
       const shippingAmount = Number(order.shippingCharge ?? 0);
       const codFeeAmount = Number(order.codFee ?? 0);
@@ -906,6 +914,7 @@ async function loadOrders() {
           <p>Phone: ${phone}</p>
           <p>Address: ${address}</p>
           <div><strong>অর্ডার করা পণ্য:</strong>${itemsHTML}</div>
+          ${customerReferenceImageHTML}
           <p>ডেলিভারি এলাকা: ${escapeHTML(order.deliveryArea || "পুরোনো অর্ডার")}</p>
           <p>Payment Method: ${escapeHTML(order.paymentMethod || "Not specified")}</p>
           <div class="order-price-breakdown" style="margin:14px 0;padding:14px;border:1px solid rgba(223,185,87,.35);border-radius:10px;background:rgba(223,185,87,.06)">
