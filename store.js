@@ -15,6 +15,33 @@ const cartTotal = document.getElementById("cart-total");
 const cartCount = document.getElementById("cart-count");
 const searchInput = document.getElementById("product-search");
 const paymentInfo = document.getElementById("payment-info");
+const CUSTOMER_IMAGE_CLOUD_NAME = "phvmgyj9";
+const CUSTOMER_IMAGE_UPLOAD_PRESET = "jsf_fashion_upload";
+
+const customerImageInput = document.getElementById("customer-product-image");
+const customerImagePreview = document.getElementById("customer-product-image-preview");
+if (customerImageInput && customerImagePreview) {
+  customerImageInput.addEventListener("change", () => {
+    const file = customerImageInput.files?.[0];
+    customerImagePreview.replaceChildren();
+    customerImagePreview.hidden = true;
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 10 * 1024 * 1024) {
+      customerImageInput.value = "";
+      showJsfToast("শুধু JPG, PNG বা WEBP ছবি দিন (সর্বোচ্চ ১০ MB)।", "error");
+      return;
+    }
+    const preview = document.createElement("img");
+    preview.src = URL.createObjectURL(file);
+    preview.alt = "আপলোডের জন্য নির্বাচিত প্রোডাক্টের ছবি";
+    preview.onload = () => URL.revokeObjectURL(preview.src);
+    const caption = document.createElement("span");
+    caption.textContent = file.name;
+    customerImagePreview.append(preview, caption);
+    customerImagePreview.hidden = false;
+  });
+}
+
 
 let products = [];
 let settings = {};
@@ -928,6 +955,12 @@ if ($("checkout-form")) {
 
     const form = event.currentTarget;
     const data = new FormData(form);
+    const referenceFile = $("customer-product-image")?.files?.[0] || null;
+    if (referenceFile && (!["image/jpeg", "image/png", "image/webp"].includes(referenceFile.type) || referenceFile.size > 10 * 1024 * 1024)) {
+      if (message) message.textContent = "শুধু JPG, PNG বা WEBP ছবি দিন (সর্বোচ্চ ১০ MB)।";
+      return;
+    }
+
 
     const button = form.querySelector(
       'button[type="submit"]'
@@ -1013,6 +1046,25 @@ if ($("checkout-form")) {
     }
 
     try {
+
+      // Upload the customer's optional reference image before saving the order.
+      if (referenceFile) {
+        if (message) message.textContent = "আপনার পছন্দের ছবিটি আপলোড হচ্ছে...";
+        const uploadData = new FormData();
+        uploadData.append("file", referenceFile);
+        uploadData.append("upload_preset", CUSTOMER_IMAGE_UPLOAD_PRESET);
+        uploadData.append("folder", "jsf-fashion-customer-references");
+        const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${CUSTOMER_IMAGE_CLOUD_NAME}/image/upload`, {
+          method: "POST",
+          body: uploadData
+        });
+        const uploadResult = await uploadResponse.json();
+        if (!uploadResponse.ok || !uploadResult.secure_url) {
+          throw new Error(uploadResult.error?.message || "ছবি আপলোড করা যায়নি। আবার চেষ্টা করুন।");
+        }
+        order.customerReferenceImage = uploadResult.secure_url;
+      }
+
       // Create a unique order ID first
       const newOrderRef = db.ref("orders").push();
 
@@ -1029,6 +1081,10 @@ if ($("checkout-form")) {
       }
 
       form.reset();
+      if (customerImagePreview) {
+        customerImagePreview.replaceChildren();
+        customerImagePreview.hidden = true;
+      }
       updatePaymentInfo();
       syncDeliveryArea();
       updateCheckoutSummary();
