@@ -727,3 +727,24 @@ body{background:#06152f;color:#fff}
 /* Flash Sale removed: let the product list use the full available width */
 .product-showcase-layout{grid-template-columns:minmax(0,1fr)!important}
 .product-showcase-main{width:100%;min-width:0}
+
+
+/* Enforce a true square frame for customer product photos */
+#product-list .product-card > img.product-view-image[data-gallery-main]{
+  display:block;
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:1 / 1 !important;
+  object-fit:contain !important;
+  object-position:center;
+  background:#fff;
+  flex:0 0 auto;
+}
+@media(max-width:760px){
+  #product-list .product-card > img.product-view-image[data-gallery-main]{
+    width:100% !important;
+    height:auto !important;
+    aspect-ratio:1 / 1 !important;
+    object-fit:contain !important;
+  }
+}
