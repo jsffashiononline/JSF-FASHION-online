@@ -955,18 +955,13 @@ if ($("checkout-form")) {
 
     const form = event.currentTarget;
     const data = new FormData(form);
+    const button = form.querySelector('button[type="submit"]');
+    const message = $("checkout-message");
     const referenceFile = $("customer-product-image")?.files?.[0] || null;
     if (referenceFile && (!["image/jpeg", "image/png", "image/webp"].includes(referenceFile.type) || referenceFile.size > 10 * 1024 * 1024)) {
       if (message) message.textContent = "শুধু JPG, PNG বা WEBP ছবি দিন (সর্বোচ্চ ১০ MB)।";
       return;
     }
-
-
-    const button = form.querySelector(
-      'button[type="submit"]'
-    );
-
-    const message = $("checkout-message");
 
     const order = {
       customerName: String(data.get("name") || "").trim(),
