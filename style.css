@@ -832,3 +832,77 @@ body{background:#06152f;color:#fff}
   #products .product-card .product-info{flex:1 1 auto !important}
   #products .product-card .product-actions{margin-top:auto !important}
 }
+
+
+/* JSF FASHION: final equal-height product card correction */
+#products #product-list.product-grid{
+  align-items:stretch !important;
+}
+#products #product-list .product-card{
+  align-self:stretch !important;
+  height:100% !important;
+  min-height:100%;
+  display:flex !important;
+  flex-direction:column !important;
+}
+#products #product-list .product-card > img.product-view-image[data-gallery-main]{
+  width:100% !important;
+  aspect-ratio:1 / 1 !important;
+  height:auto !important;
+  flex:0 0 auto !important;
+  object-fit:cover !important;
+}
+#products #product-list .product-card .product-info{
+  flex:1 1 auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+#products #product-list .product-card .product-actions{
+  margin-top:auto !important;
+}
+.customer-reference-upload{
+  margin:16px 0;
+  padding:14px;
+  border:1px solid rgba(223,185,87,.45);
+  border-radius:10px;
+  background:rgba(11,33,69,.45);
+}
+.customer-reference-upload label{
+  display:block;
+  margin-bottom:9px;
+  color:var(--gold-light);
+  font-weight:800;
+}
+.customer-reference-upload input[type=file]{
+  display:block;
+  width:100%;
+  max-width:100%;
+  padding:10px;
+  border:1px solid rgba(223,185,87,.35);
+  border-radius:8px;
+  background:#071a38;
+  color:#fff;
+}
+.customer-reference-upload small{display:block;margin-top:7px}
+.customer-reference-preview{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:10px;
+  color:#e6edfa;
+  font-size:12px;
+  overflow-wrap:anywhere;
+}
+.customer-reference-preview img{
+  width:76px;
+  height:76px;
+  flex:0 0 76px;
+  object-fit:cover;
+  border-radius:8px;
+  border:1px solid var(--gold);
+}
+.customer-reference-preview[hidden]{display:none !important}
+@media(max-width:680px){
+  #products #product-list .product-card{align-self:stretch !important}
+  .customer-reference-upload{padding:11px}
+}
