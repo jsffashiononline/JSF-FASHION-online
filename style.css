@@ -2059,3 +2059,43 @@ body{background:#06152f;color:#fff}
   }
 }
 /* End smaller Daraz-like product card */
+
+
+/* Shorter product card height — keep square product image */
+@media(max-width:600px){
+  .home-page #products #product-list .product-card .product-media .product-gallery-thumbs,
+  .home-page #products #product-list .product-card .product-media .more-design-picker{
+    display:none !important;
+  }
+  .home-page #products #product-list .product-card .product-info{
+    padding:4px !important;
+    gap:1px !important;
+  }
+  .home-page #products #product-list .product-card .product-info h3{
+    min-height:1.25em !important;
+    max-height:1.25em !important;
+    overflow:hidden !important;
+    white-space:nowrap !important;
+    text-overflow:ellipsis !important;
+    font-size:9px !important;
+    line-height:1.25 !important;
+  }
+  .home-page #products #product-list .product-card .product-info>p{
+    display:none !important;
+  }
+  .home-page #products #product-list .product-card .product-price{
+    margin:1px 0 !important;
+    font-size:12px !important;
+    line-height:1.1 !important;
+  }
+  .home-page #products #product-list .product-card .product-actions{
+    padding-top:2px !important;
+    gap:2px !important;
+  }
+  .home-page #products #product-list .product-card .product-actions .btn{
+    min-height:19px !important;
+    padding:2px 1px !important;
+    font-size:6px !important;
+    line-height:1 !important;
+  }
+}
