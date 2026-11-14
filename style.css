@@ -1651,3 +1651,174 @@ body{background:#06152f;color:#fff}
   #products .product-actions{grid-template-columns:1fr}
   #products .product-actions .product-details-btn{grid-column:auto}
 }
+
+
+/* FINAL Daraz-style product grid override — JSF FASHION
+   Product actions, details, cart and order handlers remain unchanged. */
+.home-page #products #product-list.product-grid{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:12px !important;
+  align-items:stretch !important;
+}
+.home-page #products #product-list .product-card{
+  display:flex !important;
+  flex-direction:column !important;
+  grid-template-columns:minmax(0,1fr) !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  height:100% !important;
+  overflow:hidden !important;
+  background:#fff !important;
+  border:1px solid #eee !important;
+  border-radius:4px !important;
+  box-shadow:0 1px 5px rgba(0,0,0,.10) !important;
+  color:#222 !important;
+}
+.home-page #products #product-list .product-card:hover{
+  transform:translateY(-2px);
+  border-color:#f85606 !important;
+  box-shadow:0 4px 12px rgba(0,0,0,.13) !important;
+}
+.home-page #products #product-list .product-card .product-media{
+  display:flex !important;
+  flex-direction:column !important;
+  width:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  height:auto !important;
+  aspect-ratio:auto !important;
+  padding:0 !important;
+  gap:0 !important;
+  overflow:hidden !important;
+  background:#fff !important;
+}
+.home-page #products #product-list .product-card .product-media>img.product-view-image[data-gallery-main]{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  flex:0 0 auto !important;
+  aspect-ratio:1 / 1 !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  padding:7px !important;
+  border-radius:0 !important;
+  background:#fff !important;
+}
+.home-page #products #product-list .product-card .product-media .product-gallery-thumbs{
+  flex:0 0 auto !important;
+  width:100% !important;
+  height:34px !important;
+  min-height:34px !important;
+  max-height:34px !important;
+  padding:3px 6px !important;
+  gap:4px !important;
+  background:#fff !important;
+}
+.home-page #products #product-list .product-card .product-media .gallery-thumb{
+  width:27px !important;
+  height:27px !important;
+  flex:0 0 27px !important;
+}
+.home-page #products #product-list .product-card .product-media .more-design-picker{
+  max-height:42px !important;
+  padding:3px 6px !important;
+  background:#fff !important;
+}
+.home-page #products #product-list .product-card .product-info{
+  display:flex !important;
+  flex-direction:column !important;
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  height:auto !important;
+  padding:9px !important;
+  gap:4px !important;
+  color:#222 !important;
+  text-align:left !important;
+}
+.home-page #products #product-list .product-card .product-info h3{
+  min-height:2.7em !important;
+  max-height:2.7em !important;
+  margin:0 !important;
+  overflow:hidden !important;
+  color:#222 !important;
+  text-align:left !important;
+  font-size:12px !important;
+  line-height:1.35 !important;
+}
+.home-page #products #product-list .product-card .product-info>p{
+  color:#777 !important;
+  text-align:left !important;
+  font-size:10px !important;
+}
+.home-page #products #product-list .product-card .product-price{
+  margin:4px 0 !important;
+  color:#f85606 !important;
+  text-align:left !important;
+  font-size:17px !important;
+  font-weight:700 !important;
+}
+.home-page #products #product-list .product-card .product-actions{
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:5px !important;
+  margin-top:auto !important;
+  padding-top:7px !important;
+}
+.home-page #products #product-list .product-card .product-actions .btn{
+  min-width:0 !important;
+  min-height:32px !important;
+  padding:6px 4px !important;
+  border-radius:3px !important;
+  font-size:9px !important;
+  line-height:1.2 !important;
+  overflow-wrap:anywhere !important;
+}
+.home-page #products #product-list .product-card .product-actions .product-details-btn{
+  grid-column:1 / -1 !important;
+  color:#f85606 !important;
+  background:#fff !important;
+  border:1px solid #f85606 !important;
+}
+@media(max-width:1100px){
+  .home-page #products #product-list.product-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  }
+}
+@media(max-width:850px){
+  .home-page #products #product-list.product-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:9px !important;
+  }
+}
+@media(max-width:600px){
+  .home-page #products #product-list.product-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+  }
+  .home-page #products #product-list .product-card .product-info{
+    padding:7px !important;
+  }
+  .home-page #products #product-list .product-card .product-info h3{
+    font-size:11px !important;
+  }
+  .home-page #products #product-list .product-card .product-price{
+    font-size:15px !important;
+  }
+  .home-page #products #product-list .product-card .product-actions .btn{
+    min-height:30px !important;
+    font-size:8px !important;
+  }
+}
+@media(max-width:360px){
+  .home-page #products #product-list .product-card .product-actions{
+    grid-template-columns:1fr !important;
+  }
+  .home-page #products #product-list .product-card .product-actions .product-details-btn{
+    grid-column:auto !important;
+  }
+}
+/* End final Daraz-style product grid override */
