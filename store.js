@@ -166,9 +166,67 @@ function renderProducts(list) {
     const designPicker = moreDesigns.length ? `<div class="more-design-picker"><strong>More Design</strong><div class="more-design-options">${moreDesigns.map((item,index)=>`<button type="button" class="more-design-option ${index===selectedDesignIndex?"active":""}" data-more-design-index="${index}" data-product-id="${safeText(p.id)}" aria-label="Select More Design ${index+1}"><img src="${safeText(item.image)}" alt="Design ${index+1}"><span>Design ${index+1}</span></button>`).join("")}</div></div>` : "";
     const price = variant && variant.price !== null && variant.price !== "" && Number.isFinite(Number(variant.price)) ? Number(variant.price) : Number(p.price || 0);
     const thumbs = photos.length > 1 ? `<div class="product-gallery-thumbs">${photos.map((url,index)=>`<button type="button" class="gallery-thumb ${index===imageIndex?"active":""}" data-gallery-thumb="${index}" data-product-id="${safeText(p.id)}" aria-label="View product photo ${index+1}"><img src="${safeText(url)}" alt=""></button>`).join("")}</div>` : "";
-    return `<article class="product-card" data-product-card="${safeText(p.id)}"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}${designPicker}<div class="product-info"><h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p>${p.description ? `<div class="description-wrap"><p class="product-description">${safeText(p.description)}</p><button type="button" class="description-toggle" aria-expanded="false">আরও</button></div>` : ""}<div class="product-price">৳${money(price)}</div><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">DIRECT ORDER</button></div></div></article>`;
+    return `<article class="product-card" data-product-card="${safeText(p.id)}"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}${designPicker}<div class="product-info"><h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p><div class="product-price">৳${money(price)}</div><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">DIRECT ORDER</button><button class="btn product-details-btn" type="button" data-product-details="${safeText(p.id)}">প্রোডাক্ট ডিটেইলস</button></div></div></article>`;
   }).join("");
 }
+
+// Customer-facing product details popup
+function openProductDetails(id) {
+  const product = products.find(item => String(item.id) === String(id));
+  if (!product) { showJsfToast("প্রোডাক্টটি পাওয়া যায়নি।", "error"); return; }
+  let dialog = document.getElementById("jsf-product-details");
+  if (!dialog) {
+    dialog = document.createElement("div");
+    dialog.id = "jsf-product-details";
+    dialog.className = "jsf-product-details";
+    dialog.hidden = true;
+    dialog.innerHTML = '<div class="jsf-product-details-panel" role="dialog" aria-modal="true" aria-labelledby="jsf-product-details-title"><button type="button" class="jsf-product-details-close" aria-label="বন্ধ করুন">×</button><div class="jsf-product-details-content"></div></div>';
+    document.body.appendChild(dialog);
+    dialog.addEventListener("click", event => {
+      if (event.target === dialog || event.target.closest(".jsf-product-details-close")) {
+        dialog.hidden = true;
+        document.body.classList.remove("product-details-open");
+      }
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !dialog.hidden) {
+        dialog.hidden = true;
+        document.body.classList.remove("product-details-open");
+      }
+    });
+  }
+  const variants = Array.isArray(product.variants) ? product.variants.filter(item => item && String(item.name || "").trim()) : [];
+  const sizes = getSizes(product);
+  const photo = product.images?.[0] || product.image || "";
+  const price = Number(product.price || 0);
+  const variantRows = variants.length ? '<div class="details-line"><b>Available Colors:</b><span>' + variants.map(item => safeText(item.name)).join(", ") + '</span></div>' : "";
+  const sizeRows = sizes.length ? '<div class="details-line"><b>Available Sizes:</b><span>' + sizes.map(safeText).join(", ") + '</span></div>' : "";
+  const description = String(product.description || "").trim();
+  dialog.querySelector(".jsf-product-details-content").innerHTML = `
+    <div class="details-product-layout">
+      <div class="details-product-photo">${photo ? '<img src="' + safeText(photo) + '" alt="' + safeText(product.name) + '">' : '<div class="details-no-photo">JSF FASHION</div>'}</div>
+      <div class="details-product-copy">
+        <p class="details-category">${safeText(product.category || "Fashion")}</p>
+        <h2 id="jsf-product-details-title">${safeText(product.name || "Product Details")}</h2>
+        <div class="details-price">৳${money(price)}</div>
+        ${description ? '<div class="details-description"><b>Product Description</b><p>' + safeText(description).replace(/\n/g, "<br>") + '</p></div>' : '<p class="details-muted">এই প্রোডাক্টের বিস্তারিত বিবরণ এখনো যোগ করা হয়নি।</p>'}
+        ${variantRows}${sizeRows}
+        <button type="button" class="btn details-shop-button" data-details-shop="${safeText(product.id)}">অর্ডার করতে যান</button>
+      </div>
+    </div>`;
+  dialog.querySelector("[data-details-shop]").addEventListener("click", () => {
+    dialog.hidden = true;
+    document.body.classList.remove("product-details-open");
+    const card = productList?.querySelector('[data-product-card="' + CSS.escape(String(product.id)) + '"]');
+    card?.querySelector(".direct-order-btn")?.click();
+  });
+  dialog.hidden = false;
+  document.body.classList.add("product-details-open");
+}
+document.addEventListener("click", event => {
+  const detailsButton = event.target.closest?.("[data-product-details]");
+  if (detailsButton) openProductDetails(detailsButton.dataset.productDetails);
+});
 
 // Click-to-enlarge image viewer for product photos and homepage banners
 // Full-screen swipeable product photo viewer
