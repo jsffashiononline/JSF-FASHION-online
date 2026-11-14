@@ -906,3 +906,8 @@ body{background:#06152f;color:#fff}
   #products #product-list .product-card{align-self:stretch !important}
   .customer-reference-upload{padding:11px}
 }
+
+/* Keep every implicit product row the same height across the full catalog */
+#products #product-list.product-grid{
+  grid-auto-rows:1fr !important;
+}
