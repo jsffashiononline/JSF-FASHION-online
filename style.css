@@ -911,3 +911,55 @@ body{background:#06152f;color:#fff}
 #products #product-list.product-grid{
   grid-auto-rows:1fr !important;
 }
+
+
+/* JSF FASHION: consistent product cards with prices aligned at the bottom */
+#products #product-list.product-grid{
+  grid-auto-rows:minmax(0,1fr) !important;
+  align-items:stretch !important;
+}
+#products #product-list .product-card{
+  align-self:stretch !important;
+  height:100% !important;
+  min-height:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+#products #product-list .product-card > img.product-view-image[data-gallery-main]{
+  display:block;
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:1 / 1 !important;
+  object-fit:cover !important;
+  flex:0 0 auto !important;
+}
+#products #product-list .product-card .product-info{
+  flex:1 1 auto !important;
+  min-height:0;
+  display:flex !important;
+  flex-direction:column !important;
+}
+#products #product-list .product-card .product-price{
+  margin: auto 0 8px !important;
+  padding-top:10px;
+  align-self:flex-start;
+}
+#products #product-list .product-card .product-actions{
+  margin-top:0 !important;
+  padding-top:8px !important;
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:8px !important;
+}
+#products #product-list .product-card .product-actions .product-details-btn{
+  grid-column:1 / -1 !important;
+  width:100% !important;
+}
+@media(max-width:680px){
+  #products #product-list.product-grid{grid-auto-rows:minmax(0,1fr) !important}
+  #products #product-list .product-card{align-self:stretch !important}
+  #products #product-list .product-card .product-price{margin:auto 0 8px !important}
+  #products #product-list .product-card .product-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
