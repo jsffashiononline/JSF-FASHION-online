@@ -612,3 +612,47 @@ body{background:var(--bg);color:#fff}
  .journal-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.journal-card:last-child{display:none}
  .journal-card-image{height:110px}.journal-card h3{font-size:11px}
 }
+/* Final palette lock: retain JSF's existing navy, royal-blue and golden-yellow colors */
+body{background:#06152f;color:#fff}
+.announcement-bar{background:#030d24;color:#fff}
+.site-header{background:rgba(4,17,42,.97);color:#fff;border-bottom:1px solid rgba(247,198,0,.3)}
+.site-header .brand{color:#fff}
+.site-header .nav-links a{color:#e6edfa}
+.site-header .nav-links a:hover{background:#123d78;color:#ffe978}
+.site-header .nav-links .header-order-btn{background:#f7c600;color:#06152f;border-color:#f7c600}
+.hero{background:radial-gradient(ellipse at 80% 40%,rgba(20,91,180,.42),transparent 42%),linear-gradient(112deg,#06152f 5%,#092653 58%,#0b3d80)}
+.hero-shade{background:linear-gradient(90deg,rgba(4,17,42,.94) 0%,rgba(4,22,52,.82) 40%,rgba(4,22,52,.3) 100%)}
+.hero h1{color:#fff}.hero h1 span{color:#f7c600}
+.hero-content>p:not(.eyebrow){color:#d5e0f2}
+.hero .eyebrow{color:#f7c600}
+.hero .btn{background:linear-gradient(135deg,#ffe45c,#f0b900);color:#06152f}
+.hero-arrow{background:rgba(6,21,47,.72);border-color:rgba(247,198,0,.55);color:#ffe978}
+.hero-dot{background:#ffffff66}.hero-dot.active{background:#f7c600}
+.section{background:#06152f;color:#fff}
+.section-title h2{color:#fff}
+.view-all-link{color:#ffe978}
+#products .search-box{background:#071a38;color:#fff;border-color:#31558a}
+#products .search-box::placeholder{color:#aebed7}
+#products .product-card{background:#0b2145;border-color:rgba(135,178,235,.24)}
+#products .product-card:hover{border-color:#f7c600}
+#products .product-info h3{color:#fff}
+#products .product-info .product-description{color:#c3cee0}
+#products .product-info select{background:#071a38;color:#fff;border-color:#31558a}
+#products .product-price{color:#ffe978}
+#products .product-actions .direct-order-btn{background:#f7c600;color:#06152f;border-color:#f7c600}
+.flash-sale-panel{background:#0b2145;border-color:rgba(247,198,0,.28)}
+.flash-sale-heading h3,.flash-sale-panel h4{color:#fff}
+.flash-sale-copy{color:#c3cee0}
+.flash-sale-art{background:linear-gradient(140deg,#102d59,#0b2145 55%,#f7c600 55%,#f7c600);color:#fff}
+.flash-sale-button{background:#f7c600;color:#06152f}
+.collection-banner{background:linear-gradient(110deg,#061b49 0%,#0a3d83 68%,#f7c600 68%,#f7c600 100%)}
+.collection-banner-copy h2{color:#f7c600}
+.collection-banner-copy span{color:#e7eefb}
+.journal-section{background:#06152f}
+.journal-card{background:#0b2145;border-color:rgba(135,178,235,.24)}
+.journal-card h3{color:#fff}.journal-card p{color:#c3cee0}
+.journal-one{background:linear-gradient(135deg,#102d59,#31558a)}
+.journal-two{background:linear-gradient(135deg,#0b2145,#496b9b)}
+.journal-three{background:linear-gradient(135deg,#12376b,#647fa8)}
+.site-footer{background:#030d24;color:#d5e0f2;border-top:3px solid #f7c600}
+.site-footer .brand{color:#fff}
