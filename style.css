@@ -783,3 +783,52 @@ body{background:#06152f;color:#fff}
     object-fit:cover !important;
   }
 }
+
+
+/* JSF FASHION: make every product card in a grid row equal height */
+#products .product-grid{
+  align-items:stretch !important;
+}
+#products .product-card{
+  display:flex !important;
+  flex-direction:column !important;
+  height:100% !important;
+  min-height:0;
+}
+#products .product-card > img.product-view-image[data-gallery-main]{
+  display:block;
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:1 / 1 !important;
+  object-fit:cover !important;
+  flex:0 0 auto !important;
+}
+#products .product-card .product-gallery-thumbs{
+  flex:0 0 72px;
+  height:72px;
+  overflow-x:auto;
+}
+#products .product-card .product-info{
+  display:flex !important;
+  flex:1 1 auto !important;
+  flex-direction:column !important;
+  min-height:0;
+}
+#products .product-card .product-actions{
+  margin-top:auto !important;
+  padding-top:8px;
+}
+@media(max-width:680px){
+  #products .product-grid{align-items:stretch !important}
+  #products .product-card{height:100% !important}
+  #products .product-card > img.product-view-image[data-gallery-main]{
+    aspect-ratio:1 / 1 !important;
+    object-fit:cover !important;
+  }
+  #products .product-card .product-gallery-thumbs{
+    flex-basis:68px;
+    height:68px;
+  }
+  #products .product-card .product-info{flex:1 1 auto !important}
+  #products .product-card .product-actions{margin-top:auto !important}
+}
