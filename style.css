@@ -273,3 +273,25 @@ body{background:var(--bg);color:#fff}
 .more-design-option img{display:block;width:100%;height:68px;object-fit:cover;border-radius:4px}
 .more-design-option span{display:block;margin-top:4px;font-size:9px;font-weight:800;white-space:nowrap}
 .more-design-option.active{border:2px solid var(--gold);background:#12376b;color:var(--gold-light)}
+
+
+/* Customer order confirmation and separate thank-you screen */
+.jsf-order-confirm-dialog{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:18px;background:rgba(0,5,18,.82);backdrop-filter:blur(6px)}
+.jsf-order-confirm-dialog[hidden]{display:none}
+.jsf-order-confirm-panel{width:min(100%,430px);padding:27px 20px 20px;border:1px solid rgba(247,198,0,.72);border-radius:16px;background:linear-gradient(155deg,#12376b,#071a38);box-shadow:0 24px 80px #000b;text-align:center}
+.jsf-order-confirm-mark{width:48px;height:48px;margin:0 auto 13px;display:grid;place-items:center;border:2px solid var(--gold);border-radius:50%;color:var(--gold-light);font-size:27px;font-weight:900}
+.jsf-order-confirm-panel h2{margin:0 0 9px;color:var(--gold-light);font-size:22px}
+.jsf-order-confirm-panel p{margin:0;color:#d5e0f2;font-size:14px;line-height:1.7}
+.jsf-order-confirm-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:9px;margin-top:22px}
+.jsf-order-confirm-actions button{min-height:46px;padding:9px 12px;border:1px solid rgba(255,255,255,.25);border-radius:8px;background:#0a1a31;color:#fff;font-size:12px;font-weight:800;cursor:pointer}
+.jsf-order-confirm-actions .jsf-order-approve{border-color:var(--gold);background:linear-gradient(135deg,#ffe45c,#f0b900);color:#06152f}
+.jsf-order-success{min-height:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 18px;text-align:center}
+.jsf-order-success-icon{width:76px;height:76px;margin-bottom:20px;display:grid;place-items:center;border:2px solid var(--gold);border-radius:50%;background:rgba(247,198,0,.12);color:var(--gold);font-size:42px;font-weight:900;box-shadow:0 0 30px rgba(247,198,0,.13)}
+.jsf-order-success .eyebrow{margin:0 0 8px;letter-spacing:2px}
+.jsf-order-success h2{margin:0 0 12px;color:var(--gold-light);font-size:clamp(30px,7vw,42px)}
+.jsf-order-success h3{margin:0 0 12px;color:#fff;font-size:17px;line-height:1.6}
+.jsf-order-success>p:not(.eyebrow){max-width:480px;margin:0;color:#c3cee0;font-size:14px;line-height:1.9}
+.jsf-order-code{margin:20px 0;padding:11px 16px;border:1px dashed rgba(247,198,0,.6);border-radius:8px;color:#d5e0f2;font-size:13px}
+.jsf-order-code strong{color:var(--gold-light);letter-spacing:1px}
+.jsf-order-home-btn{display:inline-flex;align-items:center;justify-content:center;margin-top:8px;text-decoration:none}
+@media(max-width:480px){.jsf-order-confirm-actions{grid-template-columns:1fr}.jsf-order-confirm-panel{padding:24px 16px 17px}}
