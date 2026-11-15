@@ -26,6 +26,7 @@ jobs:
         run: |
           node --check store.js
           node --check account.js
+          node --check wishlist.js
 
       - name: Check admin JavaScript module syntax
         run: node --input-type=module --check < admin.js
@@ -65,6 +66,12 @@ jobs:
           assert "CREATE ACCOUNT" in account
           assert "FORGOT PASSWORD" in account
           assert "userOrders/" in account_js
+          wishlist = Path("wishlist.html").read_text(encoding="utf-8")
+          wishlist_js = Path("wishlist.js").read_text(encoding="utf-8")
+          assert "jsf_wishlist" in store
+          assert "data-wishlist-toggle" in store
+          assert "jsf_wishlist" in wishlist_js
+          assert "wishlist.js" in wishlist
           assert "createUserWithEmailAndPassword" in account_js
           assert "logoUrl" in store
           assert "deliveryInsideDhaka" in store
@@ -79,7 +86,7 @@ jobs:
           assert "assets/jsf-fashion-logo.svg" in Path("index.html").read_text(encoding="utf-8")
           assert "assets/jsf-fashion-logo.svg" in Path("order.html").read_text(encoding="utf-8")
           assert Path("assets/jsf-fashion-logo.svg").is_file()
-          for name in ("index.html", "order.html", "account.html", "account.js", "admin.html", "store.js", "admin.js", "premium-theme.css"):
+          for name in ("index.html", "order.html", "account.html", "account.js", "wishlist.html", "wishlist.js", "admin.html", "store.js", "admin.js", "premium-theme.css"):
               assert Path(name).is_file(), f"Missing required file: {name}"
           print("JSF FASHION essential configuration checks passed.")
           PY
