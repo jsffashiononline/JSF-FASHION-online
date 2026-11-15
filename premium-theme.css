@@ -264,3 +264,12 @@ body:has(.admin-header) .admin-profile-detail strong{color:#0b2145}
 .product-actions .wishlist-toggle-btn:hover{background:#fff7d6;color:#614800;transform:none;box-shadow:none}
 
 .details-reviews{margin-top:24px;padding-top:18px;border-top:1px solid #e4e9f1}.details-reviews h3{color:#07152e}.review-average{font-weight:900;color:#8a6900}.review-item{padding:11px 0;border-top:1px solid #edf0f5}.review-item strong{color:#07152e}.review-item span{float:right;color:#a47b00}.review-item p{margin:6px 0;color:#5e6d82;font-size:13px;line-height:1.6}.review-form{display:grid;gap:8px;margin-top:15px;padding:14px;border-radius:10px;background:#f7f9fc}.review-form label{font-size:12px;font-weight:800;color:#34435b}.review-form select,.review-form textarea{width:100%;padding:10px;border:1px solid #dce3ed;border-radius:8px;background:#fff;color:#17243a}.review-form textarea{min-height:90px;resize:vertical}.review-form .btn{justify-self:start}.review-message{min-height:18px;font-size:12px;color:#187344}
+
+/* Circular gold profile photos — customer and admin */
+.customer-profile-photo{border-radius:50%;border:3px solid #dfb957;object-fit:cover}
+.admin-profile-avatar{width:104px;height:104px;border-radius:50%;border:3px solid #dfb957;background-position:center;background-size:cover;background-repeat:no-repeat;display:grid;place-items:center;overflow:hidden;box-shadow:0 0 0 4px rgba(223,185,87,.16)}
+.admin-profile-avatar.has-photo{color:transparent}
+.admin-customer-heading{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.admin-customer-heading h3{margin:0}
+.admin-customer-avatar{width:54px;height:54px;flex:0 0 54px;border-radius:50%;border:2px solid #dfb957;object-fit:cover;background:#f4f0e3;box-shadow:0 0 0 2px rgba(223,185,87,.12)}
+.admin-customer-avatar-fallback{display:grid;place-items:center;color:#8a6900;font-weight:900;font-size:20px}
