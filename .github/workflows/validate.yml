@@ -23,7 +23,9 @@ jobs:
           node-version: 20
 
       - name: Check storefront JavaScript syntax
-        run: node --check store.js
+        run: |
+          node --check store.js
+          node --check account.js
 
       - name: Check admin JavaScript module syntax
         run: node --input-type=module --check < admin.js
@@ -54,6 +56,16 @@ jobs:
           assert "paymentMethod" in rules
           assert "transactionId" in rules
           assert "numChildren() <= 20" in rules
+          assert "customerProfiles" in rules
+          assert "userOrders" in rules
+          assert "ownerUid" in rules
+          account = Path("account.html").read_text(encoding="utf-8")
+          account_js = Path("account.js").read_text(encoding="utf-8")
+          assert "firebase-auth-compat.js" in account
+          assert "CREATE ACCOUNT" in account
+          assert "FORGOT PASSWORD" in account
+          assert "userOrders/" in account_js
+          assert "createUserWithEmailAndPassword" in account_js
           assert "logoUrl" in store
           assert "deliveryInsideDhaka" in store
           assert "deliveryOutsideDhaka" in store
@@ -67,7 +79,7 @@ jobs:
           assert "assets/jsf-fashion-logo.svg" in Path("index.html").read_text(encoding="utf-8")
           assert "assets/jsf-fashion-logo.svg" in Path("order.html").read_text(encoding="utf-8")
           assert Path("assets/jsf-fashion-logo.svg").is_file()
-          for name in ("index.html", "order.html", "admin.html", "store.js", "admin.js", "premium-theme.css"):
+          for name in ("index.html", "order.html", "account.html", "account.js", "admin.html", "store.js", "admin.js", "premium-theme.css"):
               assert Path(name).is_file(), f"Missing required file: {name}"
           print("JSF FASHION essential configuration checks passed.")
           PY
