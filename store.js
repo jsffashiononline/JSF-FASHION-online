@@ -672,12 +672,13 @@ try {
 settings = {};
 [
   "bkashNumber", "nagadNumber", "bkash", "nagad",
-  "whatsappAdmin1", "bannerImages", "logoUrl"
+  "whatsappAdmin1", "bannerImages", "logoUrl", "deliveryInsideDhaka", "deliveryOutsideDhaka"
 ].forEach(key => {
   db.ref("settings/" + key).on("value", snapshot => {
-    settings[key] = snapshot.val() || "";
+    settings[key] = snapshot.val() ?? "";
     if (key === "bannerImages") renderHeroSlides(settings[key]);
     else if (key === "logoUrl") renderWebsiteLogo(settings[key]);
+    else if (key.startsWith("delivery")) updateCheckoutSummary();
     else if (key.startsWith("whatsapp")) renderWhatsAppContacts();
     else updatePaymentInfo();
   }, error => {
@@ -911,6 +912,11 @@ function detectDeliveryArea(address) {
   if (/ঢাকা|\bdhaka\b/.test(value)) return "Dhaka";
   return "Outside Dhaka";
 }
+function getDeliveryCharge(area) {
+  const configured = Number(area === "Dhaka" ? settings.deliveryInsideDhaka : settings.deliveryOutsideDhaka);
+  if (Number.isFinite(configured) && configured >= 0 && (area === "Dhaka" ? settings.deliveryInsideDhaka !== "" : settings.deliveryOutsideDhaka !== "")) return configured;
+  return area === "Dhaka" ? 60 : 120;
+}
 function syncDeliveryArea() {
   const address = $("checkout-form")?.elements.namedItem("address")?.value || "";
   const area = detectDeliveryArea(address);
@@ -927,7 +933,15 @@ function updateCheckoutSummary() {
   if (!summary) return;
   const items = directOrderItems || cart;
   const subtotal = items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
-  const shipping = detectDeliveryArea($("checkout-form")?.elements.namedItem("address")?.value) === "Outside Dhaka" ? 120 : 60;
+  const deliveryArea = detectDeliveryArea($("checkout-form")?.elements.namedItem("address")?.value);
+  const shipping = getDeliveryCharge(deliveryArea);
+  const selector = $("delivery-area");
+  if (selector) {
+    const dhakaOption = selector.querySelector('option[value="Dhaka"]');
+    const outsideOption = selector.querySelector('option[value="Outside Dhaka"]');
+    if (dhakaOption) dhakaOption.textContent = "ঢাকার ভিতরে — ৳" + money(getDeliveryCharge("Dhaka"));
+    if (outsideOption) outsideOption.textContent = "ঢাকার বাইরে — ৳" + money(getDeliveryCharge("Outside Dhaka"));
+  }
   const cod = 0;
   summary.innerHTML = '<strong>অর্ডারের হিসাব</strong><p>পণ্যের মূল্য: ৳' + money(subtotal) + '</p><p>ডেলিভারি চার্জ: ৳' + money(shipping) + '</p><hr><strong>সর্বমোট: ৳' + money(subtotal + shipping + cod) + '</strong>';
 }
@@ -1006,7 +1020,7 @@ if ($("checkout-form")) {
       paymentMethod: selectedPayment,
       transactionId: String(data.get("transactionId") || "").trim(),
       deliveryArea: detectDeliveryArea(data.get("address")),
-      shippingCharge: detectDeliveryArea(data.get("address")) === "Outside Dhaka" ? 120 : 60,
+      shippingCharge: getDeliveryCharge(detectDeliveryArea(data.get("address"))),
       codFee: 0,
 
       items: orderItems.map(item => ({
