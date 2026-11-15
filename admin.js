@@ -53,6 +53,7 @@ const websiteLogoFile = $("website-logo-file");
 const websiteLogoPreview = $("website-logo-preview");
 const websiteLogoPlaceholder = $("website-logo-placeholder");
 const websiteLogoButton = $("upload-website-logo");
+const resetWebsiteLogoButton = $("reset-website-logo");
 const websiteLogoMessage = $("website-logo-message");
 let currentWebsiteLogoUrl = "";
 
@@ -1130,6 +1131,31 @@ if (websiteLogoFile && websiteLogoButton) {
     } finally {
       websiteLogoButton.disabled = false;
       websiteLogoButton.textContent = "UPLOAD & APPLY LOGO";
+    }
+  });
+}
+
+if (resetWebsiteLogoButton) {
+  resetWebsiteLogoButton.addEventListener("click", async () => {
+    resetWebsiteLogoButton.disabled = true;
+    try {
+      await update(ref(db, "settings"), {logoUrl: "", updatedAt: Date.now()});
+      currentWebsiteLogoUrl = "assets/jsf-fashion-logo.svg";
+      const adminLogo = $("admin-site-logo-image");
+      if (adminLogo) adminLogo.src = currentWebsiteLogoUrl;
+      const favicon = document.querySelector('link[rel="icon"]');
+      if (favicon) favicon.href = currentWebsiteLogoUrl;
+      if (websiteLogoPreview) {
+        websiteLogoPreview.src = currentWebsiteLogoUrl;
+        websiteLogoPreview.classList.remove("hidden");
+      }
+      if (websiteLogoPlaceholder) websiteLogoPlaceholder.classList.add("hidden");
+      if (websiteLogoFile) websiteLogoFile.value = "";
+      showMessage(websiteLogoMessage, "ডিফল্ট JSF FASHION Logo ফিরিয়ে আনা হয়েছে।", "success");
+    } catch (error) {
+      showMessage(websiteLogoMessage, "ডিফল্ট Logo ফেরানো যায়নি: " + (error.message || "আবার চেষ্টা করুন।"), "error");
+    } finally {
+      resetWebsiteLogoButton.disabled = false;
     }
   });
 }
