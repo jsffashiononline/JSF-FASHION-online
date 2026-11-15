@@ -705,6 +705,8 @@ try {
     });
 
     applyProductFilters();
+    // Refresh checkout totals after Firebase product prices become available.
+    updateCheckoutSummary();
 
   }, error => {
     console.error("Products read error:", error);
@@ -1017,11 +1019,31 @@ if (checkoutAuth && $("checkout-form")) {
 }
 
 
+function getCheckoutUnitPrice(item) {
+  const productRecord = products.find(product => String(product.id) === String(item.id)) || {};
+  const selectedVariantName = String(item.color || item.variant || "");
+  const matchingVariant = Array.isArray(productRecord.variants)
+    ? productRecord.variants.find(variant => String(variant.name || "") === selectedVariantName)
+    : null;
+  const candidates = [
+    item.price, item.productPrice, item.unitPrice,
+    matchingVariant?.price, productRecord.price, productRecord.salePrice,
+    productRecord.sellingPrice, productRecord.productPrice, productRecord.unitPrice
+  ];
+  for (const value of candidates) {
+    const parsed = typeof value === "string"
+      ? Number(value.replace(/[^0-9.]/g, ""))
+      : Number(value);
+    if (Number.isFinite(parsed) && parsed > 0) return parsed;
+  }
+  return 0;
+}
+
 function updateCheckoutSummary() {
   const summary = $("checkout-price-summary");
   if (!summary) return;
   const items = directOrderItems || cart;
-  const subtotal = items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
+  const subtotal = items.reduce((sum, item) => sum + getCheckoutUnitPrice(item) * Number(item.qty || item.quantity || 1), 0);
   const deliveryArea = detectDeliveryArea($("checkout-form")?.elements.namedItem("address")?.value);
   const shipping = getDeliveryCharge(deliveryArea);
   const selector = $("delivery-area");
@@ -1105,13 +1127,7 @@ if ($("checkout-form")) {
     // This also repairs older cart entries that were saved without a price field.
     const savedOrderItems = orderItems.map(item => {
       const productRecord = products.find(product => String(product.id) === String(item.id)) || {};
-      const selectedVariantName = String(item.color || item.variant || "");
-      const matchingVariant = Array.isArray(productRecord.variants)
-        ? productRecord.variants.find(variant => String(variant.name || "") === selectedVariantName)
-        : null;
-      const rawPrice = item.price ?? item.productPrice ?? item.unitPrice ??
-        matchingVariant?.price ?? productRecord.price ?? 0;
-      const unitPrice = Number(rawPrice);
+      const unitPrice = getCheckoutUnitPrice(item);
       return {
         id: item.id,
         name: item.name || productRecord.name || "Product",
@@ -1126,6 +1142,12 @@ if ($("checkout-form")) {
         qty: Math.max(1, Number(item.qty || item.quantity || 1))
       };
     });
+
+    if (savedOrderItems.some(item => !(item.price > 0))) {
+      if (message) message.textContent = "এক বা একাধিক প্রোডাক্টের মূল্য পাওয়া যায়নি। অনুগ্রহ করে Continue Shopping থেকে পণ্যটি আবার কার্টে যোগ করুন।";
+      showJsfToast("প্রোডাক্টের দাম পাওয়া যায়নি। অর্ডার জমা দেওয়া বন্ধ রাখা হয়েছে।", "error");
+      return;
+    }
 
     const order = {
       customerName: String(data.get("name") || "").trim(),
