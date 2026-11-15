@@ -1196,31 +1196,36 @@ if ($("checkout-form")) {
         order.customerReferenceImage = uploadResult.secure_url;
       }
 
-      // Create a unique order ID first
-      const newOrderRef = db.ref("orders").push();
-
-      // Attach an authenticated customer UID when the customer is signed in.
+      // Customer must be signed in so every new order is securely linked to their account.
       const signedInUser = window.firebase?.auth?.()?.currentUser || null;
-      if (signedInUser) order.ownerUid = signedInUser.uid;
-
-      // Save order under its own ID
-      await newOrderRef.set(order);
-
-      // Store a minimal private order summary under the customer's own UID.
-      // This enables secure account history without granting customers access to all orders.
-      if (signedInUser) {
-        try {
-          await db.ref("userOrders/" + signedInUser.uid + "/" + newOrderRef.key).set({
-            orderId: newOrderRef.key,
-            orderCode: newOrderRef.key.slice(-8).toUpperCase(),
-            total: order.total,
-            status: order.status,
-            createdAt: order.createdAt
-          });
-        } catch (accountOrderError) {
-          console.warn("Customer order summary could not be saved:", accountOrderError);
-        }
+      if (!signedInUser) {
+        if (message) message.textContent = "অর্ডারটি আপনার My Orders-এ দেখানোর জন্য আগে My Account থেকে Login করুন, তারপর আবার অর্ডার দিন।";
+        if (button) button.disabled = false;
+        return;
       }
+
+      // Save the full order and its private customer summary atomically.
+      // If either database path is denied, neither write is committed.
+      const newOrderRef = db.ref("orders").push();
+      order.ownerUid = signedInUser.uid;
+      const orderCode = newOrderRef.key.slice(-8).toUpperCase();
+      const customerOrderSummary = {
+        orderId: newOrderRef.key,
+        orderCode,
+        customerName: order.customerName,
+        phone: order.phone,
+        total: order.total,
+        status: order.status,
+        createdAt: order.createdAt,
+        items: savedOrderItems.map(item => ({
+          name: item.name, qty: item.qty, price: item.price,
+          size: item.size, color: item.color
+        }))
+      };
+      const orderUpdates = {};
+      orderUpdates["orders/" + newOrderRef.key] = order;
+      orderUpdates["userOrders/" + signedInUser.uid + "/" + newOrderRef.key] = customerOrderSummary;
+      await db.ref().update(orderUpdates);
 
       // Clear only the purchase path that was successfully submitted.
       if (directOrderItems) {
