@@ -55,6 +55,9 @@ jobs:
           assert 'id="website-logo-file"' in admin
           assert 'id="delivery-inside-dhaka"' in admin
           assert 'id="delivery-outside-dhaka"' in admin
+          assert 'data-page="customers"' in admin
+          assert 'id="admin-customers"' in admin
+          assert "function renderCustomers" in Path("admin.js").read_text(encoding="utf-8")
           assert 'data-gallery-main' in store
           assert "assets/jsf-fashion-logo.svg" in Path("index.html").read_text(encoding="utf-8")
           assert "assets/jsf-fashion-logo.svg" in Path("order.html").read_text(encoding="utf-8")
