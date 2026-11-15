@@ -81,17 +81,27 @@
     if (!button) return;
     const user = auth.currentUser, orderId = button.dataset.cancelOrder;
     if (!user || !orderId || button.disabled) return;
-    if (!window.confirm("এই অর্ডারের জন্য Cancel Request পাঠাবেন?")) return;
+    const card = button.closest(".account-order");
+    const reasonField = card?.querySelector("[data-cancel-reason]");
+    const reason = String(reasonField?.value || "").trim();
+    if (reason.length < 5) {
+      if (reasonField) { reasonField.focus(); reasonField.setCustomValidity("কমপক্ষে ৫ অক্ষরে কারণ লিখুন।"); reasonField.reportValidity(); }
+      return;
+    }
     button.disabled = true; button.textContent = "Sending...";
     try {
       await db.ref("userOrders/" + user.uid + "/" + orderId).update({
-        cancelRequest: { requested: true, requestedAt: Date.now(), status: "Requested" }
+        cancelRequest: { requested: true, reason, requestedAt: Date.now(), status: "Requested" }
       });
     } catch (error) {
-      button.disabled = false; button.textContent = "REQUEST CANCELLATION";
-      const note = button.parentElement.querySelector(".account-cancel-note");
+      button.disabled = false; button.textContent = "SEND CANCEL REQUEST";
+      const note = card?.querySelector(".account-cancel-note");
       if (note) note.textContent = "Request পাঠানো যায়নি: " + friendly(error);
     }
+  });
+  $("account-orders").addEventListener("input", event => {
+    const field = event.target.closest("[data-cancel-reason]");
+    if (field) field.setCustomValidity("");
   });
 
   auth.onAuthStateChanged(async user => {
@@ -149,8 +159,8 @@
           '<span class="account-status">Order Status: ' + escapeHtml(status) + '</span>' +
           (Array.isArray(order.items) && order.items.length ? '<div class="account-order-items"><strong>আপনার অর্ডার করা পণ্য:</strong>' + order.items.map(item => '<div class="account-order-item">' + (item.image ? '<img src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.name || "Product") + '">' : '') + '<div><strong>' + escapeHtml(item.name || "Product") + '</strong><p>পরিমাণ: ' + Number(item.qty || 1) + ' · সাইজ: ' + escapeHtml(item.size || "N/A") + ' · কালার: ' + escapeHtml(item.color || "N/A") + '</p><p>একক মূল্য: ৳' + Number(item.price || 0).toLocaleString("en-BD") + '</p></div></div>').join("") + '</div>' : '<p class="account-note">এই অর্ডারের পণ্যের বিস্তারিত এখনো পাওয়া যায়নি।</p>') +
           (order.trackingUrl ? '<p class="account-tracking"><strong>কুরিয়ার ট্র্যাকিং:</strong> <a href="' + escapeHtml(order.trackingUrl) + '" target="_blank" rel="noopener noreferrer">TRACK YOUR PARCEL</a></p>' : (status.toLowerCase() === "shipped" ? '<p class="account-note">অর্ডার শিপড হয়েছে। কুরিয়ার Tracking Link এখনো যোগ করা হয়নি।</p>' : '')) +
-          (cancelRequested ? '<p class="account-cancel-note">Cancel request আপনার অ্যাকাউন্টে সংরক্ষিত হয়েছে। দোকানের সিদ্ধান্তের অপেক্ষায়।</p>' : '') +
-          (canCancel ? '<div class="account-order-actions"><button type="button" data-cancel-order="' + escapeHtml(order.id) + '">REQUEST CANCELLATION</button></div>' : '') +
+          (cancelRequested ? '<div class="account-cancel-note"><strong>Cancel Request: ' + escapeHtml(order.cancelRequest.status || "Requested") + '</strong><p>আপনার কারণ: ' + escapeHtml(order.cancelRequest.reason || "কারণ উল্লেখ করা হয়নি") + '</p>' + (order.cancelRequest.status === "Rejected" ? '<p>আপনার অনুরোধটি গ্রহণ করা হয়নি।</p>' : order.cancelRequest.status === "Accepted" ? '<p>আপনার অর্ডার বাতিল করা হয়েছে।</p>' : '<p>দোকানের সিদ্ধান্তের অপেক্ষায়।</p>') + '</div>' : '') +
+          (canCancel ? '<div class="account-order-actions" style="display:block"><label>কেন অর্ডারটি Cancel করতে চান?</label><textarea data-cancel-reason maxlength="500" required placeholder="Cancel করার কারণ লিখুন (কমপক্ষে ৫ অক্ষর)" style="display:block;width:100%;min-height:76px;margin:7px 0;padding:10px;border:1px solid #cbd5e1;border-radius:7px"></textarea><button type="button" data-cancel-order="' + escapeHtml(order.id) + '">SEND CANCEL REQUEST</button></div>' : '') +
           '</article>';
       }).join("") : '<p class="account-note">এখনো কোনো অর্ডার পাওয়া যায়নি। নতুন অর্ডার দেওয়ার আগে এই Account-এ Login থাকা জরুরি। Login ছাড়া বা Guest হিসেবে আগে দেওয়া অর্ডার স্বয়ংক্রিয়ভাবে এখানে যুক্ত হবে না।</p>';
     }, error => { $("account-orders").textContent = "অর্ডার লোড করা যায়নি: " + friendly(error); });
