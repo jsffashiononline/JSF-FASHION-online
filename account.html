@@ -62,6 +62,7 @@
           <label for="profile-address">Default Delivery Address (পরিবর্তন করা যাবে না)</label><input id="profile-address" readonly aria-readonly="true">
           <p id="profile-email" class="account-note"></p>
           <div class="account-actions"><button class="btn" type="submit">SAVE CHANGES</button><button class="btn" id="close-profile-settings" type="button">CLOSE</button></div>
+          <button id="account-logout" class="customer-settings-logout" type="button">↪ LOG OUT</button>
           <p id="profile-message" class="account-message" aria-live="polite"></p>
           <p id="security-message" class="account-message" aria-live="polite"></p>
         </form>
@@ -75,7 +76,6 @@
         <a href="#account-orders"><span>📦</span>My Orders &amp; Tracking</a>
         <a href="#account-reviews"><span>★</span>My Reviews</a>
         <button id="dashboard-reset-password" type="button"><span>🔐</span>Change Password</button>
-        <button id="account-logout" type="button"><span>↪</span>Log Out</button>
       </nav>
       <section class="account-panel" id="account-reviews" style="margin-top:18px">
         <h2>My Reviews</h2>
@@ -87,6 +87,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="firebase.js?v=3"></script>
-  <script src="account.js?v=8"></script>
+  <script src="account.js?v=9"></script>
 </body>
 </html>
