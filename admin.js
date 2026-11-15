@@ -379,8 +379,11 @@ onAuthStateChanged(auth, async (user) => {
   dashboard.classList.remove("hidden");
   logoutBtn.classList.remove("hidden");
   $("admin-email").textContent = user.email || "Admin";
+  await user.reload();
+  const adminPhotoSnap = await get(ref(db, "adminProfiles/" + user.uid + "/photoURL"));
+  const adminPhotoUrl = adminPhotoSnap.val() || auth.currentUser?.photoURL || user.photoURL || "";
   const adminAvatar = $("admin-profile-avatar");
-  if (adminAvatar) { adminAvatar.textContent = ""; adminAvatar.style.backgroundImage = user.photoURL ? `url("${user.photoURL}")` : "none"; adminAvatar.classList.toggle("has-photo", !!user.photoURL); if (!user.photoURL) adminAvatar.textContent = "JSF"; }
+  if (adminAvatar) { adminAvatar.textContent = ""; adminAvatar.style.backgroundImage = adminPhotoUrl ? `url("${adminPhotoUrl}")` : "none"; adminAvatar.classList.toggle("has-photo", !!adminPhotoUrl); if (!adminPhotoUrl) adminAvatar.textContent = "JSF"; }
 
   loadProducts();
   loadOrders();
@@ -403,6 +406,9 @@ if (adminProfilePhotoInput) adminProfilePhotoInput.addEventListener("change", as
     const result = await response.json();
     if (!response.ok || !result.secure_url) throw new Error(result.error?.message || "ছবি আপলোড করা যায়নি।");
     await updateProfile(user, { photoURL: result.secure_url });
+    await set(ref(db, "adminProfiles/" + user.uid), { photoURL: result.secure_url, email: user.email || "", updatedAt: Date.now() });
+    const savedAdminPhoto = await get(ref(db, "adminProfiles/" + user.uid + "/photoURL"));
+    if (savedAdminPhoto.val() !== result.secure_url) throw new Error("Admin profile photo database save failed.");
     const avatar = $("admin-profile-avatar");
     if (avatar) { avatar.textContent = ""; avatar.style.backgroundImage = `url("${result.secure_url}")`; avatar.classList.add("has-photo"); }
     if (adminProfilePhotoMessage) { adminProfilePhotoMessage.textContent = "Admin profile picture আপডেট হয়েছে।"; adminProfilePhotoMessage.style.color = "#187344"; }
