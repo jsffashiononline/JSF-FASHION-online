@@ -273,6 +273,18 @@
       </div>
 
       <form id="settings-form">
+        <div class="admin-logo-manager">
+          <h3>Website Logo</h3>
+          <p class="muted">এখান থেকে নতুন লোগো আপলোড করে ওয়েবসাইটের লোগো পরিবর্তন করতে পারবেন।</p>
+          <div class="admin-logo-preview-wrap">
+            <img id="website-logo-preview" class="admin-logo-preview hidden" alt="Current website logo preview">
+            <span id="website-logo-placeholder">বর্তমান লোগো সেট করা নেই</span>
+          </div>
+          <label for="website-logo-file">নতুন Logo নির্বাচন করুন (JPG, PNG বা WEBP)</label>
+          <input id="website-logo-file" type="file" accept="image/jpeg,image/png,image/webp">
+          <button id="upload-website-logo" class="btn gold" type="button">UPLOAD & APPLY LOGO</button>
+          <p id="website-logo-message" class="message" role="status"></p>
+        </div>
         <label for="bkash-number">bKash Number</label>
         <input id="bkash-number" type="text" placeholder="01XXXXXXXXX">
 
