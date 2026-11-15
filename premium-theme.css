@@ -339,3 +339,17 @@ body:has(.admin-header) .admin-profile-detail strong{color:#0b2145}
   color:#a83232;font-weight:800;text-align:center;cursor:pointer;
 }
 .customer-settings-logout:hover{background:#ffeded}
+
+
+/* Pin customer Settings control to the top-right of the profile header */
+.customer-profile-hero{position:relative;padding-top:54px!important}
+.customer-profile-hero .customer-profile-photo,
+.customer-profile-hero .customer-profile-identity{margin-top:0}
+.customer-profile-hero .customer-settings-button{
+  position:absolute;top:12px;right:14px;left:auto;
+  padding:8px 12px;min-height:34px;
+}
+@media(max-width:600px){
+  .customer-profile-hero{padding-top:52px!important}
+  .customer-profile-hero .customer-settings-button{top:10px;right:12px}
+}
