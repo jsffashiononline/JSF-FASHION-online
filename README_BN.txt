@@ -68,9 +68,11 @@ Firebase সেটআপ
 - Admin access নির্দিষ্ট UID allowlist দিয়ে সীমাবদ্ধ।
 - Products এবং Settings write শুধু অনুমোদিত Admin account করতে পারে।
 - Customer checkout-এ নতুন order তৈরি করার জন্য guest write অনুমোদিত।
-  এর অর্থ public endpoint-এ spam বা ভুয়া order তৈরির ঝুঁকি থাকে।
-- বাস্তব ব্যবসায়িক ব্যবহারের আগে server-side order validation,
-  abuse protection এবং Firebase App Check / rate limiting যোগ করা উচিত।
+  Firebase Rules-এ customer name, phone, address, payment method, transaction ID,
+  item count, amount ও initial Pending status-এর মৌলিক validation যোগ করা হয়েছে।
+  তবে browser থেকে পাঠানো পণ্যের দাম/মোট মূল্য সার্ভার-ভেরিফায়েড নয়; price manipulation
+  ও spam পুরোপুরি ঠেকাতে Cloud Functions/API validation, abuse protection এবং
+  Firebase App Check / rate limiting প্রয়োজন।
 - Firebase Rules পরিবর্তনের আগে বর্তমান Admin UID এবং checkout flow পরীক্ষা করুন।
 - কোনো Admin password বা private credential GitHub-এ রাখবেন না।
 
