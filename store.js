@@ -1112,8 +1112,28 @@ if ($("checkout-form")) {
       // Create a unique order ID first
       const newOrderRef = db.ref("orders").push();
 
+      // Attach an authenticated customer UID when the customer is signed in.
+      const signedInUser = window.firebase?.auth?.()?.currentUser || null;
+      if (signedInUser) order.ownerUid = signedInUser.uid;
+
       // Save order under its own ID
       await newOrderRef.set(order);
+
+      // Store a minimal private order summary under the customer's own UID.
+      // This enables secure account history without granting customers access to all orders.
+      if (signedInUser) {
+        try {
+          await db.ref("userOrders/" + signedInUser.uid + "/" + newOrderRef.key).set({
+            orderId: newOrderRef.key,
+            orderCode: newOrderRef.key.slice(-8).toUpperCase(),
+            total: order.total,
+            status: order.status,
+            createdAt: order.createdAt
+          });
+        } catch (accountOrderError) {
+          console.warn("Customer order summary could not be saved:", accountOrderError);
+        }
+      }
 
       // Clear only the purchase path that was successfully submitted.
       if (directOrderItems) {
