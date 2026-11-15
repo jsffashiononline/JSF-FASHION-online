@@ -97,13 +97,15 @@
         email: user.email,
         updatedAt: Date.now()
       };
-      const existingSnapshot = await db.ref("customerProfiles/" + user.uid).once("value");
-      const existingProfile = existingSnapshot.val() || {};
-      profile.address = String(existingProfile.address || $("profile-address").value || "").trim();
+      profile.address = $("profile-address").value.trim();
+      if (!profile.address) {
+        message("profile-message", "ডেলিভারি ঠিকানা লিখুন।");
+        return;
+      }
       await db.ref("customerProfiles/" + user.uid).update(profile);
       await user.updateProfile({ displayName: profile.name });
       $("customer-display-name").textContent = profile.name || "Customer";
-      message("profile-message", "নাম ও মোবাইল নম্বর আপডেট হয়েছে।", false);
+      message("profile-message", "নাম, মোবাইল নম্বর ও ডেলিভারি ঠিকানা আপডেট হয়েছে।", false);
       toggleProfileSettings(false);
     } catch (error) { message("profile-message", friendly(error)); }
   });
