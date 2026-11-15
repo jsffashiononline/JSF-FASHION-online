@@ -259,3 +259,6 @@ body:has(.admin-header) .admin-profile-detail strong{color:#0b2145}
 .customer-card h3{margin:0 0 8px}
 .customer-summary{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;padding-top:10px;border-top:1px solid #e4e9f1;color:#61718a;font-size:12px}
 .customer-summary strong{color:#0b2145}
+
+.product-actions .wishlist-toggle-btn{grid-column:1/-1;min-height:30px;padding:5px 8px;background:#fff;border:1px solid #e2c45a;color:#785b00;box-shadow:none;font-size:9px}
+.product-actions .wishlist-toggle-btn:hover{background:#fff7d6;color:#614800;transform:none;box-shadow:none}
