@@ -1,0 +1,57 @@
+name: JSF FASHION validation
+
+on:
+  push:
+    branches:
+      - main
+      - feature/full-fashion-ecommerce
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check storefront JavaScript syntax
+        run: node --check store.js
+
+      - name: Check admin JavaScript module syntax
+        run: node --input-type=module --check < admin.js
+
+      - name: Check Firebase JavaScript syntax
+        run: |
+          node --check firebase.js
+          node --input-type=module --check < admin-firebase.js
+
+      - name: Validate Firebase rules JSON
+        run: python -c "import json; json.load(open('database.rules.json', encoding='utf-8'))"
+
+      - name: Validate essential store configuration
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          order = Path("order.html").read_text(encoding="utf-8")
+          store = Path("store.js").read_text(encoding="utf-8")
+          admin = Path("admin.html").read_text(encoding="utf-8")
+          assert 'value="bKash"' in order
+          assert 'value="Nagad"' in order
+          assert 'value="Cash on Delivery"' in order
+          assert "Credit Card" not in order
+          assert "Debit Card" not in order
+          assert "allowedPaymentMethods" in store
+          assert 'id="website-logo-file"' in admin
+          assert Path("assets/jsf-fashion-logo.svg").is_file()
+          for name in ("index.html", "order.html", "admin.html", "store.js", "admin.js", "premium-theme.css"):
+              assert Path(name).is_file(), f"Missing required file: {name}"
+          print("JSF FASHION essential configuration checks passed.")
+          PY
