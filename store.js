@@ -194,7 +194,7 @@ function renderProducts(list) {
     const designPicker = moreDesigns.length ? `<div class="more-design-picker"><strong>More Design</strong><div class="more-design-options">${moreDesigns.map((item,index)=>`<button type="button" class="more-design-option ${index===selectedDesignIndex?"active":""}" data-more-design-index="${index}" data-product-id="${safeText(p.id)}" aria-label="Select More Design ${index+1}"><img src="${safeText(item.image)}" alt="Design ${index+1}"><span>Design ${index+1}</span></button>`).join("")}</div></div>` : "";
     const price = variant && variant.price !== null && variant.price !== "" && Number.isFinite(Number(variant.price)) ? Number(variant.price) : Number(p.price || 0);
     const thumbs = photos.length > 1 ? `<div class="product-gallery-thumbs">${photos.map((url,index)=>`<button type="button" class="gallery-thumb ${index===imageIndex?"active":""}" data-gallery-thumb="${index}" data-product-id="${safeText(p.id)}" aria-label="View product photo ${index+1}"><img src="${safeText(url)}" alt=""></button>`).join("")}</div>` : "";
-    return `<article class="product-card" data-product-card="${safeText(p.id)}"><div class="product-media"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}</div><div class="product-info">${designPicker}<h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p><div class="product-price">৳${money(price)}</div><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">ORDER NOW</button><button class="btn product-details-btn" type="button" data-product-details="${safeText(p.id)}">প্রোডাক্ট ডিটেইলস</button><button class="btn wishlist-toggle-btn" type="button" data-wishlist-toggle="${safeText(p.id)}" aria-label="Wishlist">${getWishlistIds().includes(String(p.id)) ? "♥ SAVED" : "♡ WISHLIST"}</button></div></div></article>`;
+    return `<article class="product-card" data-product-card="${safeText(p.id)}"><div class="product-media"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}</div><div class="product-info">${designPicker}<h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p><div class="product-price">৳${money(price)}</div><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">ORDER NOW</button><button class="btn product-details-btn" type="button" data-product-details="${safeText(p.id)}">প্রোডাক্ট ডিটেইলস</button></div></div></article>`;
   }).join("");
 }
 
@@ -392,27 +392,8 @@ document.addEventListener("keydown", event => {
   }
 });
 
-// Wishlist is stored locally on the customer's device.
-function getWishlistIds() {
-  try {
-    const ids = JSON.parse(localStorage.getItem("jsf_wishlist") || "[]");
-    return Array.isArray(ids) ? ids.map(String) : [];
-  } catch (_) { return []; }
-}
-function toggleWishlist(id) {
-  const ids = getWishlistIds();
-  const key = String(id);
-  const next = ids.includes(key) ? ids.filter(item => item !== key) : [...ids, key];
-  localStorage.setItem("jsf_wishlist", JSON.stringify(next));
-  renderProducts(visibleProducts);
-  showJsfToast(next.includes(key) ? "Wishlist-এ যোগ হয়েছে।" : "Wishlist থেকে সরানো হয়েছে।");
-}
-
-// Expand/collapse product descriptions
 if (productList) {
   productList.addEventListener("click", event => {
-    const wishlistButton = event.target.closest("[data-wishlist-toggle]");
-    if (wishlistButton) { toggleWishlist(wishlistButton.dataset.wishlistToggle); return; }
     const designButton = event.target.closest("[data-more-design-index]");
     if (designButton) {
       selectedProductDesigns.set(designButton.dataset.productId, Number(designButton.dataset.moreDesignIndex));
