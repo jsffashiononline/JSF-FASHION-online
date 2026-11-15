@@ -108,6 +108,30 @@
       $("profile-address").value = profile.address || "";
     } catch (error) { message("profile-message", "প্রোফাইল লোড করা যায়নি: " + friendly(error)); }
 
+    // Load only reviews authored by this signed-in customer.
+    try {
+      const [reviewsSnap, productsSnap] = await Promise.all([
+        db.ref("reviews").once("value"),
+        db.ref("products").once("value")
+      ]);
+      const productNames = {};
+      productsSnap.forEach(child => { productNames[child.key] = child.val()?.name || "Product"; });
+      const ownReviews = [];
+      reviewsSnap.forEach(productNode => {
+        const review = productNode.child(user.uid).val();
+        if (review) ownReviews.push({ productId: productNode.key, ...review });
+      });
+      ownReviews.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+      $("customer-reviews").innerHTML = ownReviews.length ? ownReviews.map(review =>
+        '<article class="account-order"><strong>' + escapeHtml(productNames[review.productId] || "Product") +
+        '</strong><p>' + "★".repeat(Math.max(0, Math.min(5, Number(review.rating) || 0))) +
+        ' · ' + (Number(review.createdAt) ? new Date(Number(review.createdAt)).toLocaleDateString() : "") +
+        '</p><p>' + escapeHtml(review.comment || "") + '</p></article>'
+      ).join("") : '<p class="account-note">আপনি এখনো কোনো প্রোডাক্টে রিভিউ দেননি।</p>';
+    } catch (error) {
+      $("customer-reviews").textContent = "রিভিউ লোড করা যায়নি: " + friendly(error);
+    }
+
     const ordersRef = db.ref("userOrders/" + user.uid).orderByChild("createdAt");
     orderListener = ordersRef;
     ordersRef.on("value", snapshot => {
