@@ -49,6 +49,12 @@ const orderList = $("admin-orders");
 
 const settingsForm = $("settings-form");
 const settingsMessage = $("settings-message");
+const websiteLogoFile = $("website-logo-file");
+const websiteLogoPreview = $("website-logo-preview");
+const websiteLogoPlaceholder = $("website-logo-placeholder");
+const websiteLogoButton = $("upload-website-logo");
+const websiteLogoMessage = $("website-logo-message");
+let currentWebsiteLogoUrl = "";
 
 /* =================================
    3. HELPER FUNCTIONS
@@ -1002,6 +1008,18 @@ function loadSettings() {
     $("nagad-number").value = settings.nagadNumber || settings.nagad || "";
     $("store-picture").value = settings.storePicture || "";
     $("whatsapp-admin-1").value = settings.whatsappAdmin1 || "";
+    currentWebsiteLogoUrl = settings.logoUrl || "";
+    if (websiteLogoPreview && websiteLogoPlaceholder) {
+      if (currentWebsiteLogoUrl) {
+        websiteLogoPreview.src = currentWebsiteLogoUrl;
+        websiteLogoPreview.classList.remove("hidden");
+        websiteLogoPlaceholder.classList.add("hidden");
+      } else {
+        websiteLogoPreview.removeAttribute("src");
+        websiteLogoPreview.classList.add("hidden");
+        websiteLogoPlaceholder.classList.remove("hidden");
+      }
+    }
     bannerImages = Array.isArray(settings.bannerImages) ? settings.bannerImages : [];
     renderBannerImageList();
 
@@ -1042,3 +1060,58 @@ settingsForm.addEventListener("submit", async (event) => {
     );
   }
 });
+
+
+if (websiteLogoFile && websiteLogoButton) {
+  websiteLogoFile.addEventListener("change", () => {
+    const file = websiteLogoFile.files?.[0];
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      websiteLogoFile.value = "";
+      showMessage(websiteLogoMessage, "শুধু JPG, PNG বা WEBP ছবি দিন (সর্বোচ্চ ৫ MB)।", "error");
+      return;
+    }
+    const previewUrl = URL.createObjectURL(file);
+    if (websiteLogoPreview && websiteLogoPlaceholder) {
+      websiteLogoPreview.src = previewUrl;
+      websiteLogoPreview.classList.remove("hidden");
+      websiteLogoPlaceholder.classList.add("hidden");
+      websiteLogoPreview.onload = () => URL.revokeObjectURL(previewUrl);
+    }
+    showMessage(websiteLogoMessage, "ছবিটি নির্বাচন করা হয়েছে। এবার Upload & Apply চাপুন।");
+  });
+
+  websiteLogoButton.addEventListener("click", async () => {
+    const file = websiteLogoFile.files?.[0];
+    if (!file) {
+      showMessage(websiteLogoMessage, "প্রথমে নতুন Logo নির্বাচন করুন।", "error");
+      return;
+    }
+    websiteLogoButton.disabled = true;
+    websiteLogoButton.textContent = "UPLOADING...";
+    try {
+      const data = new FormData();
+      data.append("file", file);
+      data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+      data.append("folder", "jsf-fashion-brand");
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {method:"POST", body:data});
+      const result = await response.json();
+      if (!response.ok || !result.secure_url) throw new Error(result.error?.message || "Logo upload failed.");
+      await update(ref(db, "settings"), {logoUrl: result.secure_url, updatedAt: Date.now()});
+      currentWebsiteLogoUrl = result.secure_url;
+      if (websiteLogoPreview) {
+        websiteLogoPreview.src = currentWebsiteLogoUrl;
+        websiteLogoPreview.classList.remove("hidden");
+      }
+      if (websiteLogoPlaceholder) websiteLogoPlaceholder.classList.add("hidden");
+      websiteLogoFile.value = "";
+      showMessage(websiteLogoMessage, "নতুন Logo সফলভাবে আপলোড ও ওয়েবসাইটে প্রয়োগ হয়েছে।", "success");
+    } catch (error) {
+      console.error("Website logo upload error:", error);
+      showMessage(websiteLogoMessage, "Logo পরিবর্তন হয়নি: " + (error.message || "আবার চেষ্টা করুন।"), "error");
+    } finally {
+      websiteLogoButton.disabled = false;
+      websiteLogoButton.textContent = "UPLOAD & APPLY LOGO";
+    }
+  });
+}
