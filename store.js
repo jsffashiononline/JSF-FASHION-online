@@ -693,6 +693,8 @@ settings = {};
 
 function renderWebsiteLogo(url) {
   const validUrl = typeof url === "string" && /^(https:\/\/|assets\/)/i.test(url) ? url : "assets/jsf-fashion-logo.svg";
+  const favicon = document.querySelector('link[rel="icon"]');
+  if (favicon) favicon.href = validUrl;
   ["site-logo-image", "footer-logo-image"].forEach(id => {
     const image = $(id);
     if (!image) return;
