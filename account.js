@@ -26,9 +26,15 @@
     const name=$("register-name").value.trim(), phone=$("register-phone").value.trim();
     try {
       const credential=await auth.createUserWithEmailAndPassword($("register-email").value.trim(),$("register-password").value);
-      await credential.user.updateProfile({displayName:name});
-      await db.ref("customerProfiles/"+credential.user.uid).set({name,phone,address:"",email:credential.user.email,updatedAt:Date.now()});
-    } catch(error){ message("register-message",friendly(error)); }
+      try {
+        await credential.user.updateProfile({displayName:name});
+        await db.ref("customerProfiles/"+credential.user.uid).set({name,phone,address:"",email:credential.user.email,updatedAt:Date.now()});
+        message("register-message","অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। আপনি এখন লগইন আছেন।",false);
+      } catch(profileError) {
+        console.error("Customer profile save error:",profileError);
+        message("register-message","অ্যাকাউন্ট তৈরি হয়েছে, কিন্তু প্রোফাইল সেভ হয়নি। আবার Login করে Profile থেকে তথ্য Save করুন।",false);
+      }
+    } catch(error){ console.error("Customer registration error:",error); message("register-message",friendly(error)); }
   });
   $("reset-password").addEventListener("click", async () => {
     const email=$("login-email").value.trim();
