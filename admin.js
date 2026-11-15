@@ -46,6 +46,9 @@ const productForm = $("product-form");
 const productMessage = $("product-message");
 const productList = $("admin-products");
 const orderList = $("admin-orders");
+const customerList = $("admin-customers");
+const customerSearch = $("customer-search");
+let cachedOrderEntries = [];
 
 const settingsForm = $("settings-form");
 const settingsMessage = $("settings-message");
@@ -822,6 +825,8 @@ async function loadOrders() {
   onValue(ordersRef, (snapshot) => {
     const orders = snapshot.val() || {};
     const entries = Object.entries(orders);
+    cachedOrderEntries = entries;
+    renderCustomers(entries);
 
     let pending = 0;
     let delivered = 0;
@@ -953,6 +958,52 @@ async function loadOrders() {
     orderList.textContent = "Orders load failed: " + error.message;
   });
 }
+
+
+
+function renderCustomers(entries = cachedOrderEntries) {
+  if (!customerList) return;
+  const customers = new Map();
+  entries.forEach(([orderId, order]) => {
+    const phone = String(order.phone || order.mobile || "").trim();
+    const name = String(order.customerName || order.name || "Customer").trim();
+    const key = phone || name.toLowerCase();
+    const current = customers.get(key) || {
+      name,
+      phone: phone || "Not provided",
+      address: String(order.address || "Not provided"),
+      orders: 0,
+      total: 0,
+      latest: 0
+    };
+    current.orders += 1;
+    current.total += Number(order.total || order.totalAmount || order.amount || 0);
+    current.latest = Math.max(current.latest, Number(order.createdAt || 0));
+    if (order.createdAt && Number(order.createdAt) >= current.latest) {
+      current.name = name;
+      current.address = String(order.address || current.address);
+    }
+    customers.set(key, current);
+  });
+  const query = String(customerSearch?.value || "").trim().toLowerCase();
+  const filtered = [...customers.values()].filter(customer =>
+    customer.name.toLowerCase().includes(query) || customer.phone.toLowerCase().includes(query)
+  ).sort((a,b) => b.latest - a.latest);
+  if (!filtered.length) {
+    customerList.innerHTML = '<p class="muted">কোনো কাস্টমার পাওয়া যায়নি।</p>';
+    return;
+  }
+  customerList.innerHTML = filtered.map(customer => {
+    const latest = customer.latest ? new Date(customer.latest).toLocaleDateString("en-GB") : "N/A";
+    return `<article class="data-card customer-card">
+      <h3>${escapeHTML(customer.name)}</h3>
+      <p>Phone: <strong>${escapeHTML(customer.phone)}</strong></p>
+      <p>Address: ${escapeHTML(customer.address)}</p>
+      <div class="customer-summary"><span>Orders: <strong>${customer.orders}</strong></span><span>Order value: <strong>${money(customer.total)}</strong></span><span>Latest order: <strong>${latest}</strong></span></div>
+    </article>`;
+  }).join("");
+}
+if (customerSearch) customerSearch.addEventListener("input", () => renderCustomers());
 
 /* =================================
    12. DELETE INDIVIDUAL CUSTOMER ORDER
