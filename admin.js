@@ -1009,6 +1009,10 @@ function loadSettings() {
     $("store-picture").value = settings.storePicture || "";
     $("whatsapp-admin-1").value = settings.whatsappAdmin1 || "";
     currentWebsiteLogoUrl = settings.logoUrl || "assets/jsf-fashion-logo.svg";
+    const adminLogo = $("admin-site-logo-image");
+    if (adminLogo) adminLogo.src = currentWebsiteLogoUrl;
+    const favicon = document.querySelector('link[rel="icon"]');
+    if (favicon) favicon.href = currentWebsiteLogoUrl;
     if (websiteLogoPreview && websiteLogoPlaceholder) {
       if (currentWebsiteLogoUrl) {
         websiteLogoPreview.src = currentWebsiteLogoUrl;
@@ -1099,6 +1103,10 @@ if (websiteLogoFile && websiteLogoButton) {
       if (!response.ok || !result.secure_url) throw new Error(result.error?.message || "Logo upload failed.");
       await update(ref(db, "settings"), {logoUrl: result.secure_url, updatedAt: Date.now()});
       currentWebsiteLogoUrl = result.secure_url;
+      const adminLogo = $("admin-site-logo-image");
+      if (adminLogo) adminLogo.src = currentWebsiteLogoUrl;
+      const favicon = document.querySelector('link[rel="icon"]');
+      if (favicon) favicon.href = currentWebsiteLogoUrl;
       if (websiteLogoPreview) {
         websiteLogoPreview.src = currentWebsiteLogoUrl;
         websiteLogoPreview.classList.remove("hidden");
