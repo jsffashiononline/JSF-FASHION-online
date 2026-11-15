@@ -143,6 +143,8 @@
       const result = await response.json();
       if (!response.ok || !result.secure_url) throw new Error(result.error?.message || "ছবি আপলোড করা যায়নি।");
       await db.ref("customerProfiles/" + user.uid).update({ photoURL: result.secure_url, updatedAt: Date.now() });
+      const savedPhoto = await db.ref("customerProfiles/" + user.uid + "/photoURL").once("value");
+      if (savedPhoto.val() !== result.secure_url) throw new Error("প্রোফাইল ছবির লিংক ডাটাবেসে সংরক্ষণ হয়নি।");
       await user.updateProfile({ photoURL: result.secure_url });
       showProfilePhoto(result.secure_url);
       photoMessage("প্রোফাইল ছবি সফলভাবে আপডেট হয়েছে।", true);
@@ -191,6 +193,7 @@
     if (!user) return;
     $("profile-email").textContent = user.email || "";
     try {
+      await user.reload();
       const snap = await db.ref("customerProfiles/" + user.uid).once("value");
       const profile = snap.val() || {};
       $("profile-name").value = profile.name || user.displayName || "";
