@@ -331,3 +331,11 @@ body:has(.admin-header) .admin-profile-detail strong{color:#0b2145}
  .customer-settings-button{padding:9px 10px;font-size:12px}
  .customer-bottom-menu{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+.customer-settings-logout{
+  display:block;width:100%;margin-top:14px;padding:13px 16px;
+  border:1px solid #e7c4c4;border-radius:10px;background:#fff7f7;
+  color:#a83232;font-weight:800;text-align:center;cursor:pointer;
+}
+.customer-settings-logout:hover{background:#ffeded}
