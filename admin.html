@@ -61,6 +61,7 @@
       <button type="button" class="admin-nav-btn active" data-page="overview">Overview</button>
       <button type="button" class="admin-nav-btn" data-page="products">Products</button>
       <button type="button" class="admin-nav-btn" data-page="orders">Orders</button>
+      <button type="button" class="admin-nav-btn" data-page="customers">Customers</button>
       <button type="button" class="admin-nav-btn" data-page="banners">Website Banners</button>
       <button type="button" class="admin-nav-btn" data-page="settings">Settings</button>
       <button type="button" class="admin-nav-btn" data-page="profile">Admin Profile</button>
@@ -248,6 +249,20 @@
 
       <div id="admin-orders" class="data-list">Loading orders...</div>
     </section>
+    </section>
+
+    <section id="page-customers" class="admin-page hidden">
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">CUSTOMER DIRECTORY</p>
+            <h2>Customers</h2>
+            <p class="muted">অর্ডার করা কাস্টমারদের তথ্য ও অর্ডার সারাংশ।</p>
+          </div>
+        </div>
+        <input id="customer-search" class="customer-search" type="search" placeholder="নাম বা ফোন নম্বর দিয়ে খুঁজুন" aria-label="Search customers">
+        <div id="admin-customers" class="data-list">Loading customers...</div>
+      </section>
     </section>
 
     <section id="page-banners" class="admin-page hidden">
