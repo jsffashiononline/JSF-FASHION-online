@@ -123,7 +123,7 @@
           '<p>' + (Number(order.createdAt) ? new Date(Number(order.createdAt)).toLocaleString() : "Date unavailable") +
           ' · ৳' + Number(order.total || 0).toLocaleString("en-BD") + '</p>' +
           '<span class="account-status">Order Status: ' + escapeHtml(status) + '</span>' +
-          (cancelRequested ? '<p class="account-cancel-note">Cancellation request sent — দোকানের অনুমোদনের অপেক্ষায়।</p>' : '') +
+          (cancelRequested ? '<p class="account-cancel-note">Cancel request আপনার অ্যাকাউন্টে সংরক্ষিত হয়েছে। দোকানের সিদ্ধান্তের অপেক্ষায়।</p>' : '') +
           (canCancel ? '<div class="account-order-actions"><button type="button" data-cancel-order="' + escapeHtml(order.id) + '">REQUEST CANCELLATION</button></div>' : '') +
           '</article>';
       }).join("") : '<p class="account-note">এখনো কোনো অর্ডার পাওয়া যায়নি। Shop থেকে অর্ডার করলে এখানে দেখা যাবে।</p>';
