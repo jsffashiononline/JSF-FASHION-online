@@ -56,7 +56,7 @@ jobs:
           assert "newData.hasChildren" in rules
           assert "paymentMethod" in rules
           assert "transactionId" in rules
-          assert "numChildren() <= 20" in rules
+          assert "numChildren()" not in rules
           assert "customerProfiles" in rules
           assert "userOrders" in rules
           assert "ownerUid" in rules
