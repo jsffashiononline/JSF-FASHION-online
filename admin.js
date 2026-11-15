@@ -1,5 +1,5 @@
 
-import { auth, db } from "./admin-firebase.js?v=1";
+import { auth, db } from "./admin-firebase.js?v=2";
 
 import {
   signInWithEmailAndPassword,
