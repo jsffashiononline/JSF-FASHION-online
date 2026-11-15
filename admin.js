@@ -376,6 +376,8 @@ onAuthStateChanged(auth, async (user) => {
   dashboard.classList.remove("hidden");
   logoutBtn.classList.remove("hidden");
   $("admin-email").textContent = user.email || "Admin";
+  const adminAvatar = $("admin-profile-avatar");
+  if (adminAvatar) { adminAvatar.textContent = ""; adminAvatar.style.backgroundImage = user.photoURL ? `url("${user.photoURL}")` : "none"; adminAvatar.classList.toggle("has-photo", !!user.photoURL); if (!user.photoURL) adminAvatar.textContent = "JSF"; }
 
   loadProducts();
   loadOrders();
@@ -980,7 +982,7 @@ async function loadOrders() {
 
 
 
-function renderCustomers(entries = cachedOrderEntries) {
+async function renderCustomers(entries = cachedOrderEntries) {
   if (!customerList) return;
   const customers = new Map();
   entries.forEach(([orderId, order]) => {
@@ -993,7 +995,8 @@ function renderCustomers(entries = cachedOrderEntries) {
       address: String(order.address || "Not provided"),
       orders: 0,
       total: 0,
-      latest: 0
+      latest: 0,
+      uid: String(order.ownerUid || "")
     };
     current.orders += 1;
     current.total += Number(order.total || order.totalAmount || order.amount || 0);
@@ -1002,6 +1005,7 @@ function renderCustomers(entries = cachedOrderEntries) {
       current.name = name;
       current.address = String(order.address || current.address);
     }
+    if (order.ownerUid) current.uid = String(order.ownerUid);
     customers.set(key, current);
   });
   const query = String(customerSearch?.value || "").trim().toLowerCase();
