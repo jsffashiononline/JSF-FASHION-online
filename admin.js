@@ -1008,7 +1008,7 @@ function loadSettings() {
     $("nagad-number").value = settings.nagadNumber || settings.nagad || "";
     $("store-picture").value = settings.storePicture || "";
     $("whatsapp-admin-1").value = settings.whatsappAdmin1 || "";
-    currentWebsiteLogoUrl = settings.logoUrl || "";
+    currentWebsiteLogoUrl = settings.logoUrl || "assets/jsf-fashion-logo.svg";
     if (websiteLogoPreview && websiteLogoPlaceholder) {
       if (currentWebsiteLogoUrl) {
         websiteLogoPreview.src = currentWebsiteLogoUrl;
