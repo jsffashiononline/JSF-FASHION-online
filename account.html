@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="style.css?v=35">
   <link rel="stylesheet" href="premium-theme.css?v=6">
   <style>
+    .customer-profile-photo-wrap{display:flex;align-items:center;gap:14px;margin:4px 0 16px}.customer-profile-photo{width:92px;height:92px;border-radius:50%;object-fit:cover;border:3px solid #dfb957;box-shadow:0 0 0 3px rgba(223,185,87,.16);background:#f1f3f7}.customer-profile-photo-empty{display:grid;place-items:center;color:#8a6900;font-weight:900;font-size:26px}.customer-photo-controls{display:grid;gap:6px}.customer-photo-controls input{max-width:260px}.customer-photo-controls small{color:#718096;font-size:12px}
     .account-wrap{width:min(1080px,94%);margin:28px auto 50px}.account-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}.account-panel{padding:22px;background:#fff;border:1px solid #e4e9f1;border-radius:14px;box-shadow:0 10px 28px #07152e12;color:#17243a}.account-panel h2{margin:0 0 14px;color:#07152e}.account-panel label{display:block;margin:11px 0 5px;font-weight:700;color:#34435b}.account-panel input{width:100%;padding:12px;border:1px solid #dce3ed;border-radius:8px;background:#f8f9fc;color:#17243a}.account-panel .btn{margin-top:14px;min-height:42px;padding:10px 16px}.account-actions{display:flex;gap:8px;flex-wrap:wrap}.account-note{color:#718096;font-size:13px;line-height:1.6}.account-message{min-height:22px;color:#9b2c2c;font-size:13px}.account-order{padding:14px 0;border-top:1px solid #e4e9f1;color:#17243a}.account-order strong{color:#07152e}.account-order p{margin:5px 0;color:#64748b;font-size:13px}.account-status{display:inline-block;padding:4px 9px;border-radius:20px;background:#edf3ff;color:#123b78;font-size:11px;font-weight:800}.account-hidden{display:none!important}.account-menu{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}.account-menu a,.account-menu button{min-height:82px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid #dce5f2;border-radius:11px;background:#fff;color:#102b54;font-size:13px;font-weight:800;text-align:center;cursor:pointer}.account-menu a:hover,.account-menu button:hover{border-color:#e2b900;background:#fffbea}.account-menu span{font-size:22px}.account-order-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.account-order-actions button{padding:7px 10px;border:1px solid #cbd5e1;border-radius:7px;background:#f8fafc;color:#17345d;font-size:11px;font-weight:800;cursor:pointer}.account-order-actions button:disabled{opacity:.6;cursor:default}.account-cancel-note{color:#a16207!important;font-weight:700}.account-page-title{color:#07152e}.account-auth-grid{margin-top:20px}@media(max-width:700px){.account-grid{grid-template-columns:1fr}.account-wrap{margin-top:16px}.account-panel{padding:17px}.account-menu{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.account-menu a,.account-menu button{min-height:75px}}
       .account-order-items{margin-top:12px;padding-top:10px;border-top:1px solid #ddd}
     .account-order-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #eee}
@@ -57,6 +58,7 @@
       <div class="account-grid">
         <form id="account-profile" class="account-panel">
           <h2>My Profile &amp; Saved Address</h2>
+          <div class="customer-profile-photo-wrap"><img id="customer-profile-photo" class="customer-profile-photo" src="" alt="Customer profile picture"><div class="customer-photo-controls"><strong>Profile Picture</strong><input id="customer-profile-photo-file" type="file" accept="image/*"><small>গ্যালারি থেকে ছবি নির্বাচন করুন (সর্বোচ্চ ৫ MB)।</small><p id="customer-photo-message" class="account-note" aria-live="polite"></p></div></div>
           <label for="profile-name">Full Name</label><input id="profile-name" required maxlength="80">
           <label for="profile-phone">Mobile Number</label><input id="profile-phone" type="tel" required maxlength="20">
           <label for="profile-address">Default Delivery Address</label><input id="profile-address" maxlength="500" placeholder="House, road, area, district">
@@ -81,6 +83,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="firebase.js?v=3"></script>
-  <script src="account.js?v=6"></script>
+  <script src="account.js?v=7"></script>
 </body>
 </html>
