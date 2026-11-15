@@ -75,7 +75,7 @@
             <h2>Admin Profile</h2>
           </div>
         </div>
-        <div class="admin-profile-avatar">JSF</div>
+        <div class="admin-profile-avatar" id="admin-profile-avatar" aria-label="Admin profile picture">JSF</div>
         <p class="muted">Logged in admin account</p>
         <div class="admin-profile-detail">
           <span>Gmail / Email Address</span>
@@ -372,7 +372,7 @@
 </script>
 
 <script type="module">
-  import("./admin.js?v=31").catch((error) => {
+  import("./admin.js?v=32").catch((error) => {
     const message = document.getElementById("login-message");
 
     if (message) {
