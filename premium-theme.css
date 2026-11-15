@@ -439,3 +439,10 @@ body:has(.admin-header) .admin-profile-detail strong{color:#0b2145}
   aspect-ratio:1/1!important;flex:0 0 54px!important;border-radius:50%!important;
   object-fit:cover!important;border:2px solid #dfb957!important;
 }
+
+/* JSF FASHION circular brand mark with wordmark beside it */
+.home-page .site-brand{display:inline-flex;align-items:center;gap:11px;white-space:nowrap}
+.home-page .site-logo-image{width:48px;height:48px;max-width:none;flex:0 0 48px;border-radius:50%;object-fit:cover;overflow:hidden;border:2px solid var(--jsf-gold);background:var(--jsf-ink);box-shadow:0 2px 9px rgba(0,0,0,.16)}
+.home-page .brand-wordmark{display:inline-block;color:var(--jsf-gold);font-size:22px;font-weight:900;letter-spacing:1.6px;line-height:1}
+.home-page .site-footer .brand-wordmark{color:#fff}
+@media(max-width:760px){.home-page .site-logo-image{width:42px;height:42px;flex-basis:42px}.home-page .brand-wordmark{font-size:19px}}
