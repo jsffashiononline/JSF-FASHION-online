@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customer Account | JSF FASHION</title>
+  <meta name="description" content="JSF FASHION customer account and order history.">
+  <meta name="theme-color" content="#07152e">
+  <link rel="icon" type="image/svg+xml" href="assets/jsf-fashion-logo.svg">
+  <link rel="stylesheet" href="style.css?v=35">
+  <link rel="stylesheet" href="premium-theme.css?v=6">
+  <style>
+    .account-wrap{width:min(980px,94%);margin:28px auto 50px}.account-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}.account-panel{padding:22px;background:#fff;border:1px solid #e4e9f1;border-radius:14px;box-shadow:0 10px 28px #07152e12}.account-panel h2{margin:0 0 14px;color:#07152e}.account-panel label{display:block;margin:11px 0 5px;font-weight:700;color:#34435b}.account-panel input{width:100%;padding:12px;border:1px solid #dce3ed;border-radius:8px;background:#f8f9fc}.account-panel .btn{margin-top:14px;min-height:42px;padding:10px 16px}.account-actions{display:flex;gap:8px;flex-wrap:wrap}.account-note{color:#718096;font-size:13px;line-height:1.6}.account-message{min-height:22px;color:#9b2c2c;font-size:13px}.account-order{padding:13px 0;border-top:1px solid #e4e9f1}.account-order strong{color:#07152e}.account-order p{margin:5px 0;color:#64748b;font-size:13px}.account-status{display:inline-block;padding:4px 9px;border-radius:20px;background:#edf3ff;color:#123b78;font-size:11px;font-weight:800}.account-hidden{display:none!important}@media(max-width:700px){.account-grid{grid-template-columns:1fr}.account-wrap{margin-top:16px}.account-panel{padding:17px}}
+  </style>
+</head>
+<body class="home-page">
+  <header class="site-header">
+    <a href="index.html" class="brand site-brand" aria-label="JSF FASHION Home"><img class="site-logo-image" src="assets/jsf-fashion-logo.svg" alt="JSF FASHION logo"></a>
+    <nav class="nav-links"><a href="index.html">Home</a><a href="index.html#products">Shop</a><a href="order.html">Checkout</a></nav>
+  </header>
+  <main class="account-wrap">
+    <p class="eyebrow">JSF FASHION CUSTOMER ZONE</p>
+    <h1 style="color:#07152e">My Account</h1>
+    <p class="account-note">অ্যাকাউন্ট তৈরি করে আপনার অর্ডারের ইতিহাস ও প্রোফাইল এক জায়গায় দেখুন। অর্ডার করার সময় একই অ্যাকাউন্টে লগইন থাকতে হবে।</p>
+    <section id="account-auth" class="account-grid">
+      <form id="account-login" class="account-panel">
+        <h2>Login</h2>
+        <label for="login-email">Email</label><input id="login-email" type="email" autocomplete="email" required maxlength="160">
+        <label for="login-password">Password</label><input id="login-password" type="password" autocomplete="current-password" required minlength="6">
+        <button class="btn" type="submit">LOGIN</button>
+        <button class="btn" id="reset-password" type="button">FORGOT PASSWORD</button>
+        <p id="login-message" class="account-message" aria-live="polite"></p>
+      </form>
+      <form id="account-register" class="account-panel">
+        <h2>Create Account</h2>
+        <label for="register-name">Full Name</label><input id="register-name" autocomplete="name" required maxlength="80">
+        <label for="register-phone">Mobile Number</label><input id="register-phone" type="tel" autocomplete="tel" required maxlength="20">
+        <label for="register-email">Email</label><input id="register-email" type="email" autocomplete="email" required maxlength="160">
+        <label for="register-password">Password (at least 6 characters)</label><input id="register-password" type="password" autocomplete="new-password" required minlength="6">
+        <button class="btn" type="submit">CREATE ACCOUNT</button>
+        <p id="register-message" class="account-message" aria-live="polite"></p>
+      </form>
+    </section>
+    <section id="account-dashboard" class="account-hidden">
+      <div class="account-grid">
+        <form id="account-profile" class="account-panel">
+          <h2>My Profile</h2>
+          <label for="profile-name">Full Name</label><input id="profile-name" required maxlength="80">
+          <label for="profile-phone">Mobile Number</label><input id="profile-phone" type="tel" required maxlength="20">
+          <label for="profile-address">Delivery Address</label><input id="profile-address" maxlength="500">
+          <p id="profile-email" class="account-note"></p>
+          <div class="account-actions"><button class="btn" type="submit">SAVE PROFILE</button><button class="btn" id="account-logout" type="button">LOG OUT</button></div>
+          <p id="profile-message" class="account-message" aria-live="polite"></p>
+        </form>
+        <section class="account-panel">
+          <h2>My Orders</h2>
+          <p class="account-note">এই অ্যাকাউন্টে লগইন থাকা অবস্থায় করা অর্ডারগুলো এখানে দেখা যাবে।</p>
+          <div id="account-orders"><p class="account-note">অর্ডার লোড হচ্ছে...</p></div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="firebase.js?v=3"></script>
+  <script src="account.js?v=1"></script>
+</body>
+</html>
