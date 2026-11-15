@@ -150,7 +150,7 @@
           (cancelRequested ? '<p class="account-cancel-note">Cancel request আপনার অ্যাকাউন্টে সংরক্ষিত হয়েছে। দোকানের সিদ্ধান্তের অপেক্ষায়।</p>' : '') +
           (canCancel ? '<div class="account-order-actions"><button type="button" data-cancel-order="' + escapeHtml(order.id) + '">REQUEST CANCELLATION</button></div>' : '') +
           '</article>';
-      }).join("") : '<p class="account-note">এখনো কোনো অর্ডার পাওয়া যায়নি। Shop থেকে অর্ডার করলে এখানে দেখা যাবে।</p>';
+      }).join("") : '<p class="account-note">এখনো কোনো অর্ডার পাওয়া যায়নি। নতুন অর্ডার দেওয়ার আগে এই Account-এ Login থাকা জরুরি। Login ছাড়া বা Guest হিসেবে আগে দেওয়া অর্ডার স্বয়ংক্রিয়ভাবে এখানে যুক্ত হবে না।</p>';
     }, error => { $("account-orders").textContent = "অর্ডার লোড করা যায়নি: " + friendly(error); });
   });
 })();
