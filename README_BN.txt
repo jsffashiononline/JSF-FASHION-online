@@ -44,6 +44,7 @@ Default logo: assets/jsf-fashion-logo.svg
 --------------------
 - Products: পণ্য যোগ, সম্পাদনা, মুছে ফেলা, ছবি, কালার, সাইজ ও More Design।
 - Orders: গ্রাহকের অর্ডার দেখা, স্ট্যাটাস পরিবর্তন ও অর্ডার ম্যানেজ করা।
+- Customers: অর্ডার থেকে কাস্টমার ডিরেক্টরি, নাম/ফোন সার্চ ও অর্ডার সারাংশ দেখা।
 - Website Banners: হোমপেজ ব্যানার আপলোড ও ম্যানেজ করা।
 - Settings: bKash/Nagad নম্বর, WhatsApp নম্বর এবং Website Logo।
 - Admin Profile: অনুমোদিত Admin account-এর তথ্য।
