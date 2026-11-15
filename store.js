@@ -1085,6 +1085,32 @@ if ($("checkout-form")) {
       return;
     }
 
+    // Resolve the unit price from the cart first, then the selected product/variant.
+    // This also repairs older cart entries that were saved without a price field.
+    const savedOrderItems = orderItems.map(item => {
+      const productRecord = products.find(product => String(product.id) === String(item.id)) || {};
+      const selectedVariantName = String(item.color || item.variant || "");
+      const matchingVariant = Array.isArray(productRecord.variants)
+        ? productRecord.variants.find(variant => String(variant.name || "") === selectedVariantName)
+        : null;
+      const rawPrice = item.price ?? item.productPrice ?? item.unitPrice ??
+        matchingVariant?.price ?? productRecord.price ?? 0;
+      const unitPrice = Number(rawPrice);
+      return {
+        id: item.id,
+        name: item.name || productRecord.name || "Product",
+        image: item.image || item.images?.[0] || productRecord.images?.[0] || productRecord.image || "",
+        price: Number.isFinite(unitPrice) && unitPrice >= 0 ? unitPrice : 0,
+        size: item.size || "",
+        variant: item.variant || "",
+        color: item.color || item.variant || "",
+        design: item.design || "",
+        designImage: item.designImage || "",
+        images: Array.isArray(item.images) ? item.images : (item.image ? [item.image] : []),
+        qty: Math.max(1, Number(item.qty || item.quantity || 1))
+      };
+    });
+
     const order = {
       customerName: String(data.get("name") || "").trim(),
       phone: String(data.get("phone") || "").trim(),
@@ -1096,21 +1122,9 @@ if ($("checkout-form")) {
       shippingCharge: getDeliveryCharge(detectDeliveryArea(data.get("address"))),
       codFee: 0,
 
-      items: orderItems.map(item => ({
-        id: item.id,
-        name: item.name,
-        image: item.image || item.images?.[0] || products.find(product => String(product.id) === String(item.id))?.images?.[0] || products.find(product => String(product.id) === String(item.id))?.image || "",
-        price: Number(item.price),
-        size: item.size,
-        variant: item.variant || "",
-        color: item.color || item.variant || "",
-        design: item.design || "",
-        designImage: item.designImage || "",
-        images: Array.isArray(item.images) ? item.images : (item.image ? [item.image] : []),
-        qty: Number(item.qty)
-      })),
+      items: savedOrderItems,
 
-      subtotal: orderItems.reduce(
+      subtotal: savedOrderItems.reduce(
         (sum, item) => sum + Number(item.price) * Number(item.qty), 0
       ),
       total: 0,
