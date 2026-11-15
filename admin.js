@@ -1006,6 +1006,8 @@ function loadSettings() {
 
     $("bkash-number").value = settings.bkashNumber || settings.bkash || "";
     $("nagad-number").value = settings.nagadNumber || settings.nagad || "";
+    $("delivery-inside-dhaka").value = settings.deliveryInsideDhaka ?? 60;
+    $("delivery-outside-dhaka").value = settings.deliveryOutsideDhaka ?? 120;
     $("store-picture").value = settings.storePicture || "";
     $("whatsapp-admin-1").value = settings.whatsappAdmin1 || "";
     currentWebsiteLogoUrl = settings.logoUrl || "assets/jsf-fashion-logo.svg";
@@ -1037,9 +1039,17 @@ function loadSettings() {
 settingsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
+  const insideDeliveryCharge = Number($("delivery-inside-dhaka").value);
+  const outsideDeliveryCharge = Number($("delivery-outside-dhaka").value);
+  if (!Number.isFinite(insideDeliveryCharge) || insideDeliveryCharge < 0 || !Number.isFinite(outsideDeliveryCharge) || outsideDeliveryCharge < 0) {
+    showMessage(settingsMessage, "ডেলিভারি চার্জ ০ বা তার বেশি সঠিক সংখ্যা হতে হবে।", "error");
+    return;
+  }
   const settings = {
     bkashNumber: $("bkash-number").value.trim(),
     nagadNumber: $("nagad-number").value.trim(),
+    deliveryInsideDhaka: insideDeliveryCharge,
+    deliveryOutsideDhaka: outsideDeliveryCharge,
     storePicture: $("store-picture").value.trim(),
     whatsappAdmin1: $("whatsapp-admin-1").value.trim(),
     updatedAt: Date.now()
