@@ -965,6 +965,13 @@ if ($("checkout-form")) {
     const button = form.querySelector('button[type="submit"]');
     const message = $("checkout-message");
     const referenceFile = $("customer-product-image")?.files?.[0] || null;
+    const selectedPayment = String(data.get("payment") || "");
+    const allowedPaymentMethods = ["bKash", "Nagad", "Cash on Delivery"];
+    if (!allowedPaymentMethods.includes(selectedPayment)) {
+      if (message) message.textContent = "শুধু বিকাশ, নগদ অথবা ক্যাশ অন ডেলিভারি নির্বাচন করুন।";
+      $("payment-method")?.focus();
+      return;
+    }
     if (referenceFile && (!["image/jpeg", "image/png", "image/webp"].includes(referenceFile.type) || referenceFile.size > 10 * 1024 * 1024)) {
       if (message) message.textContent = "শুধু JPG, PNG বা WEBP ছবি দিন (সর্বোচ্চ ১০ MB)।";
       return;
@@ -975,7 +982,7 @@ if ($("checkout-form")) {
       phone: String(data.get("phone") || "").trim(),
       address: String(data.get("address") || "").trim(),
 
-      paymentMethod: String(data.get("payment") || ""),
+      paymentMethod: selectedPayment,
       transactionId: String(data.get("transactionId") || "").trim(),
       deliveryArea: detectDeliveryArea(data.get("address")),
       shippingCharge: detectDeliveryArea(data.get("address")) === "Outside Dhaka" ? 120 : 60,
