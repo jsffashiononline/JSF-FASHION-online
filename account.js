@@ -59,6 +59,15 @@
     catch (error) { message("login-message", friendly(error)); }
   });
   $("dashboard-reset-password").addEventListener("click", () => sendPasswordLink("security-message"));
+  const profileSettings = $("account-profile");
+  const toggleProfileSettings = open => {
+    profileSettings.classList.toggle("account-hidden", !open);
+    $("open-profile-settings").setAttribute("aria-expanded", String(open));
+    $("open-profile-settings").textContent = open ? "⚙ Close Settings" : "⚙ Settings";
+    if (open) profileSettings.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  $("open-profile-settings").addEventListener("click", () => toggleProfileSettings(profileSettings.classList.contains("account-hidden")));
+  $("close-profile-settings").addEventListener("click", () => toggleProfileSettings(false));
   $("account-profile").addEventListener("submit", async event => {
     event.preventDefault();
     const user = auth.currentUser; if (!user) return;
@@ -70,9 +79,14 @@
         email: user.email,
         updatedAt: Date.now()
       };
+      const existingSnapshot = await db.ref("customerProfiles/" + user.uid).once("value");
+      const existingProfile = existingSnapshot.val() || {};
+      profile.address = String(existingProfile.address || $("profile-address").value || "").trim();
       await db.ref("customerProfiles/" + user.uid).update(profile);
       await user.updateProfile({ displayName: profile.name });
-      message("profile-message", "প্রোফাইল ও Default Delivery Address আপডেট হয়েছে।", false);
+      $("customer-display-name").textContent = profile.name || "Customer";
+      message("profile-message", "নাম ও মোবাইল নম্বর আপডেট হয়েছে।", false);
+      toggleProfileSettings(false);
     } catch (error) { message("profile-message", friendly(error)); }
   });
   const profilePhoto = $("customer-profile-photo");
@@ -160,6 +174,7 @@
       const snap = await db.ref("customerProfiles/" + user.uid).once("value");
       const profile = snap.val() || {};
       $("profile-name").value = profile.name || user.displayName || "";
+      $("customer-display-name").textContent = profile.name || user.displayName || "Customer";
       $("profile-phone").value = profile.phone || "";
       $("profile-address").value = profile.address || "";
       showProfilePhoto(profile.photoURL || user.photoURL || "");
