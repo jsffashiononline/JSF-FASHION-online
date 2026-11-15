@@ -1,4 +1,3 @@
-
 {
   "rules": {
     "products": {
@@ -8,8 +7,8 @@
     "orders": {
       ".read": "auth != null && (auth.uid == 'oqLhQp7pgVUBWFAwLFfjgIg3v2r1' || auth.uid == 'iGYHyUYQKEbICfzY7VDt9HMWcEi1')",
       "$orderId": {
-        ".write": "auth != null && (auth.uid == 'oqLhQp7pgVUBWFAwLFfjgIg3v2r1' || auth.uid == 'iGYHyUYQKEbICfzY7VDt9HMWcEi1') || (!data.exists() && newData.exists())",
-        ".validate": "newData.hasChildren()"
+        ".write": "(auth != null && (auth.uid == 'oqLhQp7pgVUBWFAwLFfjgIg3v2r1' || auth.uid == 'iGYHyUYQKEbICfzY7VDt9HMWcEi1')) || (!data.exists() && newData.exists())",
+        ".validate": "(auth != null && (auth.uid == 'oqLhQp7pgVUBWFAwLFfjgIg3v2r1' || auth.uid == 'iGYHyUYQKEbICfzY7VDt9HMWcEi1')) || (newData.hasChildren(['customerName', 'phone', 'address', 'paymentMethod', 'items', 'subtotal', 'total', 'status', 'createdAt']) && newData.child('customerName').isString() && newData.child('customerName').val().length > 0 && newData.child('phone').isString() && newData.child('phone').val().length >= 8 && newData.child('address').isString() && newData.child('address').val().length > 0 && (newData.child('paymentMethod').val() == 'bKash' || newData.child('paymentMethod').val() == 'Nagad' || newData.child('paymentMethod').val() == 'Cash on Delivery') && newData.child('items').hasChildren() && newData.child('items').numChildren() <= 20 && newData.child('subtotal').isNumber() && newData.child('subtotal').val() >= 0 && newData.child('total').isNumber() && newData.child('total').val() >= 0 && newData.child('createdAt').isNumber() && newData.child('status').val() == 'Pending' && ((newData.child('paymentMethod').val() == 'Cash on Delivery') || (newData.child('transactionId').isString() && newData.child('transactionId').val().length > 0)))"
       }
     },
     "settings": {
