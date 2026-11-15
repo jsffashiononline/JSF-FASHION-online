@@ -1142,12 +1142,12 @@ settingsForm.addEventListener("submit", async (event) => {
 
 
 if (websiteLogoFile && websiteLogoButton) {
-  websiteLogoFile.addEventListener("change", () => {
+  const uploadSelectedWebsiteLogo = async () => {
     const file = websiteLogoFile.files?.[0];
     if (!file) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+    if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
       websiteLogoFile.value = "";
-      showMessage(websiteLogoMessage, "শুধু JPG, PNG বা WEBP ছবি দিন (সর্বোচ্চ ৫ MB)।", "error");
+      showMessage(websiteLogoMessage, "একটি ছবি নির্বাচন করুন (সর্বোচ্চ ৫ MB)।", "error");
       return;
     }
     const previewUrl = URL.createObjectURL(file);
@@ -1157,17 +1157,9 @@ if (websiteLogoFile && websiteLogoButton) {
       websiteLogoPlaceholder.classList.add("hidden");
       websiteLogoPreview.onload = () => URL.revokeObjectURL(previewUrl);
     }
-    showMessage(websiteLogoMessage, "ছবিটি নির্বাচন করা হয়েছে। এবার Upload & Apply চাপুন।");
-  });
-
-  websiteLogoButton.addEventListener("click", async () => {
-    const file = websiteLogoFile.files?.[0];
-    if (!file) {
-      showMessage(websiteLogoMessage, "প্রথমে নতুন Logo নির্বাচন করুন।", "error");
-      return;
-    }
     websiteLogoButton.disabled = true;
-    websiteLogoButton.textContent = "UPLOADING...";
+    websiteLogoButton.textContent = "আপলোড হচ্ছে...";
+    showMessage(websiteLogoMessage, "গ্যালারি থেকে নির্বাচিত Logo আপলোড হচ্ছে...");
     try {
       const data = new FormData();
       data.append("file", file);
@@ -1182,23 +1174,21 @@ if (websiteLogoFile && websiteLogoButton) {
       if (adminLogo) adminLogo.src = currentWebsiteLogoUrl;
       const favicon = document.querySelector('link[rel="icon"]');
       if (favicon) favicon.href = currentWebsiteLogoUrl;
-      if (websiteLogoPreview) {
-        websiteLogoPreview.src = currentWebsiteLogoUrl;
-        websiteLogoPreview.classList.remove("hidden");
-      }
+      if (websiteLogoPreview) websiteLogoPreview.src = currentWebsiteLogoUrl;
       if (websiteLogoPlaceholder) websiteLogoPlaceholder.classList.add("hidden");
       websiteLogoFile.value = "";
-      showMessage(websiteLogoMessage, "নতুন Logo সফলভাবে আপলোড ও ওয়েবসাইটে প্রয়োগ হয়েছে।", "success");
+      showMessage(websiteLogoMessage, "গ্যালারি থেকে Logo আপলোড ও প্রয়োগ হয়েছে।", "success");
     } catch (error) {
       console.error("Website logo upload error:", error);
       showMessage(websiteLogoMessage, "Logo পরিবর্তন হয়নি: " + (error.message || "আবার চেষ্টা করুন।"), "error");
     } finally {
       websiteLogoButton.disabled = false;
-      websiteLogoButton.textContent = "UPLOAD & APPLY LOGO";
+      websiteLogoButton.textContent = "📁 গ্যালারি থেকে Logo নির্বাচন করুন";
     }
-  });
+  };
+  websiteLogoButton.addEventListener("click", () => websiteLogoFile.click());
+  websiteLogoFile.addEventListener("change", uploadSelectedWebsiteLogo);
 }
-
 if (resetWebsiteLogoButton) {
   resetWebsiteLogoButton.addEventListener("click", async () => {
     resetWebsiteLogoButton.disabled = true;
