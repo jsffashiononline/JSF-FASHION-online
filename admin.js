@@ -1038,10 +1038,20 @@ orderList.addEventListener("change", async (event) => {
   const status = select.value;
 
   try {
+    const updatedAt = Date.now();
     await update(ref(db, "orders/" + id), {
       status: status,
-      updatedAt: Date.now()
+      updatedAt
     });
+    // Keep the customer's private order-history/tracking summary in sync.
+    const orderSnapshot = await get(ref(db, "orders/" + id));
+    const orderData = orderSnapshot.val() || {};
+    if (orderData.ownerUid) {
+      await update(ref(db, "userOrders/" + orderData.ownerUid + "/" + id), {
+        status,
+        updatedAt
+      });
+    }
 
   } catch (error) {
     alert("Order update failed: " + firebaseError(error));
