@@ -1,0 +1,96 @@
+name: JSF FASHION validation
+
+on:
+  push:
+    branches:
+      - main
+      - feature/full-fashion-ecommerce
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check storefront JavaScript syntax
+        run: |
+          node --check store.js
+          node --check account.js
+          node --check wishlist.js
+
+      - name: Check admin JavaScript module syntax
+        run: node --input-type=module --check < admin.js
+
+      - name: Check Firebase JavaScript syntax
+        run: |
+          node --check firebase.js
+          node --input-type=module --check < admin-firebase.js
+
+      - name: Validate Firebase rules JSON
+        run: python -c "import json; json.load(open('database.rules.json', encoding='utf-8'))"
+
+      - name: Validate essential store configuration
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          order = Path("order.html").read_text(encoding="utf-8")
+          store = Path("store.js").read_text(encoding="utf-8")
+          admin = Path("admin.html").read_text(encoding="utf-8")
+          assert 'value="bKash"' in order
+          assert 'value="Nagad"' in order
+          assert 'value="Cash on Delivery"' in order
+          assert "Credit Card" not in order
+          assert "Debit Card" not in order
+          assert "allowedPaymentMethods" in store
+          rules = Path("database.rules.json").read_text(encoding="utf-8")
+          assert "newData.hasChildren" in rules
+          assert "paymentMethod" in rules
+          assert "transactionId" in rules
+          assert "numChildren()" not in rules
+          assert "customerProfiles" in rules
+          assert "userOrders" in rules
+          assert "ownerUid" in rules
+          assert "reviews" in rules
+          assert "rating" in rules
+          assert "data-review-form" in store
+          assert "loadProductReviews" in store
+          account = Path("account.html").read_text(encoding="utf-8")
+          account_js = Path("account.js").read_text(encoding="utf-8")
+          assert "firebase-auth-compat.js" in account
+          assert "CREATE ACCOUNT" in account
+          assert "FORGOT PASSWORD" in account
+          assert "userOrders/" in account_js
+          wishlist = Path("wishlist.html").read_text(encoding="utf-8")
+          wishlist_js = Path("wishlist.js").read_text(encoding="utf-8")
+          assert "jsf_wishlist" in store
+          assert "data-wishlist-toggle" in store
+          assert "jsf_wishlist" in wishlist_js
+          assert "wishlist.js" in wishlist
+          assert "createUserWithEmailAndPassword" in account_js
+          assert "logoUrl" in store
+          assert "deliveryInsideDhaka" in store
+          assert "deliveryOutsideDhaka" in store
+          assert 'id="website-logo-file"' in admin
+          assert 'id="delivery-inside-dhaka"' in admin
+          assert 'id="delivery-outside-dhaka"' in admin
+          assert 'data-page="customers"' in admin
+          assert 'id="admin-customers"' in admin
+          assert "function renderCustomers" in Path("admin.js").read_text(encoding="utf-8")
+          assert 'data-gallery-main' in store
+          assert "assets/jsf-fashion-logo.svg" in Path("index.html").read_text(encoding="utf-8")
+          assert "assets/jsf-fashion-logo.svg" in Path("order.html").read_text(encoding="utf-8")
+          assert Path("assets/jsf-fashion-logo.svg").is_file()
+          for name in ("index.html", "order.html", "account.html", "account.js", "wishlist.html", "wishlist.js", "admin.html", "store.js", "admin.js", "premium-theme.css"):
+              assert Path(name).is_file(), f"Missing required file: {name}"
+          print("JSF FASHION essential configuration checks passed.")
+          PY

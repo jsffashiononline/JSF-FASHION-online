@@ -46,9 +46,19 @@ const productForm = $("product-form");
 const productMessage = $("product-message");
 const productList = $("admin-products");
 const orderList = $("admin-orders");
+const customerList = $("admin-customers");
+const customerSearch = $("customer-search");
+let cachedOrderEntries = [];
 
 const settingsForm = $("settings-form");
 const settingsMessage = $("settings-message");
+const websiteLogoFile = $("website-logo-file");
+const websiteLogoPreview = $("website-logo-preview");
+const websiteLogoPlaceholder = $("website-logo-placeholder");
+const websiteLogoButton = $("upload-website-logo");
+const resetWebsiteLogoButton = $("reset-website-logo");
+const websiteLogoMessage = $("website-logo-message");
+let currentWebsiteLogoUrl = "";
 
 /* =================================
    3. HELPER FUNCTIONS
@@ -815,6 +825,8 @@ async function loadOrders() {
   onValue(ordersRef, (snapshot) => {
     const orders = snapshot.val() || {};
     const entries = Object.entries(orders);
+    cachedOrderEntries = entries;
+    renderCustomers(entries);
 
     let pending = 0;
     let delivered = 0;
@@ -947,6 +959,52 @@ async function loadOrders() {
   });
 }
 
+
+
+function renderCustomers(entries = cachedOrderEntries) {
+  if (!customerList) return;
+  const customers = new Map();
+  entries.forEach(([orderId, order]) => {
+    const phone = String(order.phone || order.mobile || "").trim();
+    const name = String(order.customerName || order.name || "Customer").trim();
+    const key = phone || name.toLowerCase();
+    const current = customers.get(key) || {
+      name,
+      phone: phone || "Not provided",
+      address: String(order.address || "Not provided"),
+      orders: 0,
+      total: 0,
+      latest: 0
+    };
+    current.orders += 1;
+    current.total += Number(order.total || order.totalAmount || order.amount || 0);
+    current.latest = Math.max(current.latest, Number(order.createdAt || 0));
+    if (order.createdAt && Number(order.createdAt) >= current.latest) {
+      current.name = name;
+      current.address = String(order.address || current.address);
+    }
+    customers.set(key, current);
+  });
+  const query = String(customerSearch?.value || "").trim().toLowerCase();
+  const filtered = [...customers.values()].filter(customer =>
+    customer.name.toLowerCase().includes(query) || customer.phone.toLowerCase().includes(query)
+  ).sort((a,b) => b.latest - a.latest);
+  if (!filtered.length) {
+    customerList.innerHTML = '<p class="muted">কোনো কাস্টমার পাওয়া যায়নি।</p>';
+    return;
+  }
+  customerList.innerHTML = filtered.map(customer => {
+    const latest = customer.latest ? new Date(customer.latest).toLocaleDateString("en-GB") : "N/A";
+    return `<article class="data-card customer-card">
+      <h3>${escapeHTML(customer.name)}</h3>
+      <p>Phone: <strong>${escapeHTML(customer.phone)}</strong></p>
+      <p>Address: ${escapeHTML(customer.address)}</p>
+      <div class="customer-summary"><span>Orders: <strong>${customer.orders}</strong></span><span>Order value: <strong>${money(customer.total)}</strong></span><span>Latest order: <strong>${latest}</strong></span></div>
+    </article>`;
+  }).join("");
+}
+if (customerSearch) customerSearch.addEventListener("input", () => renderCustomers());
+
 /* =================================
    12. DELETE INDIVIDUAL CUSTOMER ORDER
 ================================= */
@@ -980,10 +1038,20 @@ orderList.addEventListener("change", async (event) => {
   const status = select.value;
 
   try {
+    const updatedAt = Date.now();
     await update(ref(db, "orders/" + id), {
       status: status,
-      updatedAt: Date.now()
+      updatedAt
     });
+    // Keep the customer's private order-history/tracking summary in sync.
+    const orderSnapshot = await get(ref(db, "orders/" + id));
+    const orderData = orderSnapshot.val() || {};
+    if (orderData.ownerUid) {
+      await update(ref(db, "userOrders/" + orderData.ownerUid + "/" + id), {
+        status,
+        updatedAt
+      });
+    }
 
   } catch (error) {
     alert("Order update failed: " + firebaseError(error));
@@ -1000,8 +1068,26 @@ function loadSettings() {
 
     $("bkash-number").value = settings.bkashNumber || settings.bkash || "";
     $("nagad-number").value = settings.nagadNumber || settings.nagad || "";
+    $("delivery-inside-dhaka").value = settings.deliveryInsideDhaka ?? 60;
+    $("delivery-outside-dhaka").value = settings.deliveryOutsideDhaka ?? 120;
     $("store-picture").value = settings.storePicture || "";
     $("whatsapp-admin-1").value = settings.whatsappAdmin1 || "";
+    currentWebsiteLogoUrl = settings.logoUrl || "assets/jsf-fashion-logo.svg";
+    const adminLogo = $("admin-site-logo-image");
+    if (adminLogo) adminLogo.src = currentWebsiteLogoUrl;
+    const favicon = document.querySelector('link[rel="icon"]');
+    if (favicon) favicon.href = currentWebsiteLogoUrl;
+    if (websiteLogoPreview && websiteLogoPlaceholder) {
+      if (currentWebsiteLogoUrl) {
+        websiteLogoPreview.src = currentWebsiteLogoUrl;
+        websiteLogoPreview.classList.remove("hidden");
+        websiteLogoPlaceholder.classList.add("hidden");
+      } else {
+        websiteLogoPreview.removeAttribute("src");
+        websiteLogoPreview.classList.add("hidden");
+        websiteLogoPlaceholder.classList.remove("hidden");
+      }
+    }
     bannerImages = Array.isArray(settings.bannerImages) ? settings.bannerImages : [];
     renderBannerImageList();
 
@@ -1015,9 +1101,17 @@ function loadSettings() {
 settingsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
+  const insideDeliveryCharge = Number($("delivery-inside-dhaka").value);
+  const outsideDeliveryCharge = Number($("delivery-outside-dhaka").value);
+  if (!Number.isFinite(insideDeliveryCharge) || insideDeliveryCharge < 0 || !Number.isFinite(outsideDeliveryCharge) || outsideDeliveryCharge < 0) {
+    showMessage(settingsMessage, "ডেলিভারি চার্জ ০ বা তার বেশি সঠিক সংখ্যা হতে হবে।", "error");
+    return;
+  }
   const settings = {
     bkashNumber: $("bkash-number").value.trim(),
     nagadNumber: $("nagad-number").value.trim(),
+    deliveryInsideDhaka: insideDeliveryCharge,
+    deliveryOutsideDhaka: outsideDeliveryCharge,
     storePicture: $("store-picture").value.trim(),
     whatsappAdmin1: $("whatsapp-admin-1").value.trim(),
     updatedAt: Date.now()
@@ -1042,3 +1136,87 @@ settingsForm.addEventListener("submit", async (event) => {
     );
   }
 });
+
+
+if (websiteLogoFile && websiteLogoButton) {
+  websiteLogoFile.addEventListener("change", () => {
+    const file = websiteLogoFile.files?.[0];
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      websiteLogoFile.value = "";
+      showMessage(websiteLogoMessage, "শুধু JPG, PNG বা WEBP ছবি দিন (সর্বোচ্চ ৫ MB)।", "error");
+      return;
+    }
+    const previewUrl = URL.createObjectURL(file);
+    if (websiteLogoPreview && websiteLogoPlaceholder) {
+      websiteLogoPreview.src = previewUrl;
+      websiteLogoPreview.classList.remove("hidden");
+      websiteLogoPlaceholder.classList.add("hidden");
+      websiteLogoPreview.onload = () => URL.revokeObjectURL(previewUrl);
+    }
+    showMessage(websiteLogoMessage, "ছবিটি নির্বাচন করা হয়েছে। এবার Upload & Apply চাপুন।");
+  });
+
+  websiteLogoButton.addEventListener("click", async () => {
+    const file = websiteLogoFile.files?.[0];
+    if (!file) {
+      showMessage(websiteLogoMessage, "প্রথমে নতুন Logo নির্বাচন করুন।", "error");
+      return;
+    }
+    websiteLogoButton.disabled = true;
+    websiteLogoButton.textContent = "UPLOADING...";
+    try {
+      const data = new FormData();
+      data.append("file", file);
+      data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+      data.append("folder", "jsf-fashion-brand");
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {method:"POST", body:data});
+      const result = await response.json();
+      if (!response.ok || !result.secure_url) throw new Error(result.error?.message || "Logo upload failed.");
+      await update(ref(db, "settings"), {logoUrl: result.secure_url, updatedAt: Date.now()});
+      currentWebsiteLogoUrl = result.secure_url;
+      const adminLogo = $("admin-site-logo-image");
+      if (adminLogo) adminLogo.src = currentWebsiteLogoUrl;
+      const favicon = document.querySelector('link[rel="icon"]');
+      if (favicon) favicon.href = currentWebsiteLogoUrl;
+      if (websiteLogoPreview) {
+        websiteLogoPreview.src = currentWebsiteLogoUrl;
+        websiteLogoPreview.classList.remove("hidden");
+      }
+      if (websiteLogoPlaceholder) websiteLogoPlaceholder.classList.add("hidden");
+      websiteLogoFile.value = "";
+      showMessage(websiteLogoMessage, "নতুন Logo সফলভাবে আপলোড ও ওয়েবসাইটে প্রয়োগ হয়েছে।", "success");
+    } catch (error) {
+      console.error("Website logo upload error:", error);
+      showMessage(websiteLogoMessage, "Logo পরিবর্তন হয়নি: " + (error.message || "আবার চেষ্টা করুন।"), "error");
+    } finally {
+      websiteLogoButton.disabled = false;
+      websiteLogoButton.textContent = "UPLOAD & APPLY LOGO";
+    }
+  });
+}
+
+if (resetWebsiteLogoButton) {
+  resetWebsiteLogoButton.addEventListener("click", async () => {
+    resetWebsiteLogoButton.disabled = true;
+    try {
+      await update(ref(db, "settings"), {logoUrl: "", updatedAt: Date.now()});
+      currentWebsiteLogoUrl = "assets/jsf-fashion-logo.svg";
+      const adminLogo = $("admin-site-logo-image");
+      if (adminLogo) adminLogo.src = currentWebsiteLogoUrl;
+      const favicon = document.querySelector('link[rel="icon"]');
+      if (favicon) favicon.href = currentWebsiteLogoUrl;
+      if (websiteLogoPreview) {
+        websiteLogoPreview.src = currentWebsiteLogoUrl;
+        websiteLogoPreview.classList.remove("hidden");
+      }
+      if (websiteLogoPlaceholder) websiteLogoPlaceholder.classList.add("hidden");
+      if (websiteLogoFile) websiteLogoFile.value = "";
+      showMessage(websiteLogoMessage, "ডিফল্ট JSF FASHION Logo ফিরিয়ে আনা হয়েছে।", "success");
+    } catch (error) {
+      showMessage(websiteLogoMessage, "ডিফল্ট Logo ফেরানো যায়নি: " + (error.message || "আবার চেষ্টা করুন।"), "error");
+    } finally {
+      resetWebsiteLogoButton.disabled = false;
+    }
+  });
+}

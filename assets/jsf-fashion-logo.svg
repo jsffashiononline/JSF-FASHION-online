@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 240" role="img" aria-labelledby="title desc">
+  <title id="title">JSF FASHION</title>
+  <desc id="desc">Premium navy blue and gold fashion brand monogram and wordmark.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff0a6"/>
+      <stop offset=".48" stop-color="#f5c400"/>
+      <stop offset="1" stop-color="#bd8b00"/>
+    </linearGradient>
+    <linearGradient id="navy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#123b78"/>
+      <stop offset="1" stop-color="#07152e"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(16 12)">
+    <path d="M108 4 205 60v112l-97 56-97-56V60Z" fill="url(#navy)" stroke="url(#gold)" stroke-width="7"/>
+    <path d="M108 20 190 67v96l-82 47-82-47V67Z" fill="none" stroke="#f5c400" stroke-opacity=".55" stroke-width="2"/>
+    <text x="108" y="139" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="91" font-weight="700" letter-spacing="-9" fill="url(#gold)">JSF</text>
+    <path d="M58 160h100" stroke="url(#gold)" stroke-width="3"/>
+  </g>
+  <g transform="translate(260 0)">
+    <text x="0" y="124" font-family="Georgia, 'Times New Roman', serif" font-size="91" font-weight="700" letter-spacing="1" fill="#0b2145">JSF</text>
+    <text x="208" y="124" font-family="Georgia, 'Times New Roman', serif" font-size="91" font-weight="700" letter-spacing="1" fill="#d6a900">FASHION</text>
+    <path d="M4 153H620" stroke="#d6a900" stroke-width="3"/>
+    <text x="7" y="195" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="600" letter-spacing="9" fill="#123b78">STYLE  •  CONFIDENCE  •  ELEGANCE</text>
+  </g>
+</svg>

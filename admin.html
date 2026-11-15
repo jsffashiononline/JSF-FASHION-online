@@ -6,14 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080808">
   <title>JSF FASHION | Admin Panel</title>
+  <link rel="icon" type="image/svg+xml" href="assets/jsf-fashion-logo.svg">
   <link rel="stylesheet" href="admin.css?v=7">
+  <link rel="stylesheet" href="premium-theme.css?v=5">
 </head>
 <body>
 
 <header class="admin-header">
-  <a class="brand" href="admin.html">
-    JSF <span>FASHION</span>
-  </a>
+  <a class="brand site-brand" href="admin.html" aria-label="JSF FASHION Admin"><img id="admin-site-logo-image" class="site-logo-image" src="assets/jsf-fashion-logo.svg" alt="JSF FASHION logo"></a>
   <div class="header-right">
     <button id="logout-btn" class="btn danger hidden" type="button">
       Logout
@@ -61,6 +61,7 @@
       <button type="button" class="admin-nav-btn active" data-page="overview">Overview</button>
       <button type="button" class="admin-nav-btn" data-page="products">Products</button>
       <button type="button" class="admin-nav-btn" data-page="orders">Orders</button>
+      <button type="button" class="admin-nav-btn" data-page="customers">Customers</button>
       <button type="button" class="admin-nav-btn" data-page="banners">Website Banners</button>
       <button type="button" class="admin-nav-btn" data-page="settings">Settings</button>
       <button type="button" class="admin-nav-btn" data-page="profile">Admin Profile</button>
@@ -250,6 +251,20 @@
     </section>
     </section>
 
+    <section id="page-customers" class="admin-page hidden">
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">CUSTOMER DIRECTORY</p>
+            <h2>Customers</h2>
+            <p class="muted">অর্ডার করা কাস্টমারদের তথ্য ও অর্ডার সারাংশ।</p>
+          </div>
+        </div>
+        <input id="customer-search" class="customer-search" type="search" placeholder="নাম বা ফোন নম্বর দিয়ে খুঁজুন" aria-label="Search customers">
+        <div id="admin-customers" class="data-list">Loading customers...</div>
+      </section>
+    </section>
+
     <section id="page-banners" class="admin-page hidden">
     <section class="panel">
       <div class="section-heading"><div><p class="eyebrow">HOMEPAGE SLIDESHOW</p><h2>Top Banner Images</h2></div></div>
@@ -272,11 +287,30 @@
       </div>
 
       <form id="settings-form">
+        <div class="admin-logo-manager">
+          <h3>Website Logo</h3>
+          <p class="muted">এখান থেকে নতুন লোগো আপলোড করে ওয়েবসাইটের লোগো পরিবর্তন করতে পারবেন।</p>
+          <div class="admin-logo-preview-wrap">
+            <img id="website-logo-preview" class="admin-logo-preview hidden" alt="Current website logo preview">
+            <span id="website-logo-placeholder">বর্তমান লোগো সেট করা নেই</span>
+          </div>
+          <label for="website-logo-file">নতুন Logo নির্বাচন করুন (JPG, PNG বা WEBP)</label>
+          <input id="website-logo-file" type="file" accept="image/jpeg,image/png,image/webp">
+          <button id="upload-website-logo" class="btn gold" type="button">UPLOAD & APPLY LOGO</button>
+          <button id="reset-website-logo" class="btn secondary" type="button">RESTORE DEFAULT LOGO</button>
+          <p id="website-logo-message" class="message" role="status"></p>
+        </div>
         <label for="bkash-number">bKash Number</label>
         <input id="bkash-number" type="text" placeholder="01XXXXXXXXX">
 
         <label for="nagad-number">Nagad Number</label>
         <input id="nagad-number" type="text" placeholder="01XXXXXXXXX">
+
+        <label for="delivery-inside-dhaka">Delivery Charge — Inside Dhaka (৳)</label>
+        <input id="delivery-inside-dhaka" type="number" min="0" step="1" value="60" placeholder="60">
+
+        <label for="delivery-outside-dhaka">Delivery Charge — Outside Dhaka (৳)</label>
+        <input id="delivery-outside-dhaka" type="number" min="0" step="1" value="120" placeholder="120">
 
         <label for="store-picture">Store Profile Picture URL</label>
         <input
@@ -338,7 +372,7 @@
 </script>
 
 <script type="module">
-  import("./admin.js?v=23").catch((error) => {
+  import("./admin.js?v=28").catch((error) => {
     const message = document.getElementById("login-message");
 
     if (message) {

@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Complete Your Order | JSF FASHION</title>
   <meta name="theme-color" content="#080808">
+  <link rel="icon" type="image/svg+xml" href="assets/jsf-fashion-logo.svg">
   <link rel="stylesheet" href="style.css?v=27">
+  <link rel="stylesheet" href="premium-theme.css?v=4">
 </head>
 <body class="order-page">
   <header class="site-header">
-    <a href="index.html" class="brand">JSF <span>FASHION</span></a>
-    <nav class="nav-links"><a href="index.html#products">Continue Shopping</a><a href="index.html#cart">My Cart</a></nav>
+    <a href="index.html" class="brand site-brand" aria-label="JSF FASHION Home"><img id="site-logo-image" class="site-logo-image" src="assets/jsf-fashion-logo.svg" alt="JSF FASHION logo"><span id="site-brand-text" class="hidden">JSF <span>FASHION</span></span></a>
+    <nav class="nav-links"><a href="index.html#products">Continue Shopping</a><a href="account.html">My Account</a><a href="index.html#cart">My Cart</a></nav>
   </header>
   <div class="order-top">
     <div><p class="eyebrow">SECURE CHECKOUT</p><h1 style="font-size:clamp(23px,4vw,32px);color:var(--gold-light)">Complete Your Order</h1></div>
@@ -64,10 +66,11 @@
       </div>
     </aside>
   </main>
-  <footer class="site-footer"><a href="index.html" class="brand">JSF <span>FASHION</span></a><p>Premium fashion. Timeless style.</p></footer>
+  <footer class="site-footer"><a href="index.html" class="brand site-brand" aria-label="JSF FASHION Home"><img id="footer-logo-image" class="site-logo-image" src="assets/jsf-fashion-logo.svg" alt="JSF FASHION logo"><span id="footer-brand-text" class="hidden">JSF <span>FASHION</span></span></a><p>Premium fashion. Timeless style.</p></footer>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="firebase.js?v=3"></script>
-  <script src="store.js?v=36"></script>
+  <script src="store.js?v=41"></script>
 </body>
 </html>

@@ -194,7 +194,7 @@ function renderProducts(list) {
     const designPicker = moreDesigns.length ? `<div class="more-design-picker"><strong>More Design</strong><div class="more-design-options">${moreDesigns.map((item,index)=>`<button type="button" class="more-design-option ${index===selectedDesignIndex?"active":""}" data-more-design-index="${index}" data-product-id="${safeText(p.id)}" aria-label="Select More Design ${index+1}"><img src="${safeText(item.image)}" alt="Design ${index+1}"><span>Design ${index+1}</span></button>`).join("")}</div></div>` : "";
     const price = variant && variant.price !== null && variant.price !== "" && Number.isFinite(Number(variant.price)) ? Number(variant.price) : Number(p.price || 0);
     const thumbs = photos.length > 1 ? `<div class="product-gallery-thumbs">${photos.map((url,index)=>`<button type="button" class="gallery-thumb ${index===imageIndex?"active":""}" data-gallery-thumb="${index}" data-product-id="${safeText(p.id)}" aria-label="View product photo ${index+1}"><img src="${safeText(url)}" alt=""></button>`).join("")}</div>` : "";
-    return `<article class="product-card" data-product-card="${safeText(p.id)}"><div class="product-media"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}${designPicker}</div><div class="product-info"><h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p><div class="product-price">৳${money(price)}</div><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">ORDER NOW</button><button class="btn product-details-btn" type="button" data-product-details="${safeText(p.id)}">প্রোডাক্ট ডিটেইলস</button></div></div></article>`;
+    return `<article class="product-card" data-product-card="${safeText(p.id)}"><div class="product-media"><img class="product-view-image image-view-trigger" data-gallery-main src="${safeText(mainImage)}" alt="${safeText(p.name)}" loading="lazy" role="button" tabindex="0" aria-label="${safeText(p.name)} ছবি বড় করে দেখুন" onerror="this.style.display='none'">${thumbs}</div><div class="product-info">${designPicker}<h3>${safeText(p.name)}</h3><p>${safeText(p.category || "Fashion")}</p><div class="product-price">৳${money(price)}</div><div class="product-actions"><button class="btn add-cart-btn" data-product-id="${safeText(p.id)}">ADD TO CART</button><button class="btn direct-order-btn" data-product-id="${safeText(p.id)}">ORDER NOW</button><button class="btn product-details-btn" type="button" data-product-details="${safeText(p.id)}">প্রোডাক্ট ডিটেইলস</button><button class="btn wishlist-toggle-btn" type="button" data-wishlist-toggle="${safeText(p.id)}" aria-label="Wishlist">${getWishlistIds().includes(String(p.id)) ? "♥ SAVED" : "♡ WISHLIST"}</button></div></div></article>`;
   }).join("");
 }
 
@@ -241,7 +241,18 @@ function openProductDetails(id) {
         ${variantRows}${sizeRows}
         <button type="button" class="btn details-shop-button" data-details-shop="${safeText(product.id)}">অর্ডার করতে যান</button>
       </div>
-    </div>`;
+    </div>
+    <section class="details-reviews" data-review-product="${safeText(product.id)}">
+      <h3>Customer Reviews & Ratings</h3>
+      <div class="review-list" data-review-list>রিভিউ লোড হচ্ছে...</div>
+      <form class="review-form" data-review-form>
+        <label>আপনার Rating</label>
+        <select name="rating" required><option value="5">★★★★★ (5)</option><option value="4">★★★★☆ (4)</option><option value="3">★★★☆☆ (3)</option><option value="2">★★☆☆☆ (2)</option><option value="1">★☆☆☆☆ (1)</option></select>
+        <label>আপনার মতামত</label><textarea name="comment" maxlength="500" required placeholder="প্রোডাক্ট সম্পর্কে আপনার অভিজ্ঞতা লিখুন"></textarea>
+        <button class="btn" type="submit">SUBMIT REVIEW</button>
+        <p class="review-message" aria-live="polite"></p>
+      </form>
+    </section>`;
   dialog.querySelector("[data-details-shop]").addEventListener("click", () => {
     dialog.hidden = true;
     document.body.classList.remove("product-details-open");
@@ -250,7 +261,51 @@ function openProductDetails(id) {
   });
   dialog.hidden = false;
   document.body.classList.add("product-details-open");
+  loadProductReviews(product.id);
 }
+async function loadProductReviews(productId) {
+  const section = document.querySelector('[data-review-product="' + CSS.escape(String(productId)) + '"]');
+  if (!section) return;
+  const list = section.querySelector("[data-review-list]");
+  try {
+    const snapshot = await db.ref("reviews/" + productId).once("value");
+    const entries = [];
+    snapshot.forEach(child => entries.push(child.val() || {}));
+    entries.sort((a,b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+    const average = entries.length ? entries.reduce((sum,item)=>sum+Number(item.rating||0),0)/entries.length : 0;
+    list.innerHTML = entries.length
+      ? '<p class="review-average">★ ' + average.toFixed(1) + ' / 5 · ' + entries.length + ' review(s)</p>' + entries.map(item => '<article class="review-item"><strong>' + safeText(item.customerName || "Customer") + '</strong><span>★'.repeat(Math.max(0,Math.min(5,Number(item.rating)||0))) + '</span><p>' + safeText(item.comment || "") + '</p></article>').join("")
+      : '<p class="details-muted">এখনো কোনো রিভিউ নেই। প্রথম রিভিউটি আপনিই দিন।</p>';
+  } catch (error) {
+    list.textContent = "রিভিউ লোড করা যায়নি।";
+    console.error("Review read error:", error);
+  }
+}
+document.addEventListener("submit", async event => {
+  const form = event.target.closest("[data-review-form]");
+  if (!form) return;
+  event.preventDefault();
+  const user = window.firebase?.auth?.()?.currentUser;
+  const section = form.closest("[data-review-product]");
+  const message = form.querySelector(".review-message");
+  if (!user) { if(message) message.textContent="রিভিউ দিতে আগে My Account থেকে Login করুন।"; return; }
+  const productId = section?.dataset.reviewProduct;
+  const product = products.find(item => String(item.id) === String(productId));
+  const data = new FormData(form);
+  const rating = Number(data.get("rating"));
+  const comment = String(data.get("comment") || "").trim();
+  if (!productId || !comment || comment.length > 500 || !Number.isInteger(rating) || rating < 1 || rating > 5) return;
+  try {
+    const profile = await db.ref("customerProfiles/" + user.uid).once("value");
+    const name = profile.val()?.name || user.displayName || "Customer";
+    await db.ref("reviews/" + productId + "/" + user.uid).set({customerName:name,rating,comment,createdAt:Date.now()});
+    form.reset();
+    if(message) message.textContent="আপনার রিভিউ জমা হয়েছে। ধন্যবাদ!";
+    loadProductReviews(productId);
+  } catch(error) {
+    if(message) message.textContent="রিভিউ জমা হয়নি: " + error.message;
+  }
+});
 document.addEventListener("click", event => {
   const detailsButton = event.target.closest?.("[data-product-details]");
   if (detailsButton) openProductDetails(detailsButton.dataset.productDetails);
@@ -337,9 +392,27 @@ document.addEventListener("keydown", event => {
   }
 });
 
+// Wishlist is stored locally on the customer's device.
+function getWishlistIds() {
+  try {
+    const ids = JSON.parse(localStorage.getItem("jsf_wishlist") || "[]");
+    return Array.isArray(ids) ? ids.map(String) : [];
+  } catch (_) { return []; }
+}
+function toggleWishlist(id) {
+  const ids = getWishlistIds();
+  const key = String(id);
+  const next = ids.includes(key) ? ids.filter(item => item !== key) : [...ids, key];
+  localStorage.setItem("jsf_wishlist", JSON.stringify(next));
+  renderProducts(visibleProducts);
+  showJsfToast(next.includes(key) ? "Wishlist-এ যোগ হয়েছে।" : "Wishlist থেকে সরানো হয়েছে।");
+}
+
 // Expand/collapse product descriptions
 if (productList) {
   productList.addEventListener("click", event => {
+    const wishlistButton = event.target.closest("[data-wishlist-toggle]");
+    if (wishlistButton) { toggleWishlist(wishlistButton.dataset.wishlistToggle); return; }
     const designButton = event.target.closest("[data-more-design-index]");
     if (designButton) {
       selectedProductDesigns.set(designButton.dataset.productId, Number(designButton.dataset.moreDesignIndex));
@@ -672,11 +745,13 @@ try {
 settings = {};
 [
   "bkashNumber", "nagadNumber", "bkash", "nagad",
-  "whatsappAdmin1", "bannerImages"
+  "whatsappAdmin1", "bannerImages", "logoUrl", "deliveryInsideDhaka", "deliveryOutsideDhaka"
 ].forEach(key => {
   db.ref("settings/" + key).on("value", snapshot => {
-    settings[key] = snapshot.val() || "";
+    settings[key] = snapshot.val() ?? "";
     if (key === "bannerImages") renderHeroSlides(settings[key]);
+    else if (key === "logoUrl") renderWebsiteLogo(settings[key]);
+    else if (key.startsWith("delivery")) updateCheckoutSummary();
     else if (key.startsWith("whatsapp")) renderWhatsAppContacts();
     else updatePaymentInfo();
   }, error => {
@@ -689,6 +764,26 @@ settings = {};
     }
   });
 });
+
+function renderWebsiteLogo(url) {
+  const validUrl = typeof url === "string" && /^(https:\/\/|assets\/)/i.test(url) ? url : "assets/jsf-fashion-logo.svg";
+  const favicon = document.querySelector('link[rel="icon"]');
+  if (favicon) favicon.href = validUrl;
+  ["site-logo-image", "footer-logo-image"].forEach(id => {
+    const image = $(id);
+    if (!image) return;
+    const text = id === "site-logo-image" ? $("site-brand-text") : $("footer-brand-text");
+    if (validUrl) {
+      image.src = validUrl;
+      image.classList.remove("hidden");
+      if (text) text.classList.add("hidden");
+    } else {
+      image.removeAttribute("src");
+      image.classList.add("hidden");
+      if (text) text.classList.remove("hidden");
+    }
+  });
+}
 
 function renderWhatsAppContacts() {
   const container = $("whatsapp-contacts");
@@ -890,6 +985,11 @@ function detectDeliveryArea(address) {
   if (/ঢাকা|\bdhaka\b/.test(value)) return "Dhaka";
   return "Outside Dhaka";
 }
+function getDeliveryCharge(area) {
+  const configured = Number(area === "Dhaka" ? settings.deliveryInsideDhaka : settings.deliveryOutsideDhaka);
+  if (Number.isFinite(configured) && configured >= 0 && (area === "Dhaka" ? settings.deliveryInsideDhaka !== "" : settings.deliveryOutsideDhaka !== "")) return configured;
+  return area === "Dhaka" ? 60 : 120;
+}
 function syncDeliveryArea() {
   const address = $("checkout-form")?.elements.namedItem("address")?.value || "";
   const area = detectDeliveryArea(address);
@@ -906,7 +1006,15 @@ function updateCheckoutSummary() {
   if (!summary) return;
   const items = directOrderItems || cart;
   const subtotal = items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
-  const shipping = detectDeliveryArea($("checkout-form")?.elements.namedItem("address")?.value) === "Outside Dhaka" ? 120 : 60;
+  const deliveryArea = detectDeliveryArea($("checkout-form")?.elements.namedItem("address")?.value);
+  const shipping = getDeliveryCharge(deliveryArea);
+  const selector = $("delivery-area");
+  if (selector) {
+    const dhakaOption = selector.querySelector('option[value="Dhaka"]');
+    const outsideOption = selector.querySelector('option[value="Outside Dhaka"]');
+    if (dhakaOption) dhakaOption.textContent = "ঢাকার ভিতরে — ৳" + money(getDeliveryCharge("Dhaka"));
+    if (outsideOption) outsideOption.textContent = "ঢাকার বাইরে — ৳" + money(getDeliveryCharge("Outside Dhaka"));
+  }
   const cod = 0;
   summary.innerHTML = '<strong>অর্ডারের হিসাব</strong><p>পণ্যের মূল্য: ৳' + money(subtotal) + '</p><p>ডেলিভারি চার্জ: ৳' + money(shipping) + '</p><hr><strong>সর্বমোট: ৳' + money(subtotal + shipping + cod) + '</strong>';
 }
@@ -965,6 +1073,13 @@ if ($("checkout-form")) {
     const button = form.querySelector('button[type="submit"]');
     const message = $("checkout-message");
     const referenceFile = $("customer-product-image")?.files?.[0] || null;
+    const selectedPayment = String(data.get("payment") || "");
+    const allowedPaymentMethods = ["bKash", "Nagad", "Cash on Delivery"];
+    if (!allowedPaymentMethods.includes(selectedPayment)) {
+      if (message) message.textContent = "শুধু বিকাশ, নগদ অথবা ক্যাশ অন ডেলিভারি নির্বাচন করুন।";
+      $("payment-method")?.focus();
+      return;
+    }
     if (referenceFile && (!["image/jpeg", "image/png", "image/webp"].includes(referenceFile.type) || referenceFile.size > 10 * 1024 * 1024)) {
       if (message) message.textContent = "শুধু JPG, PNG বা WEBP ছবি দিন (সর্বোচ্চ ১০ MB)।";
       return;
@@ -975,10 +1090,10 @@ if ($("checkout-form")) {
       phone: String(data.get("phone") || "").trim(),
       address: String(data.get("address") || "").trim(),
 
-      paymentMethod: String(data.get("payment") || ""),
+      paymentMethod: selectedPayment,
       transactionId: String(data.get("transactionId") || "").trim(),
       deliveryArea: detectDeliveryArea(data.get("address")),
-      shippingCharge: detectDeliveryArea(data.get("address")) === "Outside Dhaka" ? 120 : 60,
+      shippingCharge: getDeliveryCharge(detectDeliveryArea(data.get("address"))),
       codFee: 0,
 
       items: orderItems.map(item => ({
@@ -1070,8 +1185,28 @@ if ($("checkout-form")) {
       // Create a unique order ID first
       const newOrderRef = db.ref("orders").push();
 
+      // Attach an authenticated customer UID when the customer is signed in.
+      const signedInUser = window.firebase?.auth?.()?.currentUser || null;
+      if (signedInUser) order.ownerUid = signedInUser.uid;
+
       // Save order under its own ID
       await newOrderRef.set(order);
+
+      // Store a minimal private order summary under the customer's own UID.
+      // This enables secure account history without granting customers access to all orders.
+      if (signedInUser) {
+        try {
+          await db.ref("userOrders/" + signedInUser.uid + "/" + newOrderRef.key).set({
+            orderId: newOrderRef.key,
+            orderCode: newOrderRef.key.slice(-8).toUpperCase(),
+            total: order.total,
+            status: order.status,
+            createdAt: order.createdAt
+          });
+        } catch (accountOrderError) {
+          console.warn("Customer order summary could not be saved:", accountOrderError);
+        }
+      }
 
       // Clear only the purchase path that was successfully submitted.
       if (directOrderItems) {
