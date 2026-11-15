@@ -60,6 +60,10 @@ jobs:
           assert "customerProfiles" in rules
           assert "userOrders" in rules
           assert "ownerUid" in rules
+          assert "reviews" in rules
+          assert "rating" in rules
+          assert "data-review-form" in store
+          assert "loadProductReviews" in store
           account = Path("account.html").read_text(encoding="utf-8")
           account_js = Path("account.js").read_text(encoding="utf-8")
           assert "firebase-auth-compat.js" in account
