@@ -241,7 +241,18 @@ function openProductDetails(id) {
         ${variantRows}${sizeRows}
         <button type="button" class="btn details-shop-button" data-details-shop="${safeText(product.id)}">অর্ডার করতে যান</button>
       </div>
-    </div>`;
+    </div>
+    <section class="details-reviews" data-review-product="${safeText(product.id)}">
+      <h3>Customer Reviews & Ratings</h3>
+      <div class="review-list" data-review-list>রিভিউ লোড হচ্ছে...</div>
+      <form class="review-form" data-review-form>
+        <label>আপনার Rating</label>
+        <select name="rating" required><option value="5">★★★★★ (5)</option><option value="4">★★★★☆ (4)</option><option value="3">★★★☆☆ (3)</option><option value="2">★★☆☆☆ (2)</option><option value="1">★☆☆☆☆ (1)</option></select>
+        <label>আপনার মতামত</label><textarea name="comment" maxlength="500" required placeholder="প্রোডাক্ট সম্পর্কে আপনার অভিজ্ঞতা লিখুন"></textarea>
+        <button class="btn" type="submit">SUBMIT REVIEW</button>
+        <p class="review-message" aria-live="polite"></p>
+      </form>
+    </section>`;
   dialog.querySelector("[data-details-shop]").addEventListener("click", () => {
     dialog.hidden = true;
     document.body.classList.remove("product-details-open");
@@ -250,7 +261,51 @@ function openProductDetails(id) {
   });
   dialog.hidden = false;
   document.body.classList.add("product-details-open");
+  loadProductReviews(product.id);
 }
+async function loadProductReviews(productId) {
+  const section = document.querySelector('[data-review-product="' + CSS.escape(String(productId)) + '"]');
+  if (!section) return;
+  const list = section.querySelector("[data-review-list]");
+  try {
+    const snapshot = await db.ref("reviews/" + productId).once("value");
+    const entries = [];
+    snapshot.forEach(child => entries.push(child.val() || {}));
+    entries.sort((a,b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+    const average = entries.length ? entries.reduce((sum,item)=>sum+Number(item.rating||0),0)/entries.length : 0;
+    list.innerHTML = entries.length
+      ? '<p class="review-average">★ ' + average.toFixed(1) + ' / 5 · ' + entries.length + ' review(s)</p>' + entries.map(item => '<article class="review-item"><strong>' + safeText(item.customerName || "Customer") + '</strong><span>★'.repeat(Math.max(0,Math.min(5,Number(item.rating)||0))) + '</span><p>' + safeText(item.comment || "") + '</p></article>').join("")
+      : '<p class="details-muted">এখনো কোনো রিভিউ নেই। প্রথম রিভিউটি আপনিই দিন।</p>';
+  } catch (error) {
+    list.textContent = "রিভিউ লোড করা যায়নি।";
+    console.error("Review read error:", error);
+  }
+}
+document.addEventListener("submit", async event => {
+  const form = event.target.closest("[data-review-form]");
+  if (!form) return;
+  event.preventDefault();
+  const user = window.firebase?.auth?.()?.currentUser;
+  const section = form.closest("[data-review-product]");
+  const message = form.querySelector(".review-message");
+  if (!user) { if(message) message.textContent="রিভিউ দিতে আগে My Account থেকে Login করুন।"; return; }
+  const productId = section?.dataset.reviewProduct;
+  const product = products.find(item => String(item.id) === String(productId));
+  const data = new FormData(form);
+  const rating = Number(data.get("rating"));
+  const comment = String(data.get("comment") || "").trim();
+  if (!productId || !comment || comment.length > 500 || !Number.isInteger(rating) || rating < 1 || rating > 5) return;
+  try {
+    const profile = await db.ref("customerProfiles/" + user.uid).once("value");
+    const name = profile.val()?.name || user.displayName || "Customer";
+    await db.ref("reviews/" + productId + "/" + user.uid).set({customerName:name,rating,comment,createdAt:Date.now()});
+    form.reset();
+    if(message) message.textContent="আপনার রিভিউ জমা হয়েছে। ধন্যবাদ!";
+    loadProductReviews(productId);
+  } catch(error) {
+    if(message) message.textContent="রিভিউ জমা হয়নি: " + error.message;
+  }
+});
 document.addEventListener("click", event => {
   const detailsButton = event.target.closest?.("[data-product-details]");
   if (detailsButton) openProductDetails(detailsButton.dataset.productDetails);
