@@ -999,7 +999,42 @@ function syncDeliveryArea() {
   if (hiddenArea) hiddenArea.value = area;
   updateCheckoutSummary();
 }
+
 $("checkout-form")?.elements.namedItem("address")?.addEventListener("input", syncDeliveryArea);
+
+// Automatically fill checkout details from the signed-in customer's saved account profile.
+// Only fill empty fields so anything the customer has already typed is preserved.
+const checkoutAuth = window.firebase?.auth?.();
+if (checkoutAuth && $("checkout-form")) {
+  checkoutAuth.onAuthStateChanged(async user => {
+    if (!user) return;
+    const form = $("checkout-form");
+    const nameField = form.elements.namedItem("name");
+    const phoneField = form.elements.namedItem("phone");
+    const addressField = form.elements.namedItem("address");
+    try {
+      const profileSnapshot = await db.ref("customerProfiles/" + user.uid).once("value");
+      const profile = profileSnapshot.val() || {};
+      if (nameField && !nameField.value.trim()) {
+        nameField.value = String(profile.name || user.displayName || "");
+      }
+      if (phoneField && !phoneField.value.trim()) {
+        phoneField.value = String(profile.phone || "");
+      }
+      if (addressField && !addressField.value.trim()) {
+        addressField.value = String(profile.address || "");
+      }
+      // Recalculate delivery area and charges using the restored saved address.
+      syncDeliveryArea();
+      updateCheckoutSummary();
+    } catch (error) {
+      console.error("Checkout customer profile load error:", error);
+      const hint = $("checkout-profile-hint");
+      if (hint) hint.textContent = "আপনার সেভ করা তথ্য লোড করা যায়নি। অনুগ্রহ করে তথ্যগুলো লিখুন।";
+    }
+  });
+}
+
 
 function updateCheckoutSummary() {
   const summary = $("checkout-price-summary");
