@@ -894,10 +894,13 @@ async function loadOrders() {
             const matchingVariant = Array.isArray(savedProduct.variants)
               ? savedProduct.variants.find(variant => String(variant.name || "") === String(item.color || item.variant || ""))
               : null;
+            const rawItemPrice = item.price ?? item.productPrice ?? item.unitPrice ??
+              matchingVariant?.price ?? savedProduct.price ?? 0;
+            const itemPrice = Number.isFinite(Number(rawItemPrice)) ? Number(rawItemPrice) : 0;
             const itemImage = item.image || item.images?.[0] ||
               matchingVariant?.images?.[0] || matchingVariant?.image ||
               savedProduct.images?.[0] || savedProduct.image || "";
-            return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)">${itemImage ? `<img src="${escapeHTML(itemImage)}" alt="${escapeHTML(itemName)}" loading="lazy" style="width:76px;height:86px;object-fit:cover;border-radius:8px;background:#fff">` : `<div style="width:76px;height:86px;display:grid;place-items:center;background:#26344d;border-radius:8px;font-size:11px">No Image</div>`}<div><strong>${escapeHTML(itemName)}</strong><p>সাইজ: ${escapeHTML(itemSize)} · কালার/ডিজাইন: ${escapeHTML(itemVariant || "N/A")}</p><p>পরিমাণ: ${escapeHTML(itemQty)} · একক মূল্য: ${money(item.price)} · মোট: ${money(Number(item.price || 0) * Number(itemQty))}</p></div></div>`;
+            return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)">${itemImage ? `<img src="${escapeHTML(itemImage)}" alt="${escapeHTML(itemName)}" loading="lazy" style="width:76px;height:86px;object-fit:cover;border-radius:8px;background:#fff">` : `<div style="width:76px;height:86px;display:grid;place-items:center;background:#26344d;border-radius:8px;font-size:11px">No Image</div>`}<div><strong>${escapeHTML(itemName)}</strong><p>সাইজ: ${escapeHTML(itemSize)} · কালার/ডিজাইন: ${escapeHTML(itemVariant || "N/A")}</p><p>পরিমাণ: ${escapeHTML(itemQty)} · একক মূল্য: ${money(itemPrice)} · মোট: ${money(itemPrice * Number(itemQty))}</p></div></div>`;
           }).join("")
         : "পণ্যের বিস্তারিত পাওয়া যায়নি";
       const customerReferenceImage = order.customerReferenceImage || order.referenceImage || "";
