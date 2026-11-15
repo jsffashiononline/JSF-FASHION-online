@@ -1246,7 +1246,7 @@ if ($("checkout-form")) {
       updateCheckoutSummary();
 
       // Show a separate branded thank-you screen after Firebase confirms the save.
-      const orderCode = newOrderRef.key ? newOrderRef.key.slice(-8).toUpperCase() : "";
+      // Reuse the orderCode created before the Firebase write.
       form.innerHTML = `
         <section class="jsf-order-success" role="status" aria-live="polite">
           <div class="jsf-order-success-icon">✓</div>
