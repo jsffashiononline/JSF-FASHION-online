@@ -147,6 +147,8 @@
           '<p>' + (Number(order.createdAt) ? new Date(Number(order.createdAt)).toLocaleString() : "Date unavailable") +
           ' · ৳' + Number(order.total || 0).toLocaleString("en-BD") + '</p>' +
           '<span class="account-status">Order Status: ' + escapeHtml(status) + '</span>' +
+          (Array.isArray(order.items) && order.items.length ? '<div class="account-order-items"><strong>আপনার অর্ডার করা পণ্য:</strong>' + order.items.map(item => '<div class="account-order-item">' + (item.image ? '<img src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.name || "Product") + '">' : '') + '<div><strong>' + escapeHtml(item.name || "Product") + '</strong><p>পরিমাণ: ' + Number(item.qty || 1) + ' · সাইজ: ' + escapeHtml(item.size || "N/A") + ' · কালার: ' + escapeHtml(item.color || "N/A") + '</p><p>একক মূল্য: ৳' + Number(item.price || 0).toLocaleString("en-BD") + '</p></div></div>').join("") + '</div>' : '<p class="account-note">এই অর্ডারের পণ্যের বিস্তারিত এখনো পাওয়া যায়নি।</p>') +
+          (order.trackingUrl ? '<p class="account-tracking"><strong>কুরিয়ার ট্র্যাকিং:</strong> <a href="' + escapeHtml(order.trackingUrl) + '" target="_blank" rel="noopener noreferrer">TRACK YOUR PARCEL</a></p>' : (status.toLowerCase() === "shipped" ? '<p class="account-note">অর্ডার শিপড হয়েছে। কুরিয়ার Tracking Link এখনো যোগ করা হয়নি।</p>' : '')) +
           (cancelRequested ? '<p class="account-cancel-note">Cancel request আপনার অ্যাকাউন্টে সংরক্ষিত হয়েছে। দোকানের সিদ্ধান্তের অপেক্ষায়।</p>' : '') +
           (canCancel ? '<div class="account-order-actions"><button type="button" data-cancel-order="' + escapeHtml(order.id) + '">REQUEST CANCELLATION</button></div>' : '') +
           '</article>';
