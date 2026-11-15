@@ -2,6 +2,8 @@
   "use strict";
   const auth = window.firebase?.auth?.();
   const db = window.db;
+  const CLOUDINARY_CLOUD_NAME = "phvmgyj9";
+  const CLOUDINARY_UPLOAD_PRESET = "jsf_fashion_upload";
   const $ = id => document.getElementById(id);
   if (!auth || !db) {
     $("account-auth").innerHTML = '<section class="account-panel"><h2>Connection unavailable</h2><p>Firebase connection পাওয়া যায়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।</p></section>';
@@ -42,7 +44,7 @@
       const credential = await auth.createUserWithEmailAndPassword($("register-email").value.trim(), $("register-password").value);
       try {
         await credential.user.updateProfile({ displayName: name });
-        await db.ref("customerProfiles/" + credential.user.uid).set({ name, phone, address: "", email: credential.user.email, updatedAt: Date.now() });
+        await db.ref("customerProfiles/" + credential.user.uid).set({ name, phone, address: "", email: credential.user.email, photoURL: credential.user.photoURL || "", updatedAt: Date.now() });
         message("register-message", "অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। আপনি এখন লগইন আছেন।", false);
       } catch (profileError) {
         console.error("Customer profile save error:", profileError);
@@ -72,6 +74,50 @@
       await user.updateProfile({ displayName: profile.name });
       message("profile-message", "প্রোফাইল ও Default Delivery Address আপডেট হয়েছে।", false);
     } catch (error) { message("profile-message", friendly(error)); }
+  });
+  const profilePhoto = $("customer-profile-photo");
+  const profilePhotoInput = $("customer-profile-photo-file");
+  const photoMessage = (text, ok = false) => {
+    if (!photoMessageEl) return;
+    photoMessageEl.textContent = text;
+    photoMessageEl.style.color = ok ? "#187344" : "#9b2c2c";
+  };
+  const photoMessageEl = $("customer-photo-message");
+  const showProfilePhoto = url => {
+    if (!profilePhoto) return;
+    if (url) {
+      profilePhoto.src = url;
+      profilePhoto.classList.remove("customer-profile-photo-empty");
+    } else {
+      profilePhoto.removeAttribute("src");
+      profilePhoto.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23f5f1e5'/%3E%3Ccircle cx='50' cy='38' r='17' fill='%23c4a04a'/%3E%3Cpath d='M17 94c3-22 16-33 33-33s30 11 33 33' fill='%23c4a04a'/%3E%3C/svg%3E";
+    }
+  };
+  if (profilePhotoInput) profilePhotoInput.addEventListener("change", async () => {
+    const user = auth.currentUser, file = profilePhotoInput.files?.[0];
+    if (!user || !file) return;
+    if (!file.type.startsWith("image/")) { photoMessage("শুধু ছবি নির্বাচন করুন।"); profilePhotoInput.value = ""; return; }
+    if (file.size > 5 * 1024 * 1024) { photoMessage("ছবির সাইজ ৫ MB-এর কম হতে হবে।"); profilePhotoInput.value = ""; return; }
+    photoMessage("ছবি আপলোড হচ্ছে...", true);
+    profilePhotoInput.disabled = true;
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+      form.append("folder", "jsf-fashion-customer-profiles");
+      const response = await fetch("https://api.cloudinary.com/v1_1/" + CLOUDINARY_CLOUD_NAME + "/image/upload", { method: "POST", body: form });
+      const result = await response.json();
+      if (!response.ok || !result.secure_url) throw new Error(result.error?.message || "ছবি আপলোড করা যায়নি।");
+      await db.ref("customerProfiles/" + user.uid).update({ photoURL: result.secure_url, updatedAt: Date.now() });
+      await user.updateProfile({ photoURL: result.secure_url });
+      showProfilePhoto(result.secure_url);
+      photoMessage("প্রোফাইল ছবি সফলভাবে আপডেট হয়েছে।", true);
+    } catch (error) {
+      photoMessage("ছবি আপলোড হয়নি: " + friendly(error));
+    } finally {
+      profilePhotoInput.disabled = false;
+      profilePhotoInput.value = "";
+    }
   });
   $("account-logout").addEventListener("click", () => auth.signOut());
 
@@ -116,6 +162,7 @@
       $("profile-name").value = profile.name || user.displayName || "";
       $("profile-phone").value = profile.phone || "";
       $("profile-address").value = profile.address || "";
+      showProfilePhoto(profile.photoURL || user.photoURL || "");
     } catch (error) { message("profile-message", "প্রোফাইল লোড করা যায়নি: " + friendly(error)); }
 
     // Load only reviews authored by this signed-in customer.
