@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
+import { getAuth, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -16,4 +16,6 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
+// Keep authorized admin sign-in across page refreshes and browser restarts.
+await setPersistence(auth, browserLocalPersistence);
 export const db = getDatabase(app);
