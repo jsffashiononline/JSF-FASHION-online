@@ -273,3 +273,32 @@ body:has(.admin-header) .admin-profile-detail strong{color:#0b2145}
 .admin-customer-heading h3{margin:0}
 .admin-customer-avatar{width:54px;height:54px;flex:0 0 54px;border-radius:50%;border:2px solid #dfb957;object-fit:cover;background:#f4f0e3;box-shadow:0 0 0 2px rgba(223,185,87,.12)}
 .admin-customer-avatar-fallback{display:grid;place-items:center;color:#8a6900;font-weight:900;font-size:20px}
+
+
+/* Refreshed customer profile dashboard — cool blue premium palette */
+.customer-profile-panel{
+  background:linear-gradient(145deg,#f4f8ff 0%,#eaf2ff 58%,#f8fbff 100%);
+  border:1px solid #c9dcfb;
+  box-shadow:0 14px 34px rgba(29,78,216,.09);
+}
+.customer-profile-panel h2{color:#173b75!important}
+.customer-profile-panel label{color:#315b91!important}
+.customer-profile-panel input{
+  background:#fff!important;border:1px solid #c9d9f0!important;color:#17243a!important;
+}
+.customer-profile-panel input:focus{
+  border-color:#3978d7!important;box-shadow:0 0 0 3px rgba(57,120,215,.13)!important;outline:0;
+}
+.customer-profile-panel .customer-profile-photo{
+  border:3px solid #3978d7;
+  box-shadow:0 0 0 4px rgba(57,120,215,.14),0 8px 20px rgba(29,78,216,.12);
+}
+.customer-profile-panel .customer-photo-controls strong{color:#173b75}
+.customer-profile-panel .account-note{color:#607796}
+.customer-profile-panel .account-actions .btn:first-child{
+  background:linear-gradient(135deg,#3978d7,#174d96);color:#fff;
+  box-shadow:0 6px 16px rgba(29,78,216,.18);
+}
+.customer-profile-panel .account-actions .btn:first-child:hover{
+  background:linear-gradient(135deg,#4c8ce9,#1d5db0);color:#fff;
+}
