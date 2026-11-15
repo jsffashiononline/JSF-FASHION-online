@@ -49,6 +49,11 @@ jobs:
           assert "Credit Card" not in order
           assert "Debit Card" not in order
           assert "allowedPaymentMethods" in store
+          rules = Path("database.rules.json").read_text(encoding="utf-8")
+          assert "newData.hasChildren" in rules
+          assert "paymentMethod" in rules
+          assert "transactionId" in rules
+          assert "numChildren() <= 20" in rules
           assert "logoUrl" in store
           assert "deliveryInsideDhaka" in store
           assert "deliveryOutsideDhaka" in store
