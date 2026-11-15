@@ -223,6 +223,9 @@ body:has(.admin-header) .admin-profile-detail{background:#f7f9fc;border:1px soli
 body:has(.admin-header) .admin-profile-detail span{color:#718096}
 body:has(.admin-header) .admin-profile-detail strong{color:#0b2145}
 
+
+/* Shared utility: used by logo fallbacks and storefront dialogs */
+.hidden{display:none!important}
 /* Admin logo manager and replaceable storefront brand mark */
 .site-brand{display:inline-flex;align-items:center;gap:9px;min-width:0}
 .site-logo-image{display:block;width:auto;height:46px;max-width:180px;object-fit:contain}
