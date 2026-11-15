@@ -1016,10 +1016,22 @@ async function renderCustomers(entries = cachedOrderEntries) {
     customerList.innerHTML = '<p class="muted">কোনো কাস্টমার পাওয়া যায়নি।</p>';
     return;
   }
+  const profileMap = new Map();
+  await Promise.all([...new Set(filtered.map(customer => customer.uid).filter(Boolean))].map(async uid => {
+    try {
+      const profile = (await get(ref(db, "customerProfiles/" + uid))).val();
+      if (profile) profileMap.set(uid, profile);
+    } catch (error) { console.warn("Customer profile load failed", error); }
+  }));
   customerList.innerHTML = filtered.map(customer => {
+    const profile = profileMap.get(customer.uid) || {};
     const latest = customer.latest ? new Date(customer.latest).toLocaleDateString("en-GB") : "N/A";
+    const displayName = profile.name || customer.name;
+    const avatar = profile.photoURL
+      ? `<img class="admin-customer-avatar" src="${escapeHTML(profile.photoURL)}" alt="${escapeHTML(displayName)} profile picture" loading="lazy">`
+      : `<div class="admin-customer-avatar admin-customer-avatar-fallback">${escapeHTML(displayName.slice(0,1).toUpperCase())}</div>`;
     return `<article class="data-card customer-card">
-      <h3>${escapeHTML(customer.name)}</h3>
+      <div class="admin-customer-heading">${avatar}<h3>${escapeHTML(displayName)}</h3></div>
       <p>Phone: <strong>${escapeHTML(customer.phone)}</strong></p>
       <p>Address: ${escapeHTML(customer.address)}</p>
       <div class="customer-summary"><span>Orders: <strong>${customer.orders}</strong></span><span>Order value: <strong>${money(customer.total)}</strong></span><span>Latest order: <strong>${latest}</strong></span></div>
