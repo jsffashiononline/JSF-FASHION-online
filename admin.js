@@ -4,7 +4,8 @@ import { auth, db } from "./admin-firebase.js?v=1";
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
-  signOut
+  signOut,
+  updateProfile
 } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
 
 import {
@@ -57,6 +58,8 @@ const websiteLogoPreview = $("website-logo-preview");
 const websiteLogoPlaceholder = $("website-logo-placeholder");
 const websiteLogoButton = $("upload-website-logo");
 const resetWebsiteLogoButton = $("reset-website-logo");
+const adminProfilePhotoInput = $("admin-profile-photo-file");
+const adminProfilePhotoMessage = $("admin-profile-photo-message");
 const websiteLogoMessage = $("website-logo-message");
 let currentWebsiteLogoUrl = "";
 
@@ -382,6 +385,30 @@ onAuthStateChanged(auth, async (user) => {
   loadProducts();
   loadOrders();
   loadSettings();
+});
+
+if (adminProfilePhotoInput) adminProfilePhotoInput.addEventListener("change", async () => {
+  const user = auth.currentUser, file = adminProfilePhotoInput.files?.[0];
+  if (!user || !file) return;
+  if (!file.type.startsWith("image/")) { if (adminProfilePhotoMessage) adminProfilePhotoMessage.textContent = "শুধু ছবি নির্বাচন করুন।"; adminProfilePhotoInput.value = ""; return; }
+  if (file.size > 5 * 1024 * 1024) { if (adminProfilePhotoMessage) adminProfilePhotoMessage.textContent = "ছবির সাইজ ৫ MB-এর কম হতে হবে।"; adminProfilePhotoInput.value = ""; return; }
+  adminProfilePhotoInput.disabled = true;
+  if (adminProfilePhotoMessage) adminProfilePhotoMessage.textContent = "ছবি আপলোড হচ্ছে...";
+  try {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    form.append("folder", "jsf-fashion-admin-profiles");
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: form });
+    const result = await response.json();
+    if (!response.ok || !result.secure_url) throw new Error(result.error?.message || "ছবি আপলোড করা যায়নি।");
+    await updateProfile(user, { photoURL: result.secure_url });
+    const avatar = $("admin-profile-avatar");
+    if (avatar) { avatar.textContent = ""; avatar.style.backgroundImage = `url("${result.secure_url}")`; avatar.classList.add("has-photo"); }
+    if (adminProfilePhotoMessage) { adminProfilePhotoMessage.textContent = "Admin profile picture আপডেট হয়েছে।"; adminProfilePhotoMessage.style.color = "#187344"; }
+  } catch (error) {
+    if (adminProfilePhotoMessage) adminProfilePhotoMessage.textContent = "ছবি আপলোড হয়নি: " + firebaseError(error);
+  } finally { adminProfilePhotoInput.disabled = false; adminProfilePhotoInput.value = ""; }
 });
 
 /* =================================
