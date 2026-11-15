@@ -302,3 +302,32 @@ body:has(.admin-header) .admin-profile-detail strong{color:#0b2145}
 .customer-profile-panel .account-actions .btn:first-child:hover{
   background:linear-gradient(135deg,#4c8ce9,#1d5db0);color:#fff;
 }
+
+
+/* Customer account: compact identity header, editable settings, bottom navigation */
+.customer-profile-hero{
+  display:flex;align-items:center;gap:14px;margin:18px 0 16px;padding:18px 20px;
+  background:linear-gradient(135deg,#f4f8ff,#e8f1ff);border:1px solid #c9dcfb;
+}
+.customer-profile-hero .customer-profile-photo{
+  width:76px;height:76px;flex:0 0 76px;border:3px solid #dfb957;
+  border-radius:50%;object-fit:cover;box-shadow:0 0 0 4px rgba(223,185,87,.15);
+}
+.customer-profile-identity{min-width:0;flex:1}
+.customer-profile-identity strong{display:block;color:#102b54;font-size:clamp(17px,4vw,22px);font-weight:850;overflow-wrap:anywhere}
+.customer-settings-button{
+  flex:0 0 auto;padding:10px 13px;border:1px solid #b9cdec;border-radius:9px;
+  background:#fff;color:#174d96;font-weight:800;cursor:pointer
+}
+.customer-settings-area{display:block}
+.customer-profile-panel{margin-bottom:16px}
+.customer-profile-panel #profile-address{background:#edf2f8!important;color:#61718a!important;cursor:not-allowed}
+.customer-profile-panel .customer-profile-photo-wrap{margin:0 0 12px}
+.customer-bottom-menu{margin:20px 0 24px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.customer-bottom-menu a,.customer-bottom-menu button{min-height:74px}
+@media(max-width:600px){
+ .customer-profile-hero{gap:11px;padding:14px}
+ .customer-profile-hero .customer-profile-photo{width:66px;height:66px;flex-basis:66px}
+ .customer-settings-button{padding:9px 10px;font-size:12px}
+ .customer-bottom-menu{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
