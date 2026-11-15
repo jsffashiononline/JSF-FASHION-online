@@ -66,7 +66,25 @@
     $("open-profile-settings").textContent = open ? "⚙ Close Settings" : "⚙ Settings";
     if (open) profileSettings.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-  $("open-profile-settings").addEventListener("click", () => toggleProfileSettings(profileSettings.classList.contains("account-hidden")));
+  const sideMenu = $("customer-side-menu");
+  const menuBackdrop = $("customer-menu-backdrop");
+  const closeCustomerMenu = () => {
+    sideMenu.classList.add("account-hidden");
+    menuBackdrop.classList.add("account-hidden");
+    $("customer-menu-open").setAttribute("aria-expanded", "false");
+  };
+  $("customer-menu-open").addEventListener("click", () => {
+    sideMenu.classList.remove("account-hidden");
+    menuBackdrop.classList.remove("account-hidden");
+    $("customer-menu-open").setAttribute("aria-expanded", "true");
+  });
+  $("customer-menu-close").addEventListener("click", closeCustomerMenu);
+  menuBackdrop.addEventListener("click", closeCustomerMenu);
+  $("customer-menu-settings").addEventListener("click", () => {
+    closeCustomerMenu();
+    toggleProfileSettings(true);
+  });
+  sideMenu.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener("click", closeCustomerMenu));
   $("close-profile-settings").addEventListener("click", () => toggleProfileSettings(false));
   $("account-profile").addEventListener("submit", async event => {
     event.preventDefault();
