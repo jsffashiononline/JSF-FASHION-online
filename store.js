@@ -692,7 +692,7 @@ settings = {};
 });
 
 function renderWebsiteLogo(url) {
-  const validUrl = typeof url === "string" && /^https:\/\//i.test(url) ? url : "";
+  const validUrl = typeof url === "string" && /^(https:\/\/|assets\/)/i.test(url) ? url : "assets/jsf-fashion-logo.svg";
   ["site-logo-image", "footer-logo-image"].forEach(id => {
     const image = $(id);
     if (!image) return;
