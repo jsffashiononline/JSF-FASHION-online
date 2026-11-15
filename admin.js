@@ -822,9 +822,16 @@ async function loadOrders() {
     console.warn("Product image fallback could not load:", error);
   }
 
-  onValue(ordersRef, (snapshot) => {
+  onValue(ordersRef, async (snapshot) => {
     const orders = snapshot.val() || {};
-    const entries = Object.entries(orders);
+    let entries = Object.entries(orders);
+    const ownerUids = [...new Set(entries.map(([, order]) => order.ownerUid).filter(Boolean))];
+    const snapshots = await Promise.all(ownerUids.map(async uid => {
+      try { return [uid, (await get(ref(db, "userOrders/" + uid))).val() || {}]; }
+      catch (error) { console.warn("Customer cancellation data unavailable:", uid, error); return [uid, {}]; }
+    }));
+    const summaries = new Map(snapshots);
+    entries = entries.map(([id, order]) => [id, { ...order, cancelRequest: summaries.get(order.ownerUid)?.[id]?.cancelRequest || order.cancelRequest || null }]);
     cachedOrderEntries = entries;
     renderCustomers(entries);
 
@@ -942,6 +949,17 @@ async function loadOrders() {
             ? `<p>Transaction ID: <strong>${escapeHTML(order.transactionId || "Not provided")}</strong></p>`
             : ""}
 
+          ${order.cancelRequest?.requested ? `
+            <section class="cancel-request-admin" style="margin:14px 0;padding:13px;border:1px solid #dfb957;border-radius:9px;background:rgba(223,185,87,.08)">
+              <strong>কাস্টমারের Cancel Request — ${escapeHTML(order.cancelRequest.status || "Requested")}</strong>
+              <p style="margin:8px 0"><strong>কারণ:</strong> ${escapeHTML(order.cancelRequest.reason || "কারণ উল্লেখ করা হয়নি")}</p>
+              <p class="muted">Request time: ${order.cancelRequest.requestedAt ? new Date(Number(order.cancelRequest.requestedAt)).toLocaleString("en-GB") : "N/A"}</p>
+              ${order.cancelRequest.status === "Requested" ? `
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+                  <button type="button" class="small-btn" data-cancel-decision="Accepted" data-order-cancel-id="${escapeHTML(id)}">ACCEPT & CANCEL ORDER</button>
+                  <button type="button" class="small-btn delete" data-cancel-decision="Rejected" data-order-cancel-id="${escapeHTML(id)}">REJECT REQUEST</button>
+                </div>` : `<p><strong>Decision:</strong> ${escapeHTML(order.cancelRequest.status)}</p>`}
+            </section>` : "" }
           <label for="status-${escapeHTML(id)}">Order Status</label>
 
           <select class="order-status" id="status-${escapeHTML(id)}" data-order-id="${escapeHTML(id)}">${options}</select>
@@ -1024,6 +1042,41 @@ orderList.addEventListener("click", async (event) => {
   } catch (error) {
     button.disabled = false;
     alert("Order delete failed: " + firebaseError(error));
+  }
+});
+
+orderList.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-cancel-decision]");
+  if (!button) return;
+  const id = button.dataset.orderCancelId;
+  const decision = button.dataset.cancelDecision;
+  if (!id || !["Accepted", "Rejected"].includes(decision)) return;
+  const confirmed = await showAdminConfirm(
+    decision === "Accepted" ? "কাস্টমারের কারণ পর্যালোচনা করে অর্ডারটি বাতিল করবেন?" : "এই Cancel Request প্রত্যাখ্যান করবেন?",
+    decision === "Accepted" ? "Cancel Request গ্রহণ" : "Cancel Request প্রত্যাখ্যান",
+    decision === "Accepted" ? "হ্যাঁ, অর্ডার বাতিল করুন" : "হ্যাঁ, Reject করুন"
+  );
+  if (!confirmed) return;
+  button.disabled = true;
+  try {
+    const orderData = (await get(ref(db, "orders/" + id))).val();
+    if (!orderData?.ownerUid) throw new Error("এই অর্ডারের Customer Account সংযুক্ত নেই।");
+    const orderRef = ref(db, "userOrders/" + orderData.ownerUid + "/" + id);
+    const summary = (await get(orderRef)).val() || {};
+    if (!summary.cancelRequest?.requested || summary.cancelRequest.status !== "Requested") throw new Error("এই Cancel Request আর Pending নেই।");
+    const now = Date.now();
+    const updates = {
+      ["userOrders/" + orderData.ownerUid + "/" + id + "/cancelRequest"]: { ...summary.cancelRequest, status: decision, reviewedAt: now },
+      ["orders/" + id + "/updatedAt"]: now
+    };
+    if (decision === "Accepted") {
+      updates["orders/" + id + "/status"] = "Cancelled";
+      updates["userOrders/" + orderData.ownerUid + "/" + id + "/status"] = "Cancelled";
+    }
+    await update(ref(db), updates);
+  } catch (error) {
+    alert("Cancel request update failed: " + firebaseError(error));
+    button.disabled = false;
   }
 });
 
