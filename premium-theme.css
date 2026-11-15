@@ -387,3 +387,35 @@ body:has(.admin-header) .admin-profile-detail strong{color:#0b2145}
   border-color:#dfb957;background:rgba(223,185,87,.13)
 }
 @media(min-width:701px){.customer-menu-open{top:18px;left:20px}}
+
+
+/* FORCE ROUND PROFILE AVATARS ON CUSTOMER AND ADMIN PAGES */
+#customer-profile-photo,
+.customer-profile-hero img.customer-profile-photo,
+.customer-profile-photo-wrap img.customer-profile-photo{
+  display:block!important;
+  width:76px!important;height:76px!important;min-width:76px!important;
+  aspect-ratio:1/1!important;flex:0 0 76px!important;
+  border-radius:50%!important;object-fit:cover!important;
+  overflow:hidden!important;clip-path:circle(50%)!important;
+  border:3px solid #dfb957!important;
+}
+#admin-profile-avatar,
+.admin-profile-panel #admin-profile-avatar{
+  width:104px!important;height:104px!important;min-width:104px!important;
+  aspect-ratio:1/1!important;border-radius:50%!important;
+  overflow:hidden!important;clip-path:circle(50%)!important;
+  border:3px solid #dfb957!important;background-position:center!important;
+  background-size:cover!important;
+}
+#admin-profile-avatar img,
+.admin-profile-avatar img,
+.admin-customer-avatar{
+  width:100%!important;height:100%!important;aspect-ratio:1/1!important;
+  border-radius:50%!important;object-fit:cover!important;
+}
+@media(max-width:600px){
+  #customer-profile-photo,.customer-profile-hero img.customer-profile-photo{
+    width:66px!important;height:66px!important;min-width:66px!important;flex-basis:66px!important;
+  }
+}
