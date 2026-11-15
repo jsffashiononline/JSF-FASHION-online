@@ -672,11 +672,12 @@ try {
 settings = {};
 [
   "bkashNumber", "nagadNumber", "bkash", "nagad",
-  "whatsappAdmin1", "bannerImages"
+  "whatsappAdmin1", "bannerImages", "logoUrl"
 ].forEach(key => {
   db.ref("settings/" + key).on("value", snapshot => {
     settings[key] = snapshot.val() || "";
     if (key === "bannerImages") renderHeroSlides(settings[key]);
+    else if (key === "logoUrl") renderWebsiteLogo(settings[key]);
     else if (key.startsWith("whatsapp")) renderWhatsAppContacts();
     else updatePaymentInfo();
   }, error => {
@@ -689,6 +690,24 @@ settings = {};
     }
   });
 });
+
+function renderWebsiteLogo(url) {
+  const validUrl = typeof url === "string" && /^https:\/\//i.test(url) ? url : "";
+  ["site-logo-image", "footer-logo-image"].forEach(id => {
+    const image = $(id);
+    if (!image) return;
+    const text = id === "site-logo-image" ? $("site-brand-text") : $("footer-brand-text");
+    if (validUrl) {
+      image.src = validUrl;
+      image.classList.remove("hidden");
+      if (text) text.classList.add("hidden");
+    } else {
+      image.removeAttribute("src");
+      image.classList.add("hidden");
+      if (text) text.classList.remove("hidden");
+    }
+  });
+}
 
 function renderWhatsAppContacts() {
   const container = $("whatsapp-contacts");
