@@ -944,13 +944,11 @@ async function loadOrders() {
 
           <label for="status-${escapeHTML(id)}">Order Status</label>
 
-          <select
-            class="order-status"
-            id="status-${escapeHTML(id)}"
-            data-order-id="${escapeHTML(id)}"
-          >
-            ${options}
-          </select>
+          <select class="order-status" id="status-${escapeHTML(id)}" data-order-id="${escapeHTML(id)}">${options}</select>
+          <label>Courier Tracking URL (কুরিয়ারের লিংক)</label>
+          <input type="url" data-tracking-input value="${escapeHTML(order.trackingUrl || "")}" placeholder="https://courier-tracking-link..." style="width:100%;padding:10px;margin:6px 0">
+          <button type="button" class="small-btn" data-save-tracking="${escapeHTML(id)}">SAVE TRACKING LINK</button>
+          <p class="order-update-message" role="status"></p>
           <button type="button" class="small-btn delete" data-delete-order="${escapeHTML(id)}">DELETE THIS ORDER</button>
         </article>
       `;
@@ -1036,29 +1034,76 @@ orderList.addEventListener("click", async (event) => {
 orderList.addEventListener("change", async (event) => {
   const select = event.target.closest("select[data-order-id]");
   if (!select) return;
-
-  const id = select.dataset.orderId;
-  const status = select.value;
-
+  const id = select.dataset.orderId, status = select.value;
   try {
-    const updatedAt = Date.now();
-    await update(ref(db, "orders/" + id), {
-      status: status,
-      updatedAt
-    });
-    // Keep the customer's private order-history/tracking summary in sync.
-    const orderSnapshot = await get(ref(db, "orders/" + id));
-    const orderData = orderSnapshot.val() || {};
+    const snap = await get(ref(db, "orders/" + id));
+    const orderData = snap.val();
+    if (!orderData) throw new Error("অর্ডারটি পাওয়া যায়নি।");
+    const updatedAt = Date.now(), updates = {};
+    updates["orders/" + id + "/status"] = status;
+    updates["orders/" + id + "/updatedAt"] = updatedAt;
     if (orderData.ownerUid) {
-      await update(ref(db, "userOrders/" + orderData.ownerUid + "/" + id), {
-        status,
-        updatedAt
-      });
+      const summaryRef = ref(db, "userOrders/" + orderData.ownerUid + "/" + id);
+      const oldSummary = (await get(summaryRef)).val() || {};
+      updates["userOrders/" + orderData.ownerUid + "/" + id] = {
+        ...oldSummary, orderId:id,
+        orderCode:oldSummary.orderCode || id.slice(-8).toUpperCase(),
+        customerName:orderData.customerName || orderData.name || "Customer",
+        phone:orderData.phone || orderData.mobile || "",
+        total:Number(orderData.total || orderData.totalAmount || orderData.amount || 0),
+        status, createdAt:Number(orderData.createdAt || updatedAt), updatedAt,
+        items:Array.isArray(orderData.items) ? orderData.items.map(item => ({
+          id:item.id || "", name:item.name || item.productName || "Product",
+          image:item.image || item.images?.[0] || "", qty:Number(item.qty || item.quantity || 1),
+          price:Number(item.price ?? item.productPrice ?? item.unitPrice ?? 0),
+          size:item.size || item.selectedSize || "", color:item.color || item.variant || item.selectedColor || ""
+        })) : [],
+        ...(orderData.trackingUrl ? {trackingUrl:orderData.trackingUrl} : {})
+      };
     }
+    await update(ref(db), updates);
+    const note=select.closest(".order-card")?.querySelector(".order-update-message");
+    if(note) note.textContent="অর্ডারের স্ট্যাটাস কাস্টমার অ্যাকাউন্টে আপডেট হয়েছে।";
+  } catch(error) { alert("Order update failed: " + firebaseError(error)); }
+});
 
-  } catch (error) {
-    alert("Order update failed: " + firebaseError(error));
-  }
+orderList.addEventListener("click", async (event) => {
+  const button=event.target.closest("button[data-save-tracking]");
+  if(!button) return;
+  const id=button.dataset.saveTracking, card=button.closest(".order-card");
+  const input=card?.querySelector("[data-tracking-input]");
+  const rawUrl=String(input?.value || "").trim();
+  let parsed;
+  try { parsed=new URL(rawUrl); } catch { alert("সঠিক Tracking URL দিন।"); return; }
+  if(!["https:","http:"].includes(parsed.protocol)) { alert("শুধু http/https Tracking URL দেওয়া যাবে।"); return; }
+  button.disabled=true;
+  try {
+    const snap=await get(ref(db,"orders/"+id)), orderData=snap.val();
+    if(!orderData) throw new Error("অর্ডার পাওয়া যায়নি।");
+    const updates={["orders/"+id+"/trackingUrl"]:parsed.href,["orders/"+id+"/updatedAt"]:Date.now()};
+    if(orderData.ownerUid) {
+      const summaryRef=ref(db,"userOrders/"+orderData.ownerUid+"/"+id);
+      const old=(await get(summaryRef)).val() || {};
+      updates["userOrders/"+orderData.ownerUid+"/"+id]={
+        ...old, orderId:id, orderCode:old.orderCode || id.slice(-8).toUpperCase(),
+        customerName:old.customerName || orderData.customerName || orderData.name || "Customer",
+        phone:old.phone || orderData.phone || orderData.mobile || "",
+        total:Number(old.total ?? orderData.total ?? orderData.totalAmount ?? orderData.amount ?? 0),
+        status:orderData.status || "Pending", createdAt:Number(old.createdAt || orderData.createdAt || Date.now()),
+        items:old.items || (Array.isArray(orderData.items) ? orderData.items.map(item=>({
+          id:item.id || "", name:item.name || item.productName || "Product",
+          image:item.image || item.images?.[0] || "", qty:Number(item.qty || item.quantity || 1),
+          price:Number(item.price ?? item.productPrice ?? item.unitPrice ?? 0),
+          size:item.size || item.selectedSize || "", color:item.color || item.variant || item.selectedColor || ""
+        })) : []),
+        trackingUrl:parsed.href
+      };
+    }
+    await update(ref(db),updates);
+    const note=card?.querySelector(".order-update-message");
+    if(note) note.textContent="Tracking link কাস্টমার অ্যাকাউন্টে পাঠানো হয়েছে।";
+  } catch(error) { alert("Tracking link save failed: "+firebaseError(error)); }
+  finally { button.disabled=false; }
 });
 
 /* =================================
