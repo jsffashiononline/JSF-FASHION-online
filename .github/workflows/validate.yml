@@ -49,7 +49,15 @@ jobs:
           assert "Credit Card" not in order
           assert "Debit Card" not in order
           assert "allowedPaymentMethods" in store
+          assert "logoUrl" in store
+          assert "deliveryInsideDhaka" in store
+          assert "deliveryOutsideDhaka" in store
           assert 'id="website-logo-file"' in admin
+          assert 'id="delivery-inside-dhaka"' in admin
+          assert 'id="delivery-outside-dhaka"' in admin
+          assert 'data-gallery-main' in store
+          assert "assets/jsf-fashion-logo.svg" in Path("index.html").read_text(encoding="utf-8")
+          assert "assets/jsf-fashion-logo.svg" in Path("order.html").read_text(encoding="utf-8")
           assert Path("assets/jsf-fashion-logo.svg").is_file()
           for name in ("index.html", "order.html", "admin.html", "store.js", "admin.js", "premium-theme.css"):
               assert Path(name).is_file(), f"Missing required file: {name}"
