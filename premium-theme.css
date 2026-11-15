@@ -151,3 +151,74 @@ body:has(.admin-header) .message{color:var(--jsf-muted)}
  .product-actions{grid-template-columns:1fr}
  .footer-main{grid-template-columns:1fr}
 }
+
+
+/* Product details dialog — complete storefront interaction styling */
+.jsf-product-details[hidden]{display:none}
+.jsf-product-details{position:fixed;inset:0;z-index:10040;display:grid;place-items:center;padding:18px;background:rgba(4,13,29,.78);backdrop-filter:blur(7px)}
+.jsf-product-details-panel{position:relative;width:min(100%,900px);max-height:min(88dvh,760px);overflow:auto;padding:clamp(18px,3vw,30px);border:1px solid #e7c83e;border-radius:18px;background:#fff;box-shadow:0 28px 90px rgba(0,0,0,.35)}
+.jsf-product-details-close{position:absolute;top:12px;right:12px;z-index:2;width:40px;height:40px;border:1px solid #d9e0ea;border-radius:50%;background:#f4f6fa;color:#142746;font-size:27px;line-height:1;cursor:pointer}
+.details-product-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(18px,3vw,32px);align-items:start}
+.details-product-photo{overflow:hidden;border-radius:13px;background:#f2f4f8;border:1px solid #e7ebf2}
+.details-product-photo img{display:block;width:100%;max-height:580px;aspect-ratio:1/1;object-fit:contain;background:#f6f7fa}
+.details-no-photo{min-height:280px;display:grid;place-items:center;color:#718096;font-weight:900;letter-spacing:2px}
+.details-category{margin:4px 0 8px;color:#315b91;font-size:11px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase}
+.details-product-copy h2{margin:0 42px 12px 0;color:#07152e;font-size:clamp(22px,3vw,32px);line-height:1.2}
+.details-price{margin:10px 0 18px;color:#0b2145;font-size:26px;font-weight:950}
+.details-description{padding:14px 0;border-top:1px solid #e6ebf2;border-bottom:1px solid #e6ebf2}
+.details-description b,.details-line b{display:block;margin-bottom:6px;color:#17243a;font-size:12px}
+.details-description p,.details-line span,.details-muted{color:#62718a;font-size:13px;line-height:1.7;white-space:normal}
+.details-line{padding:12px 0;border-bottom:1px solid #e6ebf2}
+.details-line span{display:block}
+.details-shop-button{width:100%;min-height:48px;margin-top:20px}
+body.product-details-open{overflow:hidden}
+.product-actions .product-details-btn{grid-column:1/-1;min-height:32px;padding:6px 8px;background:#f2f5fa;border:1px solid #dce3ed;color:#173b6b;box-shadow:none;font-size:10px}
+.product-actions .product-details-btn:hover{background:#e8eef8;color:#07152e;transform:none;box-shadow:none}
+/* Tighter Daraz-inspired product tiles: square media, controlled card height */
+.product-grid{align-items:stretch}
+.product-card{min-height:0}
+.product-media{position:relative;overflow:hidden;background:#f2f4f8}
+.product-media>.product-view-image{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover}
+.product-info{min-height:0;gap:0}
+.product-info h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;min-height:2.65em;margin:0 0 4px}
+.product-info>p{margin:0;min-height:1.4em}
+.product-price{margin:6px 0 3px}
+.product-actions{padding-top:7px}
+.product-actions .btn{min-height:34px;padding:7px 5px}
+@media(max-width:760px){
+ .product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .product-card{border-radius:9px}
+ .product-info{padding:8px}
+ .product-info h3{font-size:11px;min-height:2.55em}
+ .product-price{font-size:15px}
+ .product-actions{gap:5px}
+ .product-actions .btn{font-size:8px;min-height:32px}
+ .product-actions .product-details-btn{font-size:9px}
+}
+@media(max-width:600px){
+ .jsf-product-details{padding:9px}
+ .jsf-product-details-panel{padding:14px;border-radius:13px}
+ .details-product-layout{grid-template-columns:1fr;gap:14px}
+ .details-product-photo img{max-height:42dvh;aspect-ratio:1/1;object-fit:contain}
+ .details-product-copy h2{font-size:22px}
+ .details-price{font-size:23px;margin:7px 0 12px}
+ .details-description{padding:10px 0}
+ .details-line{padding:9px 0}
+ .details-shop-button{margin-top:13px}
+}
+/* Consistent admin form and data-management surfaces */
+body:has(.admin-header) .variant-editor,
+body:has(.admin-header) .variant-editor-card,
+body:has(.admin-header) .bulk-color-row,
+body:has(.admin-header) .color-only-card{background:#f7f9fc;border-color:#dce3ed;color:#17243a}
+body:has(.admin-header) .variant-editor-heading h3,
+body:has(.admin-header) .variant-card-top,
+body:has(.admin-header) .bulk-color-row label,
+body:has(.admin-header) .color-only-card label{color:#0b2145}
+body:has(.admin-header) .variant-save-row small,
+body:has(.admin-header) .bulk-color-row small{color:#718096}
+body:has(.admin-header) .variant-editor input,
+body:has(.admin-header) .variant-editor textarea{background:#fff;color:#17243a;border-color:#dce3ed}
+body:has(.admin-header) .admin-profile-detail{background:#f7f9fc;border:1px solid #e4e9f1;border-radius:10px}
+body:has(.admin-header) .admin-profile-detail span{color:#718096}
+body:has(.admin-header) .admin-profile-detail strong{color:#0b2145}
