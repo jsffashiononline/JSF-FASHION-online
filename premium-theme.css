@@ -251,3 +251,11 @@ body:has(.admin-header) .admin-profile-detail strong{color:#0b2145}
 .product-info .more-design-option img{width:33px;height:33px;border-radius:3px}
 .product-info .more-design-option span{display:none}
 @media(max-width:600px){.product-info .more-design-picker{margin:2px 0 5px;padding:4px}.product-info .more-design-option{flex-basis:35px;width:35px}.product-info .more-design-option img{width:29px;height:29px}}
+
+
+/* Admin customer directory */
+.customer-search{width:min(100%,460px);margin:10px 0 16px;padding:12px 14px;border:1px solid #dce3ed;border-radius:9px;background:#f8f9fc;color:#17243a}
+.customer-card{padding:16px;margin:0 0 11px}
+.customer-card h3{margin:0 0 8px}
+.customer-summary{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;padding-top:10px;border-top:1px solid #e4e9f1;color:#61718a;font-size:12px}
+.customer-summary strong{color:#0b2145}
