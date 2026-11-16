@@ -65,4 +65,20 @@ if (appNameStart >= 0) {
 }
 await writeFile(stringsPath, strings);
 
-console.log("Applied the existing JSF logo as the Android launcher icon.");
+
+const manifestPath = "android/app/src/main/AndroidManifest.xml";
+let manifest = await readFile(manifestPath, "utf8");
+if (!manifest.includes("<application")) {
+  throw new Error("Android manifest application element was not found.");
+}
+manifest = manifest.replace(/<application\\b([^>]*)>/, (match, attrs) => {
+  let next = attrs
+    .replace(/\\s+android:icon="[^"]*"/g, "")
+    .replace(/\\s+android:roundIcon="[^"]*"/g, "");
+  return '<application' + next +
+    ' android:icon="@mipmap/ic_launcher"' +
+    ' android:roundIcon="@mipmap/ic_launcher_round">';
+});
+await writeFile(manifestPath, manifest);
+
+console.log("Applied the existing JSF logo as the Android launcher icon and explicitly linked it in AndroidManifest.xml.");
