@@ -772,14 +772,23 @@ productList.addEventListener("click", async (event) => {
 
   if (action === "edit-product") {
     try {
-      const [snapshot, costSnapshot] = await Promise.all([
-        get(ref(db, "products/" + id)),
-        get(ref(db, "productCosts/" + id))
-      ]);
+      // Product edit must remain available even if the optional private-cost rules
+      // have not yet been published in Firebase Console.
+      const snapshot = await get(ref(db, "products/" + id));
 
       if (!snapshot.exists()) {
         showMessage(productMessage, "Product পাওয়া যায়নি।", "error");
         return;
+      }
+
+      let savedPurchaseCost = "";
+      try {
+        const costSnapshot = await get(ref(db, "productCosts/" + id));
+        savedPurchaseCost = costSnapshot.exists()
+          ? (costSnapshot.val()?.purchaseCost ?? "")
+          : "";
+      } catch (costError) {
+        console.warn("Private purchase cost could not be loaded. Publish productCosts Firebase rules.", costError);
       }
 
       const product = snapshot.val();
@@ -787,7 +796,7 @@ productList.addEventListener("click", async (event) => {
       $("product-id").value = id;
       $("product-name").value = product.name || "";
       $("product-price").value = product.price ?? "";
-      $("product-cost").value = costSnapshot.exists() ? (costSnapshot.val()?.purchaseCost ?? "") : "";
+      $("product-cost").value = savedPurchaseCost;
       const categorySelect = $("product-category");
       const savedCategory = product.category || "";
       if (savedCategory && !Array.from(categorySelect.options).some(option => option.value === savedCategory)) {
