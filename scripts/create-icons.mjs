@@ -52,10 +52,16 @@ await writeFile(colorsPath, `<?xml version="1.0" encoding="utf-8"?>
 
 const stringsPath = `${valuesDir}/strings.xml`;
 let strings = await readFile(stringsPath, "utf8");
-if (/<string name="app_name">.*?<\/string>/.test(strings)) {
-  strings = strings.replace(/<string name="app_name">.*?<\/string>/, '<string name="app_name">JSF FASHION Admin</string>');
+const appNameStart = strings.indexOf('<string name="app_name">');
+if (appNameStart >= 0) {
+  const appNameEnd = strings.indexOf("</string>", appNameStart);
+  if (appNameEnd >= 0) {
+    strings = strings.slice(0, appNameStart) +
+      '<string name="app_name">JSF FASHION Admin</string>' +
+      strings.slice(appNameEnd + "</string>".length);
+  }
 } else {
-  strings = strings.replace("</resources>", '  <string name="app_name">JSF FASHION Admin</string>\n</resources>');
+  strings = strings.replace("</resources>", '  <string name="app_name">JSF FASHION Admin</string>\\n</resources>');
 }
 await writeFile(stringsPath, strings);
 
