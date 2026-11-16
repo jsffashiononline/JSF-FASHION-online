@@ -1,0 +1,9 @@
+{
+  "appId": "com.jsffashion.admin",
+  "appName": "JSF FASHION Admin",
+  "webDir": "admin-app",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
