@@ -2237,3 +2237,81 @@ body{background:#f5f6f8;color:#171b24}
  .product-actions .btn{font-size:8px;min-height:32px}
  .benefit-strip{display:grid;grid-template-columns:1fr;gap:12px}
 }
+
+
+/* JSF FASHION — premium customer size selector */
+.jsf-color-dialog-panel{
+  background:linear-gradient(145deg,#102f5c 0%,#071a36 72%,#06142b 100%);
+  border:1px solid rgba(229,189,88,.72);
+  box-shadow:0 24px 80px rgba(3,15,35,.42),0 0 0 4px rgba(229,189,88,.08);
+}
+.jsf-color-dialog-panel h3{
+  color:#fff1c5;
+  font-size:clamp(17px,4vw,20px);
+  line-height:1.45;
+  letter-spacing:.1px;
+}
+.jsf-size-label{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:20px 0 9px;
+  color:#fff;
+  font-size:14px;
+  font-weight:850;
+}
+.jsf-size-label span{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 8px;
+  border:1px solid rgba(229,189,88,.55);
+  border-radius:5px;
+  background:rgba(229,189,88,.13);
+  color:#f4d780;
+  font-size:10px;
+  letter-spacing:1.2px;
+}
+.jsf-size-options{
+  min-height:52px;
+  padding:12px 42px 12px 14px;
+  border:1.5px solid #c8a64e;
+  border-radius:9px;
+  background:linear-gradient(135deg,#fff 0%,#f3f6fb 100%);
+  color:#102b52;
+  font-size:15px;
+  font-weight:750;
+  box-shadow:0 5px 16px rgba(0,0,0,.12);
+  cursor:pointer;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s,transform .2s;
+}
+.jsf-size-options:focus{
+  border-color:#f0cf70;
+  box-shadow:0 0 0 4px rgba(229,189,88,.2);
+}
+.jsf-size-options option{background:#fff;color:#102b52;font-weight:700}
+.jsf-size-hint{
+  display:block;
+  margin-top:8px;
+  color:#d2dced;
+  font-size:11px;
+  line-height:1.5;
+}
+.jsf-color-confirm{
+  min-height:50px;
+  margin-top:19px;
+  border:1px solid #f0d17a;
+  border-radius:9px;
+  background:linear-gradient(135deg,#f8df9b 0%,#e5bd58 55%,#c99a35 100%);
+  color:#10213c;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.2px;
+  box-shadow:0 7px 18px rgba(229,189,88,.18);
+}
+.jsf-color-confirm:active{transform:translateY(1px)}
+@media(max-width:480px){
+  .jsf-color-dialog{padding:12px}
+  .jsf-color-dialog-panel{padding:22px 15px 16px;border-radius:13px}
+  .jsf-size-options{min-height:50px;font-size:14px}
+}
