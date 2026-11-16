@@ -1,0 +1,18 @@
+{
+  "name": "jsf-fashion-admin-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android wrapper for the existing JSF FASHION admin panel.",
+  "scripts": {
+    "prepare:web": "node scripts/prepare-web.mjs",
+    "build:android": "npm run prepare:web && cap add android && node scripts/create-icons.mjs && cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3",
+    "sharp": "^0.34.3"
+  }
+}
