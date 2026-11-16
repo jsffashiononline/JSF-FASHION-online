@@ -678,6 +678,8 @@ productForm.addEventListener("submit", async (event) => {
 
   const variants = collectProductVariants();
   const firstVariantImage = "";
+  const rawPurchaseCost = $("product-cost").value.trim();
+  const purchaseCost = rawPurchaseCost === "" ? null : Number(rawPurchaseCost);
   const product = {
     name: $("product-name").value.trim(),
     price: Number($("product-price").value),
@@ -691,6 +693,11 @@ productForm.addEventListener("submit", async (event) => {
   };
   if (variants.some(item => !item.name)) {
     showMessage(productMessage, "প্রতিটি কালারের নাম লিখুন।", "error");
+    return;
+  }
+
+  if (purchaseCost !== null && (!Number.isFinite(purchaseCost) || purchaseCost < 0)) {
+    showMessage(productMessage, "সঠিক কেনা দাম লিখুন (০ বা তার বেশি)।", "error");
     return;
   }
 
@@ -710,13 +717,16 @@ productForm.addEventListener("submit", async (event) => {
   showMessage(productMessage, "Saving product...");
 
   try {
-    if (id) {
-      await update(ref(db, "products/" + id), product);
-    } else {
-      const newProductRef = push(ref(db, "products"));
-      product.createdAt = Date.now();
-      await set(newProductRef, product);
-    }
+    const productId = id || push(ref(db, "products")).key;
+    if (!id) product.createdAt = Date.now();
+
+    // Keep purchase cost in a separate admin-only branch; never include it in public products.
+    const updates = {};
+    updates["products/" + productId] = product;
+    updates["productCosts/" + productId] = purchaseCost === null
+      ? null
+      : { purchaseCost, updatedAt: Date.now() };
+    await update(ref(db), updates);
 
     productForm.reset();
     $("product-id").value = "";
@@ -762,7 +772,10 @@ productList.addEventListener("click", async (event) => {
 
   if (action === "edit-product") {
     try {
-      const snapshot = await get(ref(db, "products/" + id));
+      const [snapshot, costSnapshot] = await Promise.all([
+        get(ref(db, "products/" + id)),
+        get(ref(db, "productCosts/" + id))
+      ]);
 
       if (!snapshot.exists()) {
         showMessage(productMessage, "Product পাওয়া যায়নি।", "error");
@@ -774,6 +787,7 @@ productList.addEventListener("click", async (event) => {
       $("product-id").value = id;
       $("product-name").value = product.name || "";
       $("product-price").value = product.price ?? "";
+      $("product-cost").value = costSnapshot.exists() ? (costSnapshot.val()?.purchaseCost ?? "") : "";
       const categorySelect = $("product-category");
       const savedCategory = product.category || "";
       if (savedCategory && !Array.from(categorySelect.options).some(option => option.value === savedCategory)) {
@@ -811,7 +825,10 @@ productList.addEventListener("click", async (event) => {
     if (!confirmed) return;
 
     try {
-      await remove(ref(db, "products/" + id));
+      await update(ref(db), {
+        ["products/" + id]: null,
+        ["productCosts/" + id]: null
+      });
 
       showMessage(
         productMessage,
