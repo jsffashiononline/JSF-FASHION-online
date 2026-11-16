@@ -52,8 +52,8 @@ await writeFile(colorsPath, `<?xml version="1.0" encoding="utf-8"?>
 
 const stringsPath = `${valuesDir}/strings.xml`;
 let strings = await readFile(stringsPath, "utf8");
-if (/<string name="app_name">.*?<\\/string>/.test(strings)) {
-  strings = strings.replace(/<string name="app_name">.*?<\\/string>/, '<string name="app_name">JSF FASHION Admin</string>');
+if (/<string name="app_name">.*?<\/string>/.test(strings)) {
+  strings = strings.replace(/<string name="app_name">.*?<\/string>/, '<string name="app_name">JSF FASHION Admin</string>');
 } else {
   strings = strings.replace("</resources>", '  <string name="app_name">JSF FASHION Admin</string>\n</resources>');
 }
