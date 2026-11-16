@@ -927,7 +927,7 @@ async function loadOrders() {
       `).join("");
 
       const itemsHTML = Array.isArray(order.items)
-        ? order.items.map((item) => {
+        ? order.items.map((item, itemIndex) => {
             const itemName = item.name || item.productName || "Product";
             const itemSize = item.size || item.selectedSize || "Not specified";
             const itemVariant = [item.color || item.variant || item.selectedColor || "", item.design ? "More Design: " + item.design : ""].filter(Boolean).join(" · ");
@@ -942,7 +942,7 @@ async function loadOrders() {
             const itemImage = item.image || item.images?.[0] ||
               matchingVariant?.images?.[0] || matchingVariant?.image ||
               savedProduct.images?.[0] || savedProduct.image || "";
-            return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)">${itemImage ? `<img src="${escapeHTML(itemImage)}" alt="${escapeHTML(itemName)}" loading="lazy" style="width:76px;height:86px;object-fit:cover;border-radius:8px;background:#fff">` : `<div style="width:76px;height:86px;display:grid;place-items:center;background:#26344d;border-radius:8px;font-size:11px">No Image</div>`}<div><strong>${escapeHTML(itemName)}</strong><p>সাইজ: ${escapeHTML(itemSize)} · কালার/ডিজাইন: ${escapeHTML(itemVariant || "N/A")}</p><p>পরিমাণ: ${escapeHTML(itemQty)} · একক মূল্য: ${money(itemPrice)} · মোট: ${money(itemPrice * Number(itemQty))}</p></div></div>`;
+            return `<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)">${itemImage ? `<img src="${escapeHTML(itemImage)}" alt="${escapeHTML(itemName)}" loading="lazy" style="width:76px;height:86px;object-fit:cover;border-radius:8px;background:#fff">` : `<div style="width:76px;height:86px;display:grid;place-items:center;background:#26344d;border-radius:8px;font-size:11px">No Image</div>`}<div style="flex:1;min-width:0"><strong>${escapeHTML(itemName)}</strong><p>সাইজ: ${escapeHTML(itemSize)} · কালার/ডিজাইন: ${escapeHTML(itemVariant || "N/A")}</p><p>পরিমাণ: ${escapeHTML(itemQty)} · একক বিক্রয় মূল্য: ${money(itemPrice)} · মোট: ${money(itemPrice * Number(itemQty))}</p><label style="display:block;margin-top:8px;font-size:13px;color:#dfb957">প্রতি পিস কেনা দাম (শুধু অ্যাডমিন)<input type="number" min="0" step="0.01" inputmode="decimal" data-order-purchase-cost data-order-id="${escapeHTML(id)}" data-item-index="${itemIndex}" value="${item.purchaseCost == null ? "" : escapeHTML(item.purchaseCost)}" placeholder="কেনা দাম লিখুন" style="display:block;width:min(220px,100%);padding:10px;margin-top:5px;border:1px solid rgba(223,185,87,.45);border-radius:7px;background:#101010;color:#fff"></label></div></div>`;
           }).join("")
         : "পণ্যের বিস্তারিত পাওয়া যায়নি";
       const customerReferenceImage = order.customerReferenceImage || order.referenceImage || "";
@@ -1126,6 +1126,45 @@ orderList.addEventListener("click", async (event) => {
   } catch (error) {
     alert("Cancel request update failed: " + firebaseError(error));
     button.disabled = false;
+  }
+});
+
+/* =================================
+   ADMIN-ONLY ORDER PURCHASE COST
+================================= */
+
+orderList.addEventListener("change", async (event) => {
+  const input = event.target.closest("input[data-order-purchase-cost]");
+  if (!input) return;
+  const orderId = input.dataset.orderId;
+  const itemIndex = Number(input.dataset.itemIndex);
+  const raw = String(input.value || "").trim();
+  if (!orderId || !Number.isInteger(itemIndex) || itemIndex < 0) return;
+  if (raw === "") {
+    try {
+      await remove(ref(db, "orders/" + orderId + "/items/" + itemIndex + "/purchaseCost"));
+      input.style.borderColor = "#dfb957";
+      input.title = "কেনা দাম মুছে ফেলা হয়েছে";
+    } catch (error) {
+      alert("কেনা দাম মুছতে সমস্যা: " + firebaseError(error));
+    }
+    return;
+  }
+  const cost = Number(raw);
+  if (!Number.isFinite(cost) || cost < 0) {
+    alert("সঠিক কেনা দাম লিখুন (০ বা তার বেশি)।");
+    input.focus();
+    return;
+  }
+  input.disabled = true;
+  try {
+    await set(ref(db, "orders/" + orderId + "/items/" + itemIndex + "/purchaseCost"), cost);
+    input.style.borderColor = "#35a66a";
+    input.title = "কেনা দাম সেভ হয়েছে; Sales Management অ্যাপে সিঙ্ক হবে";
+  } catch (error) {
+    alert("কেনা দাম সেভ হয়নি: " + firebaseError(error));
+  } finally {
+    input.disabled = false;
   }
 });
 
