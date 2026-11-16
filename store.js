@@ -477,11 +477,11 @@ function getColorChoiceDialog() {
   dialog.innerHTML = `
     <div class="jsf-color-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="jsf-color-title">
       <button type="button" class="jsf-color-close" aria-label="Close">×</button>
-      <h3 id="jsf-color-title">প্রোডাক্টের কালার ও সাইজ নির্বাচন করুন</h3>
+      <h3 id="jsf-color-title">আপনার পছন্দের কালার ও সাইজ বেছে নিন</h3>
       <p class="jsf-color-product-name"></p>
       <div class="jsf-color-options"></div>
-      <label class="jsf-size-label" for="jsf-modal-size">সাইজ নির্বাচন করুন</label>
-      <select class="jsf-size-options" id="jsf-modal-size"><option value="">সাইজ নির্বাচন করুন</option></select>
+      <label class="jsf-size-label" for="jsf-modal-size"><span>SIZE</span> আপনার সাইজ বেছে নিন</label>
+      <select class="jsf-size-options" id="jsf-modal-size"><option value="">আপনার সাইজ নির্বাচন করুন</option></select><small class="jsf-size-hint">অর্ডার নিশ্চিত করার আগে সঠিক সাইজটি নির্বাচন করুন</small>
       <button type="button" class="jsf-color-confirm">✓ নির্বাচন নিশ্চিত করুন</button>
     </div>`;
   document.body.appendChild(dialog);
@@ -530,7 +530,7 @@ function openColorChoice(id, action, product, variants) {
     </button>`).join("") : '<p class="jsf-no-color">এই প্রোডাক্টে আলাদা কালার অপশন নেই।</p>';
   const sizeSelect = dialog.querySelector(".jsf-size-options");
   const fillSizes = sizes => {
-    sizeSelect.innerHTML = '<option value="">সাইজ নির্বাচন করুন</option>' + sizes.map(size => `<option value="${safeText(size)}">${safeText(size)}</option>`).join("");
+    sizeSelect.innerHTML = '<option value="">আপনার সাইজ নির্বাচন করুন</option>' + sizes.map(size => `<option value="${safeText(size)}">${safeText(size)}</option>`).join("");
   };
   // Show the product's saved sizes immediately; a color-specific size list overrides it when available.
   fillSizes(getSizes(product));
